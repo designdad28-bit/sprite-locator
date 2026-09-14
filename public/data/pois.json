@@ -1,0 +1,85 @@
+{
+  "source": "fortnite.gg (data/en.js, Locations > Named Locations)",
+  "generated": "2026-09-11T19:33:48.512Z",
+  "count": 13,
+  "pois": [
+    {
+      "id": "heatwave-harbor",
+      "name": "HEATWAVE HARBOR",
+      "x": 0.189375,
+      "y": 0.690625
+    },
+    {
+      "id": "cluster-coast",
+      "name": "CLUSTER COAST",
+      "x": 0.6775390625,
+      "y": 0.8130859375
+    },
+    {
+      "id": "wonkeeland",
+      "name": "WONKEELAND",
+      "x": 0.69609375,
+      "y": 0.322890625
+    },
+    {
+      "id": "latte-landing",
+      "name": "LATTE LANDING",
+      "x": 0.563515625,
+      "y": 0.2417578125
+    },
+    {
+      "id": "green-hill-zone",
+      "name": "GREEN HILL ZONE",
+      "x": 0.2819921875,
+      "y": 0.49875
+    },
+    {
+      "id": "sunken-shores",
+      "name": "SUNKEN SHORES",
+      "x": 0.4172265625,
+      "y": 0.7965234375
+    },
+    {
+      "id": "golden-grove",
+      "name": "GOLDEN GROVE",
+      "x": 0.7308984375,
+      "y": 0.549375
+    },
+    {
+      "id": "stone-sanctum",
+      "name": "STONE SANCTUM",
+      "x": 0.4169921875,
+      "y": 0.6396875
+    },
+    {
+      "id": "chopped-shop",
+      "name": "CHOPPED SHOP",
+      "x": 0.1448046875,
+      "y": 0.3484765625
+    },
+    {
+      "id": "reality-s-reign",
+      "name": "REALITY'S REIGN",
+      "x": 0.549921875,
+      "y": 0.49765625
+    },
+    {
+      "id": "lifty-lodge",
+      "name": "LIFTY LODGE",
+      "x": 0.27484375,
+      "y": 0.2031640625
+    },
+    {
+      "id": "shaken-sanctuary",
+      "name": "SHAKEN SANCTUARY",
+      "x": 0.6151171875,
+      "y": 0.682109375
+    },
+    {
+      "id": "the-battlewoods",
+      "name": "THE BATTLEWOODS",
+      "x": 0.3688671875,
+      "y": 0.367265625
+    }
+  ]
+}
