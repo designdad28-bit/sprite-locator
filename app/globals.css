@@ -89,8 +89,10 @@
   --sprite-gold: #EED12B;
   /* Radar active: the Sprite's findings are pinned on the map. Marks one thing
      — showing on the map — and is deliberately not a rarity or mastery hue, so
-     it can't be read as either. */
-  --sprite-radar-active: #3B82F6;
+     it can't be read as either. Tailwind's own blue-500, referenced rather than
+     copied so it tracks the palette (v4 restated it in OKLCH, moving it off v3's
+     #3B82F6 — a pasted hex would have silently kept the old value). */
+  --sprite-radar-active: var(--color-blue-500);
 }
 
 .dark {
@@ -134,8 +136,10 @@
   --sprite-gold: #EED12B;
   /* Radar active: the Sprite's findings are pinned on the map. Marks one thing
      — showing on the map — and is deliberately not a rarity or mastery hue, so
-     it can't be read as either. */
-  --sprite-radar-active: #3B82F6;
+     it can't be read as either. Tailwind's own blue-500, referenced rather than
+     copied so it tracks the palette (v4 restated it in OKLCH, moving it off v3's
+     #3B82F6 — a pasted hex would have silently kept the old value). */
+  --sprite-radar-active: var(--color-blue-500);
 }
 
 @layer base {
