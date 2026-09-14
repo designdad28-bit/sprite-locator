@@ -311,7 +311,9 @@ export function SpriteCatalogBrowser({
                         }
                         className={cn(
                           "rounded-sm transition-colors outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-                          isShown ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                          isShown
+                            ? "text-sprite-radar-active"
+                            : "text-muted-foreground hover:text-foreground"
                         )}
                       >
                         <Radar className="size-5" strokeWidth={1.5} />

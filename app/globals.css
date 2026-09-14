@@ -40,6 +40,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-sprite-gold: var(--sprite-gold);
+  --color-sprite-radar-active: var(--sprite-radar-active);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -86,6 +87,10 @@
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
   --sprite-gold: #EED12B;
+  /* Radar active: the Sprite's findings are pinned on the map. Marks one thing
+     — showing on the map — and is deliberately not a rarity or mastery hue, so
+     it can't be read as either. */
+  --sprite-radar-active: #3B82F6;
 }
 
 .dark {
@@ -127,6 +132,10 @@
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
   --sprite-gold: #EED12B;
+  /* Radar active: the Sprite's findings are pinned on the map. Marks one thing
+     — showing on the map — and is deliberately not a rarity or mastery hue, so
+     it can't be read as either. */
+  --sprite-radar-active: #3B82F6;
 }
 
 @layer base {
