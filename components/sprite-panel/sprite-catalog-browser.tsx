@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Radar, Info, Search, Ban, Crown, X } from "lucide-react";
+import { Radar, Info, Search, Ban, Crown, X, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
 import { rarityAccent } from "@/lib/rarity";
-import { variantColor } from "@/lib/variant-colors";
+import { displayName } from "@/lib/sprite-name";
+import { VARIANT_SLOTS, variantColor, variantKey, variantLabel } from "@/lib/variant-colors";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,20 +39,6 @@ interface SpriteFamilyGroup {
   variants: NormalizedSprite[];
 }
 
-/** Normalizes a catalog variant string to a stable slot key ("gold", "cheatmaster", …). */
-function variantKey(variant: string | null): string {
-  return variant ? variant.toLowerCase().replace(/[^a-z]/g, "") : "normal";
-}
-
-/** Every family renders these four slots, whether or not it has the sprite for each. */
-const VARIANT_SLOTS = ["normal", "gold", "cheatmaster", "hacker"];
-
-function variantLabel(variant: string | null): string {
-  const key = variantKey(variant);
-  if (key === "normal") return "BASE";
-  if (key === "cheatmaster") return "CHEAT";
-  return key.toUpperCase();
-}
 
 function groupByFamily(sprites: NormalizedSprite[]): SpriteFamilyGroup[] {
   const order: string[] = [];
@@ -85,12 +72,17 @@ export interface SpriteCatalogBrowserProps {
   visibleSpriteIds: Set<string>;
   /** Shows/hides this Sprite's findings on the map. The Radar icon only. */
   onToggleVisibility: (id: string) => void;
+  /** When true the sidebar shrinks to just its open button in the top-left corner. */
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }
 
 export function SpriteCatalogBrowser({
   onSelect,
   visibleSpriteIds,
   onToggleVisibility,
+  collapsed,
+  onToggleCollapsed,
 }: SpriteCatalogBrowserProps) {
   const [query, setQuery] = useState("");
   const [rarityPill, setRarityPill] = useState<string | null>(null); // null = no filter = show all (the default view)
@@ -116,6 +108,31 @@ export function SpriteCatalogBrowser({
     return true;
   });
 
+  // Collapsed: nothing but the open button, so the sidebar hugs it as a small
+  // floating control in the top-left corner (page.tsx drops the panel's fixed
+  // width and full height). Returns only after every hook above has run —
+  // hooks must be called on every render, collapsed or not.
+  if (collapsed) {
+    return (
+      // bg-muted: the same grey as the open panel's header strip, so the
+      // collapsed control reads as that header folded down to its button.
+      // p-4 puts the icon 16px from the top, the same as in the open header
+      // (pt-4), so collapsing only moves it sideways, never up.
+      <div className="bg-muted p-4">
+        <button
+          type="button"
+          data-slot="sidebar-toggle"
+          onClick={onToggleCollapsed}
+          aria-label="Open sidebar"
+          aria-expanded={false}
+          className="flex rounded-sm text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+        >
+          <PanelLeftOpen className="size-5" strokeWidth={1.5} />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col">
       {/* Pinned header, lifted one step off the panel (--muted, the same fill the
@@ -124,9 +141,20 @@ export function SpriteCatalogBrowser({
       <div className="shrink-0 bg-muted">
         {/* px-3 matches the search and sprite cards, so everything in the
             sidebar shares one left edge. */}
-        <div className="flex items-center px-3 pt-4 pb-3">
+        <div className="flex items-center gap-2 px-3 pt-4 pb-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/logo-lockup.svg" alt="SpriteRadar" className="h-[18px] w-auto object-contain" />
+          {/* ml-auto pins it to the row's right edge, opposite the logo. */}
+          <button
+            type="button"
+            data-slot="sidebar-toggle"
+            onClick={onToggleCollapsed}
+            aria-label="Collapse sidebar"
+            aria-expanded={true}
+            className="ml-auto flex shrink-0 rounded-sm text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+          >
+            <PanelLeftClose className="size-5" strokeWidth={1.5} />
+          </button>
         </div>
 
         <div className="px-3 pb-3">
@@ -268,14 +296,9 @@ export function SpriteCatalogBrowser({
                       )}
                       <span className="flex min-w-0 flex-col items-start justify-center gap-0.5">
                         <span className="font-heading text-[18px] font-medium leading-[1.15] text-white">
-                          {group.family}{" "}
-                          {/* Same split as the mastery card: the count you've earned in
-                              gold, the total muted so it reads as the denominator. */}
-                          <span className="text-muted-foreground">
-                            (<span className="text-sprite-gold">{masteredInSet}</span>/
-                            {group.variants.length})
-                          </span>
+                          {group.family}
                         </span>
+                        <span className="flex items-center gap-1">
                         {/* Atlassian lozenge colors (see rarityAccent). Inline rather
                             than classes because the values come from their token set,
                             not Tailwind's palette. h-auto + leading-none so the pill
@@ -285,17 +308,25 @@ export function SpriteCatalogBrowser({
                           data-slot="rarity-badge"
                           className="h-auto rounded-[4px] px-1 py-0.5 text-[10px] leading-none"
                           style={{
-                            backgroundColor: rarityAccent(group.rarity).bg,
-                            // The accent's own mid-tone border step, brighter than the
-                            // ground and deeper than the text. badgeVariants already
-                            // reserves a 1px transparent border, so coloring it changes
-                            // nothing about the badge's size.
-                            borderColor: rarityAccent(group.rarity).border,
-                            color: rarityAccent(group.rarity).fg,
+                            // Solid bright fill with white text. The border takes the
+                            // fill color so no outline shows; badgeVariants reserves a
+                            // 1px border either way, so the badge's size is unchanged.
+                            backgroundColor: rarityAccent(group.rarity).solid,
+                            borderColor: rarityAccent(group.rarity).solid,
+                            color: "#fff",
                           }}
                         >
                           {group.rarity ? group.rarity.charAt(0).toUpperCase() + group.rarity.slice(1) : "Unknown"}
                         </Badge>
+                        {/* Same split as the mastery card: the count you've earned in
+                            gold, the total muted so it reads as the denominator.
+                            h-4 caps the box at the badge's 16px (10px text + 2px
+                            padding + 1px border, each side) so the row stays one
+                            badge tall; items-center lines the digits up with it. */}
+                        <span className="flex h-4 items-center text-[12px] font-medium leading-none tabular-nums text-muted-foreground">
+                          (<span className="text-sprite-gold">{masteredInSet}</span>/{group.variants.length})
+                        </span>
+                        </span>
                       </span>
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
@@ -371,7 +402,7 @@ export function SpriteCatalogBrowser({
                           data-slot="variant-tile"
                           data-status={status}
                           onClick={() => cycleStatus(v.id)}
-                          aria-label={`${v.name}: ${status}, click to change`}
+                          aria-label={`${displayName(v.name)}: ${status}, click to change`}
                           className="group flex w-[72px] shrink-0 flex-col items-center gap-1 rounded-[6px] outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50"
                         >
                           <span className="text-[10px] font-medium leading-5 text-muted-foreground">{label}</span>
@@ -399,7 +430,7 @@ export function SpriteCatalogBrowser({
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 src={v.icon}
-                                alt={v.name}
+                                alt={displayName(v.name)}
                                 className={cn(
                                   "absolute inset-0 size-full object-cover transition-all duration-150 group-hover:scale-110",
                                   // Uncollected sprites read as black-and-white, and come

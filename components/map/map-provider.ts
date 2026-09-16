@@ -48,7 +48,13 @@ export const FORTNITE_GG_PROVIDER: MapTileProviderConfig = {
   urlTemplate: `https://fortnite.gg/maps/${FORTNITE_GG_MAP_VERSION}/{z}/{x}/{y}.webp`,
   tileSize: 256,
   nativeZoom: 7,
-  minZoom: 0,
+  // Negative on purpose (CRS.Simple has no zoom floor of its own). It lets the
+  // fit shrink the island below one native z0 tile (256px) so the whole island
+  // still fits a narrow map container — e.g. beside the open sidebar in a small
+  // window. Below z0 the tile layer just scales z0 down (minNativeZoom), and
+  // TileWorldSetup raises the effective floor to the fitted zoom, so users
+  // still can't zoom out past "the whole island".
+  minZoom: -4,
   maxZoom: 9,
   attribution: 'Map imagery &copy; <a href="https://fortnite.gg" target="_blank" rel="noopener noreferrer">fortnite.gg</a>',
 };
@@ -65,10 +71,10 @@ export interface NormalizedBounds {
 /**
  * How much larger than a plain "fit the island" the initial view is.
  * Applied by shrinking the fitted box around its own center, so the framing
- * stays centered; >1 means the island's extreme tips sit slightly outside the
- * viewport.
+ * stays centered. 1 = the whole island fits inside the map container; >1
+ * zooms past that and crops the island's tips at the container's edges.
  */
-export const ISLAND_FIT_SCALE = 1.1;
+export const ISLAND_FIT_SCALE = 1;
 
 /**
  * The island's actual extent within the tile square, as [0,1] fractions.

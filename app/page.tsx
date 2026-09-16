@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, X } from "lucide-react";
+import { MapPin } from "lucide-react";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
 import { MAP_BACKGROUND_COLOR } from "@/components/map/map-provider";
 import { Button } from "@/components/ui/button";
@@ -11,13 +11,14 @@ import { SpriteDetailPanel } from "@/components/sprite-panel/sprite-detail-panel
 import { useFindings } from "@/hooks/use-findings";
 import { usePois } from "@/hooks/use-pois";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
-import { rarityColor } from "@/lib/rarity";
+import { displayName } from "@/lib/sprite-name";
+import { AddFindingDialog, type AddFindingValues } from "@/components/add-finding-dialog";
 import { cn } from "@/lib/utils";
 
-// Sidebar overlays the map: 280px panel + 8px margin + 8px breathing room.
-// The map fits and centers the island to the right of this, so no part of the
-// island ends up hidden behind the panel.
-const SIDEBAR_INSET = 296;
+// The open sidebar's width. The map lives in its own container to the right of
+// it (see the map wrapper below), so the island is fitted and centered in the
+// space the sidebar doesn't cover, rather than padded around the panel.
+const SIDEBAR_WIDTH = 280;
 
 export default function Home() {
   const { findings, addFinding } = useFindings();
@@ -28,10 +29,13 @@ export default function Home() {
   // toggle — deliberately separate from `selectedSpriteId`, which is just
   // "what the detail panel is showing".
   const [visibleSpriteIds, setVisibleSpriteIds] = useState<Set<string>>(new Set());
-  const [isAddMode, setIsAddMode] = useState(false);
+  // The Add finding modal. Bumping the key remounts it, so every open starts
+  // from a blank form (pre-picked with the sprite whose panel is open).
+  const [addOpen, setAddOpen] = useState(false);
+  const [addKey, setAddKey] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [lastAdded, setLastAdded] = useState<string | null>(null);
 
-  const selectedSprite = selectedSpriteId ? getSprite(selectedSpriteId) : null;
 
   function toggleSpriteVisibility(id: string) {
     setVisibleSpriteIds((prev) => {
@@ -42,113 +46,95 @@ export default function Home() {
     });
   }
 
-  function placeFinding(x: number, y: number, poiId?: string) {
-    if (!selectedSpriteId) return;
-    addFinding(selectedSpriteId, x, y, poiId);
-    // Drop a pin and you should see it, even if this Sprite's Radar was off.
-    setVisibleSpriteIds((prev) => new Set(prev).add(selectedSpriteId));
-    setLastAdded(selectedSpriteId);
+  async function confirmFinding({ poiId, spriteId, lootSource }: AddFindingValues) {
+    // Close first: the insert is a network round-trip, and the form has
+    // nothing left to show while it runs.
+    setAddOpen(false);
+    const saved = await addFinding({ poiId, spriteId, lootSource });
+    if (!saved) return;
+    // Log a finding and you should see it, even if this Sprite's Radar was off.
+    setVisibleSpriteIds((prev) => new Set(prev).add(spriteId));
+    setLastAdded(spriteId);
     window.setTimeout(() => setLastAdded(null), 1800);
-  }
-
-  function handleMapClick(x: number, y: number) {
-    if (!isAddMode) return;
-    placeFinding(x, y);
-  }
-
-  function handleLocationSelect(poiId: string) {
-    const poi = pois.find((p) => p.id === poiId);
-    if (!poi) return;
-    placeFinding(poi.x, poi.y, poi.id);
   }
 
   return (
     // h-dvh, not h-screen: 100vh can resolve to a stale or oversized height
     // (browser UI, zoom), which leaves the shell not matching the window.
     <div className="relative flex h-dvh w-full overflow-hidden" style={{ backgroundColor: MAP_BACKGROUND_COLOR }}>
-      {/* Floats over the map like the zoom + Add finding controls, so the map
-          runs full-bleed underneath instead of being cropped by a layout column. */}
+      {/* Pinned to the window's left edge, outside the map's container below. */}
       <motion.aside
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute top-2 bottom-2 left-2 z-[600] flex w-[280px] flex-col overflow-hidden rounded-2xl border-2 border-border bg-card"
+        className={cn(
+          // Flush to the window: no margin, no radius. The border only runs
+          // along edges that face the map — on the window's own edges it
+          // would just draw a line around the screen.
+          "absolute top-0 left-0 z-[600] flex flex-col overflow-hidden border-border border-r-2 bg-card",
+          // Open: the full-height 280px panel. Collapsed: no width or height of
+          // its own, so it hugs its open button in the corner; it then needs
+          // a bottom edge too, since the map sits below it.
+          sidebarOpen ? "bottom-0" : "w-auto border-b-2"
+        )}
+        // From the same constant the map container reserves, so the two can't
+        // drift apart.
+        style={{ width: sidebarOpen ? SIDEBAR_WIDTH : undefined }}
       >
         <SpriteCatalogBrowser
           selectedSpriteId={selectedSpriteId}
           onSelect={setSelectedSpriteId}
           visibleSpriteIds={visibleSpriteIds}
           onToggleVisibility={toggleSpriteVisibility}
+          collapsed={!sidebarOpen}
+          onToggleCollapsed={() => setSidebarOpen((open) => !open)}
         />
       </motion.aside>
 
-      <div className="relative flex-1">
+      {/* The map's container: everything the sidebar doesn't cover. The margin
+          reserves the open sidebar's width, so the map — and the controls and
+          hints overlaid on it — are sized and centered in the visible space.
+          When the sidebar collapses to its corner button, the container spans
+          the full width. Leaflet re-fits the island whenever this box resizes. */}
+      <div
+        data-slot="map-container"
+        className="relative min-w-0 flex-1"
+        style={{ marginLeft: sidebarOpen ? SIDEBAR_WIDTH : 0 }}
+      >
         <IslandMapCanvas
           findings={findings}
           visibleSpriteIds={visibleSpriteIds}
-          isAddMode={isAddMode}
+          // Findings are logged through the Add finding modal now, not by
+          // clicking the map, so map-click placement stays off.
+          isAddMode={false}
           pois={pois}
-          onMapClick={handleMapClick}
-          insetLeft={SIDEBAR_INSET}
+          onMapClick={() => {}}
         />
 
         <div className="pointer-events-none absolute inset-x-0 top-2 z-[500] flex items-center justify-end px-2">
           <Button
             variant="outline"
-            onClick={() => setIsAddMode((v) => !v)}
-            disabled={!selectedSprite && !isAddMode}
-            // dark:bg-* is required: the outline variant sets dark:bg-transparent,
-            // which an unprefixed background utility would lose to.
-            // disabled:opacity-100 overrides the Button's disabled:opacity-50 —
-            // half-opacity would let the map show through and stop the fill
-            // matching the sidebar. Dim the label instead of the whole control.
-            className={cn(
-              "pointer-events-auto gap-2 bg-card text-foreground shadow-lg disabled:opacity-100 disabled:text-muted-foreground dark:bg-card",
-              isAddMode && "border-ring bg-muted dark:bg-muted"
-            )}
+            onClick={() => {
+              setAddKey((k) => k + 1);
+              setAddOpen(true);
+            }}
+            // dark:bg-card is required: the outline variant sets
+            // dark:bg-transparent, which an unprefixed background would lose to.
+            className="pointer-events-auto gap-2 bg-card text-foreground shadow-lg dark:bg-card"
           >
-            {isAddMode ? <X className="size-4" strokeWidth={1.5} /> : <MapPin className="size-4" strokeWidth={1.5} />}
-            {isAddMode ? "Cancel placement" : "Add finding"}
+            <MapPin className="size-4" strokeWidth={1.5} />
+            Add finding
           </Button>
         </div>
 
-        <AnimatePresence>
-          {isAddMode && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="pointer-events-none absolute left-1/2 top-16 z-[500] flex -translate-x-1/2 flex-col items-center gap-2"
-            >
-              <div className="rounded-full border border-primary/40 bg-card/90 px-4 py-1.5 text-xs font-medium tracking-wide text-foreground shadow-lg backdrop-blur">
-                Click the map to drop a{" "}
-                <span style={{ color: rarityColor(selectedSprite?.rarity) }}>{selectedSprite?.name}</span> finding
-              </div>
-              {pois.length > 0 && (
-                <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-1.5 shadow-lg backdrop-blur">
-                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">or pick a spot</span>
-                  <select
-                    onChange={(e) => {
-                      if (e.target.value) handleLocationSelect(e.target.value);
-                      e.target.value = "";
-                    }}
-                    defaultValue=""
-                    className="rounded-full border border-border bg-input/30 px-2 py-1 text-xs text-foreground outline-none focus:border-ring"
-                  >
-                    <option value="" disabled>
-                      Named location…
-                    </option>
-                    {pois.map((poi) => (
-                      <option key={poi.id} value={poi.id} className="bg-card">
-                        {poi.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <AddFindingDialog
+          key={addKey}
+          open={addOpen}
+          onOpenChange={setAddOpen}
+          pois={pois}
+          defaultSpriteId={selectedSpriteId}
+          onConfirm={confirmFinding}
+        />
 
         <AnimatePresence>
           {lastAdded && (
@@ -158,7 +144,7 @@ export default function Home() {
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               className="pointer-events-none absolute bottom-6 left-1/2 z-[500] -translate-x-1/2 rounded-full border border-border bg-card/95 px-4 py-2 text-xs font-semibold text-foreground shadow-xl"
             >
-              Finding added — {getSprite(lastAdded)?.name}
+              Finding added — {displayName(getSprite(lastAdded)?.name)}
             </motion.div>
           )}
         </AnimatePresence>
@@ -169,19 +155,19 @@ export default function Home() {
           <motion.aside
             key={selectedSpriteId}
             initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 340, opacity: 1 }}
+            // Same width as the left sidebar, from the same constant.
+            animate={{ width: SIDEBAR_WIDTH, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="m-2 flex shrink-0 flex-col overflow-hidden rounded-2xl border-2 border-border bg-card"
+            // Flush to the window like the left sidebar: no margin, no radius,
+            // and a border only on the edge that faces the map.
+            className="flex shrink-0 flex-col overflow-hidden border-border border-l-2 bg-card"
           >
-            <div className="h-full w-[340px]">
+            <div className="h-full" style={{ width: SIDEBAR_WIDTH }}>
               <SpriteDetailPanel
                 spriteId={selectedSpriteId}
                 findings={findings}
-                onBack={() => {
-                  setSelectedSpriteId(null);
-                  setIsAddMode(false);
-                }}
+                onBack={() => setSelectedSpriteId(null)}
               />
             </div>
           </motion.aside>

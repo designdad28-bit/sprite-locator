@@ -23,3 +23,22 @@ export function variantColor(variant: string | null): string | null {
   const key = variant.toLowerCase().replace(/[^a-z]/g, "");
   return VARIANT_COLOR[key] ?? null;
 }
+
+/** Normalizes a catalog variant string to a stable slot key ("gold", "cheatmaster", …). */
+export function variantKey(variant: string | null): string {
+  return variant ? variant.toLowerCase().replace(/[^a-z]/g, "") : "normal";
+}
+
+/**
+ * The four variant slots, in display order. Shared by the catalog tiles and the
+ * detail panel's summon costs so the two always agree on order.
+ */
+export const VARIANT_SLOTS = ["normal", "gold", "cheatmaster", "hacker"];
+
+/** The short label a variant is shown under everywhere in the UI. */
+export function variantLabel(variant: string | null): string {
+  const key = variantKey(variant);
+  if (key === "normal") return "BASE";
+  if (key === "cheatmaster") return "CHEAT";
+  return key.toUpperCase();
+}

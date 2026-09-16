@@ -45,6 +45,14 @@ function islandFitBounds(worldSize: number, nativeZoom: number) {
  */
 const POI_ZOOM = 5;
 
+/**
+ * Clear space kept around the island when it's fitted. Leaflet rounds the map
+ * pane to whole pixels, so an exact edge-to-edge fit at a fractional zoom can
+ * land a pixel or two off and clip one of the island's tips; a few px of margin
+ * absorbs that, so the whole island is always inside the map container.
+ */
+const FIT_PADDING = 4;
+
 function makePoiLabel(name: string) {
   return L.divIcon({
     className: "poi-label-wrapper",
@@ -217,7 +225,7 @@ function makeIcon(
   return L.divIcon({
     className: "sprite-marker-wrapper",
     html: `
-      <span class="sprite-marker ${isNew ? "sprite-marker--new" : ""}" style="--marker-fill:${accent.bg};--marker-ring:${accent.border};--marker-size:${size}px">
+      <span class="sprite-marker ${isNew ? "sprite-marker--new" : ""}" style="--marker-fill:${accent.solid};--marker-ring:${accent.solid};--marker-size:${size}px">
         <span class="sprite-marker__ping"></span>
         ${inner}
       </span>
@@ -288,10 +296,23 @@ function TileWorldSetup({
   const map = useMap();
 
   useEffect(() => {
-    // The square the tiles cover — what panning is clamped to.
-    const worldBounds = L.latLngBounds(
-      CRS.Simple.pointToLatLng(L.point(0, worldSize), nativeZoom),
-      CRS.Simple.pointToLatLng(L.point(worldSize, 0), nativeZoom)
+    // What panning is clamped to: the tile square, widened on its short sides
+    // just enough to be centered on the island rather than on the square.
+    //
+    // When the view is wider (or taller) than these bounds, Leaflet's
+    // maxBounds (viscosity 1) re-centers the bounds in the view, overriding
+    // fitBounds. With the bare square, the island, which sits left of the
+    // square's middle (x ≈ 0.451), landed ~50px off-center whenever the map
+    // container outgrew the square, e.g. with the sidebar collapsed. Centering
+    // the bounds on the island keeps it centered in every case, and they still
+    // contain every tile, so nothing that could be panned to before is lost.
+    const cx = (ISLAND_BOUNDS.minX + ISLAND_BOUNDS.maxX) / 2;
+    const cy = (ISLAND_BOUNDS.minY + ISLAND_BOUNDS.maxY) / 2;
+    const halfW = Math.max(cx, 1 - cx);
+    const halfH = Math.max(cy, 1 - cy);
+    const panBounds = L.latLngBounds(
+      CRS.Simple.pointToLatLng(L.point((cx - halfW) * worldSize, (cy + halfH) * worldSize), nativeZoom),
+      CRS.Simple.pointToLatLng(L.point((cx + halfW) * worldSize, (cy - halfH) * worldSize), nativeZoom)
     );
     // The land itself — what the view is sized and centered on, so the island
     // fills the window instead of the square's surrounding void.
@@ -307,14 +328,25 @@ function TileWorldSetup({
       // keeps the map zoomed in too far and the island is cropped. Dropping to
       // the provider's floor first makes the measurement honest.
       map.setMinZoom(minZoom);
-      const fitZoom = map.getBoundsZoom(bounds, false, L.point(insetLeft, 0));
+      // getBoundsZoom's padding is the TOTAL to subtract from the container
+      // size, so it's twice the per-side FIT_PADDING that fitBounds applies
+      // below — the two must agree or the floor and the fit disagree.
+      const fitZoom = map.getBoundsZoom(
+        bounds,
+        false,
+        L.point(insetLeft + 2 * FIT_PADDING, 2 * FIT_PADDING)
+      );
       map.setMinZoom(fitZoom);
       // Fit before re-clamping: maxBounds pins the center, which fights
       // fitBounds while the view is still the old size. Unanimated because
       // resizes can arrive in a stream (the detail panel animates its width)
       // and queued fly-animations would race each other.
-      map.fitBounds(bounds, { animate: false, paddingTopLeft: [insetLeft, 0] });
-      map.setMaxBounds(worldBounds);
+      map.fitBounds(bounds, {
+        animate: false,
+        paddingTopLeft: [insetLeft + FIT_PADDING, FIT_PADDING],
+        paddingBottomRight: [FIT_PADDING, FIT_PADDING],
+      });
+      map.setMaxBounds(panBounds);
     }
 
     applyFit();
@@ -330,6 +362,14 @@ function TileWorldSetup({
     const container = map.getContainer();
     const resizeObserver = new ResizeObserver(() => {
       map.invalidateSize();
+      // Refit explicitly rather than relying on Leaflet's "resize" event: that
+      // only fires when Leaflet's cached size differs from the new one. On
+      // page load the layout can settle after the first fit while Leaflet
+      // already reports the settled size, so no event fired and the island
+      // stayed framed for the pre-settle box — off-center and cut off. The
+      // observer's first callback, delivered right after observe(), now
+      // always lands a fit for the real, settled container.
+      applyFit();
     });
     resizeObserver.observe(container);
 
@@ -421,8 +461,10 @@ export default function IslandMap({
 
   function resetView() {
     if (!map) return;
+    // Same padding as the initial fit, so "reset" lands on identical framing.
     map.fitBounds(islandFitBounds(worldSize, provider.nativeZoom), {
-      paddingTopLeft: [insetLeft, 0],
+      paddingTopLeft: [insetLeft + FIT_PADDING, FIT_PADDING],
+      paddingBottomRight: [FIT_PADDING, FIT_PADDING],
     });
   }
 

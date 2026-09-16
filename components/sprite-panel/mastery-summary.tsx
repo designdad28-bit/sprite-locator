@@ -59,7 +59,7 @@ export function MasterySummary() {
             but the count is what belongs here. */}
         {/* Only the count you've earned is gold (matching the bar and the tile
             crowns); the total stays muted so it reads as the denominator. */}
-        <ProgressValue className="font-medium leading-none text-foreground">
+        <ProgressValue className="font-medium leading-none text-muted-foreground">
           {() => (
             <>
               <span className="text-sprite-gold">{mastered}</span> / {total}

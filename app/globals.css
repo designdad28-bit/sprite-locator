@@ -280,20 +280,20 @@
   inset: 0;
   border-radius: 9999px;
   overflow: hidden;
-  /* Same pairing as a rarity badge in the catalog: the badge's dark ground as
-     the fill and its mid-tone border step as the ring (see rarityAccent), so a
-     pin reads as its rarity at a glance. Both are opaque palette steps, so no
-     map terrain bleeds through. */
+  /* Same style as a rarity badge in the catalog: one solid fill, with the
+     outline in that same color so no contrasting ring shows (see
+     rarityAccent.solid). Opaque, so no map terrain bleeds through. */
   background: var(--marker-fill);
   outline: 1px solid var(--marker-ring);
-  /* Negative offset keeps the ring inside the badge's box, so the icon
+  /* Negative offset keeps the outline inside the badge's box, so the icon
      footprint Leaflet positions against stays exactly --marker-size. */
   outline-offset: -1px;
   box-shadow: 0 0 10px 1px var(--marker-fill), 0 2px 6px rgba(0, 0, 0, 0.6);
   transition: transform 0.15s ease;
-  /* Proportional, so a shrunken pin keeps the same art-to-ring ratio as a
-     full-size one (8px at the 60px base). */
-  padding: calc(var(--marker-size, 60px) * 0.1333);
+  /* Just enough to keep the art off the edge; the sprite fills the rest.
+     Proportional, so shrunken co-located pins keep the same ratio
+     (3px at the 60px base). */
+  padding: calc(var(--marker-size, 60px) * 0.05);
 }
 
 .sprite-marker__badge img {

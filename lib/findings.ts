@@ -15,6 +15,12 @@ export interface Finding {
    * where the point itself is what the user meant.
    */
   poiId?: string;
+  /**
+   * Where the sprite was obtained: one of the fixed LOOT_SOURCES ids in
+   * lib/loot-sources.ts (e.g. "sprite-chest"), never free text. Optional:
+   * findings logged before this field existed have none.
+   */
+  lootSource?: string;
   /** Position as a fraction of map width/height, each in [0, 1]. Resolution-independent — works with any tile provider. */
   x: number;
   y: number;
@@ -28,6 +34,11 @@ const IMPORTED_AT = Date.parse("2026-09-11T00:00:00Z");
 
 /**
  * Findings imported from the user's own log.
+ *
+ * NO LONGER READ BY THE APP. These 17 were uploaded to the Supabase
+ * sprite_locations table on 2026-09-15 and now load from there like any other
+ * finding (see hooks/use-findings.ts). Kept only as the original record of
+ * what was imported, and as the fallback if the table is ever lost.
  *
  * Every `spriteId` and every `x`/`y` here was resolved programmatically
  * against the real catalog (public/data/sprites.json) and the real named
