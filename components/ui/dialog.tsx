@@ -124,7 +124,10 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
     <DialogPrimitive.Title
       data-slot="dialog-title"
       className={cn(
-        "font-heading text-base leading-none font-medium",
+        // 600, not shadcn's 500. The app's other Rajdhani titles carry their
+        // weight at 18px (sidebar cards) and 24px (detail panel); at the
+        // dialog's 16px the same 500 reads noticeably lighter than they do.
+        "font-heading text-base leading-none font-semibold",
         className
       )}
       {...props}
