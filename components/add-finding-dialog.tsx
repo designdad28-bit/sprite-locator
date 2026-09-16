@@ -7,6 +7,7 @@ import { displayName } from "@/lib/sprite-name";
 import { titleCase } from "@/lib/title-case";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { LOOT_SOURCES, lootSourceById } from "@/lib/loot-sources";
+import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -56,7 +57,10 @@ function LootThumb({ icon }: { icon: string | null }) {
 
 export interface AddFindingValues {
   poiId: string;
+  /** The family's base Sprite — what a finding is logged against. */
   spriteId: string;
+  /** Which of that family's four variants was found, as a slot key ("gold"). */
+  variant: string;
   lootSource: string;
 }
 
@@ -79,6 +83,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
   const { sprites } = useSpriteCatalog();
   const [poiId, setPoiId] = useState<string | null>(null);
   const [spriteId, setSpriteId] = useState<string | null>(defaultSpriteId);
+  const [variant, setVariant] = useState<string | null>(null);
   const [lootSource, setLootSource] = useState<string | null>(null);
 
   const sortedPois = useMemo(() => [...pois].sort((a, b) => a.name.localeCompare(b.name)), [pois]);
@@ -94,12 +99,25 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
     [sprites]
   );
 
+  // The chosen Sprite's own four variants, in the catalog's display order.
+  // A family can be missing some (Mega Man has only a base), so this lists
+  // what actually exists rather than four fixed rows.
+  const variants = useMemo(() => {
+    const chosen = spriteId ? sprites.find((s) => s.id === spriteId) : null;
+    if (!chosen) return [];
+    const family = sprites.filter((s) => s.family === chosen.family && s.currentlyLive);
+    return VARIANT_SLOTS.map((slot) => {
+      const match = family.find((s) => variantKey(s.variant) === slot);
+      return match ? { slot, icon: match.icon, label: VARIANT_NAME[slot] ?? slot } : null;
+    }).filter((v) => v !== null);
+  }, [spriteId, sprites]);
+
   // Loot sources are a fixed list (lib/loot-sources.ts), the same for every
   // sprite, so this field no longer depends on which sprite is chosen.
   const source = lootSource;
 
   const poiName = (id: string) => titleCase(pois.find((p) => p.id === id)?.name ?? "");
-  const canConfirm = poiId !== null && spriteId !== null && source !== null;
+  const canConfirm = poiId !== null && spriteId !== null && variant !== null && source !== null;
 
   return (
     <Dialog open={open} onOpenChange={(next) => onOpenChange(next)}>
@@ -132,7 +150,15 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
 
           <div className="grid gap-2">
             <Label htmlFor="finding-sprite">Sprite</Label>
-            <Select value={spriteId} onValueChange={(value) => setSpriteId(value as string | null)}>
+            <Select
+              value={spriteId}
+              onValueChange={(value) => {
+                setSpriteId(value as string | null);
+                // A variant belongs to one family, so it cannot survive a
+                // change of Sprite.
+                setVariant(null);
+              }}
+            >
               <SelectTrigger id="finding-sprite" className="w-full">
                 <SelectValue>
                   {(value: string | null) => {
@@ -155,6 +181,43 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
                       <span className="flex items-center gap-2">
                         <SpriteThumb id={s.id} icon={s.icon} />
                         {displayName(s.name)}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="finding-variant">Variant</Label>
+            {/* Disabled until a Sprite is chosen: which four variants exist,
+                and what they look like, depends entirely on that choice. */}
+            <Select value={variant} onValueChange={(value) => setVariant(value as string | null)} disabled={!spriteId}>
+              <SelectTrigger id="finding-variant" className="w-full">
+                <SelectValue>
+                  {(value: string | null) => {
+                    const chosen = value ? variants.find((v) => v.slot === value) : null;
+                    return chosen ? (
+                      <span className="flex items-center gap-2">
+                        <SpriteThumb id={spriteId ?? ""} icon={chosen.icon} />
+                        {chosen.label}
+                      </span>
+                    ) : spriteId ? (
+                      "Choose a variant"
+                    ) : (
+                      "Choose a sprite first"
+                    );
+                  }}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {variants.map((v) => (
+                    <SelectItem key={v.slot} value={v.slot}>
+                      <span className="flex items-center gap-2">
+                        <SpriteThumb id={spriteId ?? ""} icon={v.icon} />
+                        {v.label}
                       </span>
                     </SelectItem>
                   ))}
@@ -203,7 +266,9 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
             className="w-full"
             disabled={!canConfirm}
             onClick={() => {
-              if (poiId && spriteId && source) onConfirm({ poiId, spriteId, lootSource: source });
+              if (poiId && spriteId && variant && source) {
+                onConfirm({ poiId, spriteId, variant, lootSource: source });
+              }
             }}
           >
             Add finding

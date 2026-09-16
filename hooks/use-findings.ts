@@ -7,6 +7,7 @@ import { usePois } from "@/hooks/use-pois";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { displayName } from "@/lib/sprite-name";
 import { LOOT_SOURCES } from "@/lib/loot-sources";
+import { VARIANT_NAME } from "@/lib/variant-colors";
 import { titleCase } from "@/lib/title-case";
 
 /**
@@ -22,6 +23,8 @@ interface SpriteLocationRow {
   id: string;
   location_name: string;
   sprite_name: string;
+  /** "Base" / "Gold" / "Cheat Master" / "Loot Hacker". Null on rows logged before the field existed. */
+  variant: string | null;
   loot_source: string;
   created_at: string;
 }
@@ -109,7 +112,17 @@ export function useFindings() {
   const unresolvedCount = rows.length - findings.length;
 
   const addFinding = useCallback(
-    async ({ poiId, spriteId, lootSource }: { poiId: string; spriteId: string; lootSource: string }) => {
+    async ({
+      poiId,
+      spriteId,
+      variant,
+      lootSource,
+    }: {
+      poiId: string;
+      spriteId: string;
+      variant: string;
+      lootSource: string;
+    }) => {
       const poi = pois.find((p) => p.id === poiId);
       const sprite = sprites.find((s) => s.id === spriteId);
       const source = LOOT_SOURCES.find((s) => s.id === lootSource);
@@ -121,6 +134,7 @@ export function useFindings() {
         body: JSON.stringify({
           location_name: titleCase(poi.name),
           sprite_name: displayName(sprite.name),
+          variant: VARIANT_NAME[variant] ?? variant,
           loot_source: source.label,
         }),
       });

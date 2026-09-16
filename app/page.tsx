@@ -52,11 +52,11 @@ export default function Home() {
     });
   }
 
-  async function confirmFinding({ poiId, spriteId, lootSource }: AddFindingValues) {
+  async function confirmFinding({ poiId, spriteId, variant, lootSource }: AddFindingValues) {
     // Close first: the insert is a network round-trip, and the form has
     // nothing left to show while it runs.
     setAddOpen(false);
-    const saved = await addFinding({ poiId, spriteId, lootSource });
+    const saved = await addFinding({ poiId, spriteId, variant, lootSource });
     if (!saved) return;
     // Log a finding and you should see it, even if this Sprite's Radar was off.
     setVisibleSpriteIds((prev) => new Set(prev).add(spriteId));

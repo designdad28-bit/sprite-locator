@@ -35,6 +35,20 @@ export function variantKey(variant: string | null): string {
  */
 export const VARIANT_SLOTS = ["normal", "gold", "cheatmaster", "hacker"];
 
+/**
+ * The variant's full name, as the catalog itself spells it ("Gold Jonesy
+ * Sprite", "Cheat Master Jonesy Sprite", "Loot Hacker Jonesy Sprite") — for
+ * places with room for words rather than the four-letter tile caption below.
+ * Keyed by slot, because a family's base name is not always a prefix of its
+ * variants' ("Bush" vs "Loot Hacker Bushranger").
+ */
+export const VARIANT_NAME: Record<string, string> = {
+  normal: "Base",
+  gold: "Gold",
+  cheatmaster: "Cheat Master",
+  hacker: "Loot Hacker",
+};
+
 /** The short label a variant is shown under everywhere in the UI. */
 export function variantLabel(variant: string | null): string {
   const key = variantKey(variant);
