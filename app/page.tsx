@@ -18,7 +18,13 @@ import { cn } from "@/lib/utils";
 // The open sidebar's width. The map lives in its own container to the right of
 // it (see the map wrapper below), so the island is fitted and centered in the
 // space the sidebar doesn't cover, rather than padded around the panel.
-const SIDEBAR_WIDTH = 280;
+//
+// Sized so a card's four variant tiles fit on one line with nothing to scroll:
+// 4 tiles x 72px + 3 gaps x 8px + the row's own 12px sides = 336, plus the
+// 2px border the panel draws on its map-facing edge = 338. The extra 2px is
+// slack against sub-pixel rounding, which would otherwise be enough on its own
+// to bring the horizontal scroll back.
+const SIDEBAR_WIDTH = 340;
 
 export default function Home() {
   const { findings, addFinding } = useFindings();
