@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SpriteRadar — Fortnite Sprite Intel",
-  description: "Interactive island map for finding where Fortnite Sprites spawn.",
+  title: "Sprite Radar",
+  description: "Fortnite Sprite Locator",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
