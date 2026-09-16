@@ -349,7 +349,17 @@ function TileWorldSetup({
       map.setMaxBounds(panBounds);
     }
 
-    applyFit();
+    // Deferred by a frame rather than called inline. TileWorldSetup is a CHILD
+    // of MapContainer, and React runs a child's effects BEFORE its parent's,
+    // so react-leaflet finishes initialising the map — applying its `center`
+    // and `zoom` props — AFTER this effect body. Fitting inline therefore gets
+    // overwritten, leaving the view framed on the initial center: the island
+    // ends up ~74px low with its southern tip cut off.
+    //
+    // Development hid this completely. StrictMode re-runs child effects after
+    // mount, so a second fit always landed after react-leaflet was done, and
+    // only a production build showed the bug.
+    const firstFit = requestAnimationFrame(applyFit);
     map.on("resize", applyFit);
 
     // Leaflet's own "resize" event only fires from `invalidateSize()` — it is
@@ -374,6 +384,7 @@ function TileWorldSetup({
     resizeObserver.observe(container);
 
     return () => {
+      cancelAnimationFrame(firstFit);
       map.off("resize", applyFit);
       resizeObserver.disconnect();
     };
