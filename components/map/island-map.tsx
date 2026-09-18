@@ -307,12 +307,12 @@ const COASTLINE_FEATHER = 0.006;
  *
  * So rather than move the outline, the alpha ramp is re-mapped: alpha' =
  * slope * alpha + intercept, clamped. Solving slope * t + intercept = 0.5 puts
- * the ramp's halfway point at t = 0.28 of the original — that is, the cover now
- * reaches to where the blur had only faded to 28%, biting a little further in.
+ * the ramp's halfway point at t = 0.115 of the original — that is, the cover
+ * reaches to where the blur had only faded to 11.5%, well inside the coast.
  * The slope also steepens the ramp, which is why FEATHER above went up to
  * compensate: the visible softness is roughly feather / slope.
  */
-const COASTLINE_TIGHTEN = { slope: 2.2, intercept: -0.116 };
+const COASTLINE_TIGHTEN = { slope: 3.4, intercept: 0.11 };
 
 /**
  * How far the mask image extends past the tile square, as a fraction of it.
