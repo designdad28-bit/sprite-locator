@@ -127,12 +127,18 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
-  /* Collected BASE tile. Neutral on purpose: unlike the four variants, base
-     Sprites share no colour to borrow — measured across all 21 families their
-     artwork hues cover the whole wheel (1° to 357°: Blinky red, Pond green,
-     Mega Man cyan, Storm Scout indigo, Klombo magenta), averaging to a
-     meaningless brown. So it stays grey rather than taking an arbitrary hue
-     that would imply a sixth variant type.
+  /* Collected BASE tile. Grey rather than coloured: unlike the four variants,
+     base Sprites share no colour to borrow — measured across all 21 families
+     their artwork hues cover the whole wheel (1° to 357°: Blinky red, Pond
+     green, Mega Man cyan, Storm Scout indigo, Klombo magenta), averaging to a
+     meaningless brown. So no hue is taken from the art, which would anyway
+     imply a sixth variant type.
+     It is a cool grey rather than a dead one: hue 256 at chroma 0.022, which
+     is where Tailwind's Slate ramp sits (slate-300 measures L 0.869 C 0.020
+     H 252.9), so it reads as a hint of blue without becoming a blue tile.
+     Chroma is an order of magnitude below the Loot Hacker tile's 0.245, so the
+     two do not read as the same family. The theme's own neutral (Zinc,
+     hue 286) was violet-leaning and at chroma 0.004 effectively colourless.
      Its lightness is set by legibility, not by averaging the other tiles.
      Base artwork is dark-dominant — measured across all 21 families, mean
      relative luminance 0.251, with 27% of opaque pixels near-black (the
@@ -148,13 +154,13 @@
      tile approaches them — at --primary's luminance they sit at 1.03:1,
      effectively invisible. 0.820 is the best compromise across both ends.
      Opaque, since an alpha wash over a near-black panel cannot reach it. */
-  --sprite-base-collected: oklch(0.82 0.004 286.32);
+  --sprite-base-collected: oklch(0.82 0.022 256);
   /* The two ends of the base tile's gradient: the value above, shaded ±0.09 in
      lightness so it stays the midpoint. Same treatment as the four coloured
      tiles (see VARIANT_GRADIENT in lib/variant-colors.ts); kept here so all
      three base values are retuned together. */
-  --sprite-base-collected-top: oklch(0.73 0.004 286.32);
-  --sprite-base-collected-bottom: oklch(0.91 0.004 286.32);
+  --sprite-base-collected-top: oklch(0.73 0.022 256);
+  --sprite-base-collected-bottom: oklch(0.91 0.022 256);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
   --sprite-gold: #EED12B;
