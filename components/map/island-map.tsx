@@ -294,7 +294,7 @@ function clusterFindings(
  * filter default is linearRGB, which makes the falloff look bitten-into
  * rather than soft.
  */
-const COASTLINE_FEATHER = 0.006;
+const COASTLINE_FEATHER = 0.010;
 
 /**
  * Pulls the cover further over the coast, so no raw void survives at the edge.
@@ -309,10 +309,18 @@ const COASTLINE_FEATHER = 0.006;
  * slope * alpha + intercept, clamped. Solving slope * t + intercept = 0.5 puts
  * the ramp's halfway point at t = 0.115 of the original — that is, the cover
  * reaches to where the blur had only faded to 11.5%, well inside the coast.
+ *
+ * The intercept MUST stay at or below zero. It is added to every pixel, so a
+ * positive one lifts fully transparent pixels off zero too: at slope 3.4 the
+ * intercept came out at +0.11 and the island wore an 11% veil of the water
+ * colour, measured as alpha 28 of 255 at its centre. Solving for the same
+ * halfway point with a steeper slope keeps the intercept negative and the hole
+ * a real hole. Steeper also means a harder edge, which is why the feather went
+ * up alongside it — softness is roughly feather / slope.
  * The slope also steepens the ramp, which is why FEATHER above went up to
  * compensate: the visible softness is roughly feather / slope.
  */
-const COASTLINE_TIGHTEN = { slope: 3.4, intercept: 0.11 };
+const COASTLINE_TIGHTEN = { slope: 5.0, intercept: -0.075 };
 
 /**
  * How far the mask image extends past the tile square, as a fraction of it.
