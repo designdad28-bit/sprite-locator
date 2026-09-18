@@ -1,22 +1,31 @@
 /**
- * Fixed per-variant tile colors. The first three are the 500 step of their hue
- * from the Atlassian Design System's dark theme (values read from
- * @atlaskit/tokens, artifacts/tokens-raw/atlassian-dark) — one rung of a
- * single ramp, so the columns read as equals rather than one shouting over
- * the others.
+ * Fixed per-variant tile colors, taken from the variants' own artwork.
  *
- * `reaper` (the Bounty Hunter variant, added with the 2026-09-17 patch) is
- * NOT a token value: it is derived to sit on that same rung, at the mean
- * lightness and chroma of the three above (OKLCH L 0.691 / C 0.159) with the
- * hue placed at 350° — the point furthest from the hues already in use
- * (gold 87°, cheat 129°, hacker 259°). Labelled honestly rather than
- * attributed to a token it doesn't come from.
+ * Each hue is measured, not chosen: for every variant slot, all 20 of this
+ * season's icons were sampled in-browser (same-origin canvas read on
+ * fortnite.gg, so the pixels are readable), averaging the colored pixels —
+ * alpha > 200 and saturation > 0.30, which skips the shared white/grey body
+ * and keeps the part that actually distinguishes a variant. Measured hues:
+ * gold 86°, cheat master 140° (green), loot hacker 277° (indigo), bounty
+ * hunter 318° (purple).
+ *
+ * Those raw averages are too dark to sit under the artwork (L ≈ 0.53), so
+ * each is lifted to the rung the gold tile already occupied — OKLCH
+ * L 0.727 / C 0.148 — keeping its own hue. That rung is not arbitrary: the
+ * shipped gold tile (#CF9F02) turns out to be exactly its artwork's hue
+ * (86.8° measured vs 86.0° sampled) at that lightness and chroma, so this
+ * generalizes what gold was already doing to the other three rather than
+ * inventing a new treatment.
+ *
+ * Hacker's chroma is clamped to 0.143, the most its hue holds at this
+ * lightness before falling outside sRGB; left at 0.148 the blue channel
+ * clipped and the hue skewed.
  */
 const VARIANT_COLOR: Record<string, string> = {
-  gold: "#CF9F02", // Yellow500
-  cheatmaster: "#82B536", // Lime500
-  hacker: "#4688EC", // Blue500
-  reaper: "#E26EA9", // derived, see above
+  gold: "#D09E05", // artwork 86°  — within a hair of the previous #CF9F02
+  cheatmaster: "#71BD60", // artwork 140°
+  hacker: "#919DFF", // artwork 277°, chroma clamped to sRGB
+  reaper: "#CD87E2", // artwork 318° — the Bounty Hunter art is purple
 };
 
 /**
