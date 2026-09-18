@@ -294,7 +294,25 @@ function clusterFindings(
  * filter default is linearRGB, which makes the falloff look bitten-into
  * rather than soft.
  */
-const COASTLINE_FEATHER = 0.004;
+const COASTLINE_FEATHER = 0.006;
+
+/**
+ * Pulls the cover further over the coast, so no raw void survives at the edge.
+ *
+ * A plain blur is symmetric about the traced outline: half the ramp lies
+ * outside the coast, where the cover is what we want, and half lies inside it,
+ * where the cover is only partly opaque and fortnite.gg's grey still shows
+ * through as a thin ring. Tracing tighter would fix that but also eat into the
+ * glow their tiles draw around the island, which is worth keeping.
+ *
+ * So rather than move the outline, the alpha ramp is re-mapped: alpha' =
+ * slope * alpha + intercept, clamped. Solving slope * t + intercept = 0.5 puts
+ * the ramp's halfway point at t = 0.28 of the original — that is, the cover now
+ * reaches to where the blur had only faded to 28%, biting a little further in.
+ * The slope also steepens the ramp, which is why FEATHER above went up to
+ * compensate: the visible softness is roughly feather / slope.
+ */
+const COASTLINE_TIGHTEN = { slope: 2.2, intercept: -0.116 };
 
 /**
  * How far the mask image extends past the tile square, as a fraction of it.
@@ -317,7 +335,9 @@ const VOID_MASK_URL = (() => {
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${1 + 2 * B} ${1 + 2 * B}" preserveAspectRatio="none">` +
     `<filter id="f" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">` +
-    `<feGaussianBlur stdDeviation="${COASTLINE_FEATHER}"/></filter>` +
+    `<feGaussianBlur stdDeviation="${COASTLINE_FEATHER}"/>` +
+    `<feComponentTransfer><feFuncA type="linear" slope="${COASTLINE_TIGHTEN.slope}" intercept="${COASTLINE_TIGHTEN.intercept}"/></feComponentTransfer>` +
+    `</filter>` +
     // The outer rectangle runs past the viewBox on every side. Drawn flush to
     // it, the blur feathers ITS edges too, so the cover turned semi-transparent
     // along its own border and fortnite.gg's grey showed through as a line down
