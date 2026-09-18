@@ -8,7 +8,7 @@ import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
 import { rarityAccent } from "@/lib/rarity";
 import { displayName } from "@/lib/sprite-name";
-import { VARIANT_SLOTS, variantGradient, variantKey, variantLabel } from "@/lib/variant-colors";
+import { VARIANT_SLOTS, variantGradient, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -405,7 +405,19 @@ export function SpriteCatalogBrowser({
                           aria-label={`${displayName(v.name)}: ${status}, click to change`}
                           className="group flex w-[72px] shrink-0 flex-col items-center gap-1 rounded-[6px] outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50"
                         >
-                          <span className="text-[10px] font-medium leading-5 text-muted-foreground">{label}</span>
+                          {/* Caption takes the colour of the fill its sprite
+                              sits on. Only once collected: before that the
+                              fill is the muted empty-slot grey, so the muted
+                              caption is already the honest match. */}
+                          <span
+                            className={cn(
+                              "text-[10px] font-medium leading-5",
+                              !isColored && "text-muted-foreground"
+                            )}
+                            style={isColored ? { color: variantLabelColor(v.variant) ?? undefined } : undefined}
+                          >
+                            {label}
+                          </span>
                           <span
                             className={cn(
                               // outline, not border: outlines paint outside the box and

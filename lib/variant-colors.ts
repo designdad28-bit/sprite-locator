@@ -115,6 +115,35 @@ export const VARIANT_NAME: Record<string, string> = {
   reaper: "Bounty Hunter",
 };
 
+/**
+ * The colour of the caption above a collected tile, matching the fill the
+ * sprite sits on.
+ *
+ * Three of the five can use their tile colour verbatim. Two cannot: as 10px
+ * text on the panel (--card, #18181B) the indigo solid measures 2.36:1 and
+ * the purple 4.38:1, below the 4.5:1 needed for small text — indigo in
+ * particular being all but unreadable. Both are lifted in lightness, and only
+ * as far as clearing 4.5:1 requires, keeping their hue and chroma so they
+ * still read as the same colour as the tile: indigo L 0.485 -> 0.620,
+ * purple 0.636 -> 0.646 (the latter barely perceptible).
+ *
+ * Uncollected tiles are not included — their caption stays muted, because the
+ * fill their sprite sits on is the muted empty-slot grey, not a variant
+ * colour.
+ */
+const VARIANT_LABEL_COLOR: Record<string, string> = {
+  gold: "#D09E00", // the tile colour, 7.23:1
+  cheatmaster: "#3EC700", // the tile colour, 7.91:1
+  hacker: "oklch(0.62 0.236 276.9)", // lifted from L 0.485 for legibility, 4.58:1
+  reaper: "oklch(0.646 0.301 318)", // lifted from L 0.636, 4.60:1
+};
+
+/** Matches the caption above a tile to the fill beneath it. Null when there is no variant colour to match. */
+export function variantLabelColor(variant: string | null): string | null {
+  if (!variant) return "var(--sprite-base-collected)";
+  return VARIANT_LABEL_COLOR[variantKey(variant)] ?? null;
+}
+
 /** The short label a variant is shown under everywhere in the UI. */
 export function variantLabel(variant: string | null): string {
   const key = variantKey(variant);
