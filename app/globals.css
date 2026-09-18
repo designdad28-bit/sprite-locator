@@ -96,37 +96,43 @@
 }
 
 .dark {
-  --background: oklch(0.148 0.004 228.8);
-  --foreground: oklch(0.987 0.002 197.1);
-  --card: oklch(0.218 0.008 223.9);
-  --card-foreground: oklch(0.987 0.002 197.1);
-  --popover: oklch(0.218 0.008 223.9);
-  --popover-foreground: oklch(0.987 0.002 197.1);
-  --primary: oklch(0.925 0.005 214.3);
-  --primary-foreground: oklch(0.218 0.008 223.9);
-  --secondary: oklch(0.275 0.011 216.9);
-  --secondary-foreground: oklch(0.987 0.002 197.1);
-  --muted: oklch(0.275 0.011 216.9);
-  --muted-foreground: oklch(0.723 0.014 214.4);
-  --accent: oklch(0.275 0.011 216.9);
-  --accent-foreground: oklch(0.987 0.002 197.1);
+  --background: oklch(0.175 0.055 352);
+  --foreground: oklch(0.975 0.015 352);
+  --card: oklch(0.24 0.065 352);
+  --card-foreground: oklch(0.975 0.015 352);
+  --popover: oklch(0.24 0.065 352);
+  --popover-foreground: oklch(0.975 0.015 352);
+  --primary: oklch(0.925 0.02 352);
+  --primary-foreground: oklch(0.24 0.065 352);
+  --secondary: oklch(0.3 0.075 352);
+  --secondary-foreground: oklch(0.975 0.015 352);
+  --muted: oklch(0.3 0.075 352);
+  --muted-foreground: oklch(0.74 0.045 352);
+  --accent: oklch(0.3 0.075 352);
+  --accent-foreground: oklch(0.975 0.015 352);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.56 0.021 213.5);
-  --chart-1: oklch(0.872 0.007 219.6);
-  --chart-2: oklch(0.56 0.021 213.5);
-  --chart-3: oklch(0.45 0.017 213.2);
-  --chart-4: oklch(0.378 0.015 216);
-  --chart-5: oklch(0.275 0.011 216.9);
-  --sidebar: oklch(0.218 0.008 223.9);
-  --sidebar-foreground: oklch(0.987 0.002 197.1);
+  --ring: oklch(0.58 0.06 352);
+  --chart-1: oklch(0.872 0.03 352);
+  --chart-2: oklch(0.58 0.06 352);
+  --chart-3: oklch(0.45 0.07 352);
+  --chart-4: oklch(0.378 0.075 352);
+  --chart-5: oklch(0.3 0.075 352);
+  --sidebar: oklch(0.24 0.065 352);
+  --sidebar-foreground: oklch(0.975 0.015 352);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-accent: oklch(0.275 0.011 216.9);
-  --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
+  --sidebar-accent: oklch(0.3 0.075 352);
+  --sidebar-accent-foreground: oklch(0.975 0.015 352);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.56 0.021 213.5);
+  --sidebar-ring: oklch(0.58 0.06 352);
+  /* Two washes of warm light off the top of each panel, the move that keeps a
+     dark ground from reading heavy. Alpha so they layer over --card; applied
+     via .panel-wash below rather than to the map, which keeps fortnite.gg's
+     own void colour. */
+  --wash-a: rgba(133, 14, 46, 0.30);
+  --wash-b: rgba(103, 17, 86, 0.26);
   /* Collected BASE tile. Grey rather than coloured: unlike the four variants,
      base Sprites share no colour to borrow — measured across all 21 families
      their artwork hues cover the whole wheel (1° to 357°: Blinky red, Pond
@@ -364,4 +370,14 @@
     transform: scale(2.4);
     opacity: 0;
   }
+}
+/* The ember washes, shared by the sidebar and the detail panel. Pinned to the
+   top corners and gone by 60%, so the lower two-thirds of a long scrolling
+   list stays flat and legible. */
+@utility panel-wash {
+  background-image:
+    radial-gradient(125% 55% at 0% 0%, var(--wash-a), transparent 60%),
+    radial-gradient(105% 45% at 100% 0%, var(--wash-b), transparent 55%);
+  background-repeat: no-repeat;
+  background-attachment: local;
 }

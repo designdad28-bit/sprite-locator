@@ -138,8 +138,8 @@ export const VARIANT_NAME: Record<string, string> = {
 const VARIANT_LABEL_COLOR: Record<string, string> = {
   gold: "#D09E00", // the tile colour, 7.23:1
   cheatmaster: "#3EC700", // the tile colour, 7.91:1
-  hacker: "oklch(0.625 0.204 276.9)", // lifted from L 0.485 for legibility, 4.59:1
-  reaper: "oklch(0.65 0.295 318)", // lifted from L 0.636, 4.59:1
+  hacker: "oklch(0.635 0.204 276.9)", // lifted from L 0.485 for legibility, 4.62:1
+  reaper: "oklch(0.66 0.295 318)", // lifted from L 0.636, 4.67:1
 };
 
 /** Matches the caption above a tile to the fill beneath it. Null when there is no variant colour to match. */

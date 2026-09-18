@@ -84,7 +84,7 @@ export default function Home() {
           // Flush to the window: no margin, no radius. The border only runs
           // along edges that face the map — on the window's own edges it
           // would just draw a line around the screen.
-          "absolute top-0 left-0 z-[600] flex flex-col overflow-hidden border-border border-r-2 bg-card",
+          "panel-wash absolute top-0 left-0 z-[600] flex flex-col overflow-hidden border-border border-r-2 bg-card",
           // Open: the full-height 280px panel. Collapsed: no width or height of
           // its own, so it hugs its open button in the corner; it then needs
           // a bottom edge too, since the map sits below it.
@@ -174,7 +174,7 @@ export default function Home() {
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             // Flush to the window like the left sidebar: no margin, no radius,
             // and a border only on the edge that faces the map.
-            className="flex shrink-0 flex-col overflow-hidden border-border border-l-2 bg-card"
+            className="panel-wash flex shrink-0 flex-col overflow-hidden border-border border-l-2 bg-card"
           >
             {/* Fixed width, so the panel's contents don't reflow while the
                 aside animates its own width open or shut — but minus the 2px
