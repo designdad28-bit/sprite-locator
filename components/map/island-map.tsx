@@ -14,11 +14,11 @@ import {
   ACTIVE_MAP_PROVIDER,
   ISLAND_BOUNDS,
   ISLAND_FIT_SCALE,
-  MAP_BACKGROUND_COLOR,
   worldSizePx,
 } from "./map-provider";
 import { Finding } from "@/lib/findings";
 import { Poi } from "@/lib/map/pois";
+import { ISLAND_OUTLINE } from "@/lib/map/island-outline";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { rarityAccent, type RarityAccent } from "@/lib/rarity";
 
@@ -270,15 +270,56 @@ function clusterFindings(
 }
 
 /**
+ * Clips the tile pane to the island's coastline, so fortnite.gg's flat grey
+ * void never paints and the panel colour behind the map shows around the
+ * island instead. See lib/map/island-outline.ts for why this has to be a clip
+ * rather than a recolour.
+ *
+ * Only the tile pane is clipped — markers, POI labels and the controls sit in
+ * other panes and are untouched. The polygon is built in layer points, the
+ * same coordinate space the tile pane is laid out in, so it stays registered
+ * with the tiles while Leaflet transforms that pane to pan; it is rebuilt
+ * whenever the view moves, because zooming changes the scale between the
+ * outline's fraction space and layer space.
+ */
+function IslandClip({ worldSize, nativeZoom }: { worldSize: number; nativeZoom: number }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const pane = map.getPane("tilePane");
+    if (!pane) return;
+
+    function draw() {
+      const points = ISLAND_OUTLINE.map(([fx, fy]) => {
+        const latlng = CRS.Simple.pointToLatLng(L.point(fx * worldSize, fy * worldSize), nativeZoom);
+        const p = map.latLngToLayerPoint(latlng);
+        return `${p.x.toFixed(1)}px ${p.y.toFixed(1)}px`;
+      });
+      pane!.style.clipPath = `polygon(${points.join(",")})`;
+    }
+
+    draw();
+    // `move` fires continuously through a pan, `zoom` through the animated
+    // zoom frames, and the other two catch the jumps.
+    map.on("move zoom viewreset resize", draw);
+    return () => {
+      map.off("move zoom viewreset resize", draw);
+      pane.style.clipPath = "";
+    };
+  }, [map, worldSize, nativeZoom]);
+
+  return null;
+}
+
+/**
  * Sets up the CRS.Simple <-> pixel-space world for the tile pyramid and
  * fits/constrains the view to it. Runs once the underlying Leaflet map
  * instance exists.
  *
  * Always shows the full island uncropped ("contain" fit via `fitBounds`),
  * recalculated on container resize (e.g. opening the Sprite detail panel
- * narrows the map). The container background is set to MAP_BACKGROUND_COLOR
- * so any letterboxing from an aspect-ratio
- * mismatch blends in rather than reading as a rendering bug. Zooming in
+ * narrows the map). The container paints the app's own background, which is
+ * what shows around the clipped coastline. Zooming in
  * past the fit level is still fine — that's a deliberate zoom, not a crop.
  */
 function TileWorldSetup({
@@ -493,7 +534,11 @@ export default function IslandMap({
         zoomControl={false}
         attributionControl={false}
         className={`h-full w-full ${isAddMode ? "cursor-crosshair" : ""}`}
-        style={{ backgroundColor: MAP_BACKGROUND_COLOR, "--map-background": MAP_BACKGROUND_COLOR } as CSSProperties}
+        // The island is clipped to its coastline (see IslandClip), so nothing
+        // here has to match fortnite.gg's void grey any more — the app's own
+        // ground shows around the island instead. --map-background still feeds
+        // the tile-seam patch in globals.css, so it tracks whatever that is.
+        style={{ backgroundColor: "var(--background)", "--map-background": "var(--background)" } as CSSProperties}
       >
       <TileWorldSetup
         worldSize={worldSize}
@@ -501,6 +546,7 @@ export default function IslandMap({
         minZoom={provider.minZoom}
         insetLeft={insetLeft}
       />
+      <IslandClip worldSize={worldSize} nativeZoom={provider.nativeZoom} />
       <TileLayer
         url={provider.urlTemplate}
         tileSize={provider.tileSize}

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin } from "lucide-react";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
-import { MAP_BACKGROUND_COLOR } from "@/components/map/map-provider";
 import { Button } from "@/components/ui/button";
 import { SpriteCatalogBrowser } from "@/components/sprite-panel/sprite-catalog-browser";
 import { SpriteDetailPanel } from "@/components/sprite-panel/sprite-detail-panel";
@@ -74,7 +73,7 @@ export default function Home() {
   return (
     // h-dvh, not h-screen: 100vh can resolve to a stale or oversized height
     // (browser UI, zoom), which leaves the shell not matching the window.
-    <div className="relative flex h-dvh w-full overflow-hidden" style={{ backgroundColor: MAP_BACKGROUND_COLOR }}>
+    <div className="relative flex h-dvh w-full overflow-hidden bg-background">
       {/* Pinned to the window's left edge, outside the map's container below. */}
       <motion.aside
         initial={{ opacity: 0, x: -20 }}

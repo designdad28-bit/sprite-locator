@@ -186,10 +186,13 @@
   }
   html,
   body {
-    /* Matches MAP_BACKGROUND_COLOR (components/map/map-provider.ts) so there's
-       no black flash/gap behind the app shell before hydration, on resize,
-       or in any sliver the flex layout doesn't cover. */
-    background: #2e3137;
+    /* The app's own ground, so there's no black flash or gap behind the shell
+       before hydration, on resize, or in any sliver the flex layout doesn't
+       cover. This used to be hard-coded to fortnite.gg's void grey so the map's
+       letterbox blended with their tiles; the tile pane is now clipped to the
+       coastline (see IslandClip), so nothing outside the island is theirs to
+       match and this follows the theme instead. */
+    background: var(--background);
     /* This is a single full-window app, not a scrolling document: pin the
        document box to the viewport itself so the shell can't end up sized to
        anything but the window (a stale height, a phantom scrollbar, an
