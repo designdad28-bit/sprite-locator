@@ -300,9 +300,15 @@ const VOID_MASK_URL = (() => {
   const island = ISLAND_OUTLINE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("") + "Z";
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" preserveAspectRatio="none">` +
-    `<filter id="f" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">` +
+    `<filter id="f" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">` +
     `<feGaussianBlur stdDeviation="${COASTLINE_FEATHER}"/></filter>` +
-    `<path fill="#fff" fill-rule="evenodd" filter="url(#f)" d="M0 0H1V1H0Z${island}"/></svg>`;
+    // The outer rectangle is oversized, well past the 0-1 viewBox. Drawn at
+    // exactly 0-1 the blur feathers ITS edges too, so the cover turned
+    // semi-transparent along the tile square's border and fortnite.gg's grey
+    // showed through as a line down each side of the map. Pushing the
+    // rectangle out means only the coastline hole is ever blurred inside the
+    // visible area; the SVG canvas clips the overshoot away.
+    `<path fill="#fff" fill-rule="evenodd" filter="url(#f)" d="M-0.08 -0.08H1.08V1.08H-0.08Z${island}"/></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 })();
 
