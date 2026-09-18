@@ -396,7 +396,15 @@ export function SpriteCatalogBrowser({
                               className="relative flex aspect-square w-full items-center justify-center rounded-[6px] border-[0.5px] border-dashed border-border bg-muted/40"
                               aria-label={`${group.family} has no ${variantLabel(slot).toLowerCase()} variant`}
                             >
-                              <Ban className="size-5 text-muted-foreground/50" strokeWidth={1.5} />
+                              {/* Solid colour, not muted-foreground/50. The Ban
+                                  glyph is one path whose slash crosses its own
+                                  circle, and at partial opacity that overlap
+                                  blends against itself — the crossing showed
+                                  as a brighter seam, so you could see the line
+                                  continue through the ring. This is the exact
+                                  colour that 50% resolved to over this tile
+                                  (#5E5E65), so it looks the same with no seam. */}
+                              <Ban className="size-5" strokeWidth={1.5} style={{ color: "oklch(0.484 0.011 286)" }} />
                             </span>
                           </div>
                         );
