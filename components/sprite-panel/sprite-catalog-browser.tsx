@@ -404,7 +404,7 @@ export function SpriteCatalogBrowser({
                                   continue through the ring. This is the exact
                                   colour that 50% resolved to over this tile
                                   (#5E5E65), so it looks the same with no seam. */}
-                              <Ban className="size-5" strokeWidth={1.5} style={{ color: "oklch(0.484 0.011 286)" }} />
+                              <Ban className="size-5" strokeWidth={1.5} style={{ color: "#5C6467" }} />
                             </span>
                           </div>
                         );

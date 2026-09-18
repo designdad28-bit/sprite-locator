@@ -52,37 +52,37 @@
 
 :root {
   --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.148 0.004 228.8);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
+  --card-foreground: oklch(0.148 0.004 228.8);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.148 0.004 228.8);
+  --primary: oklch(0.218 0.008 223.9);
+  --primary-foreground: oklch(0.987 0.002 197.1);
+  --secondary: oklch(0.963 0.002 197.1);
+  --secondary-foreground: oklch(0.218 0.008 223.9);
+  --muted: oklch(0.963 0.002 197.1);
+  --muted-foreground: oklch(0.56 0.021 213.5);
+  --accent: oklch(0.963 0.002 197.1);
+  --accent-foreground: oklch(0.218 0.008 223.9);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
-  --chart-1: oklch(0.871 0.006 286.286);
-  --chart-2: oklch(0.552 0.016 285.938);
-  --chart-3: oklch(0.442 0.017 285.786);
-  --chart-4: oklch(0.37 0.013 285.805);
-  --chart-5: oklch(0.274 0.006 286.033);
+  --border: oklch(0.925 0.005 214.3);
+  --input: oklch(0.925 0.005 214.3);
+  --ring: oklch(0.723 0.014 214.4);
+  --chart-1: oklch(0.872 0.007 219.6);
+  --chart-2: oklch(0.56 0.021 213.5);
+  --chart-3: oklch(0.45 0.017 213.2);
+  --chart-4: oklch(0.378 0.015 216);
+  --chart-5: oklch(0.275 0.011 216.9);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
+  --sidebar: oklch(0.987 0.002 197.1);
+  --sidebar-foreground: oklch(0.148 0.004 228.8);
+  --sidebar-primary: oklch(0.218 0.008 223.9);
+  --sidebar-primary-foreground: oklch(0.987 0.002 197.1);
+  --sidebar-accent: oklch(0.963 0.002 197.1);
+  --sidebar-accent-foreground: oklch(0.218 0.008 223.9);
+  --sidebar-border: oklch(0.925 0.005 214.3);
+  --sidebar-ring: oklch(0.723 0.014 214.4);
   --sprite-base-collected: var(--input);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
@@ -96,49 +96,51 @@
 }
 
 .dark {
-  --background: oklch(0.21 0.006 285.885);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.148 0.004 228.8);
+  --foreground: oklch(0.987 0.002 197.1);
+  --card: oklch(0.218 0.008 223.9);
+  --card-foreground: oklch(0.987 0.002 197.1);
+  --popover: oklch(0.218 0.008 223.9);
+  --popover-foreground: oklch(0.987 0.002 197.1);
+  --primary: oklch(0.925 0.005 214.3);
+  --primary-foreground: oklch(0.218 0.008 223.9);
+  --secondary: oklch(0.275 0.011 216.9);
+  --secondary-foreground: oklch(0.987 0.002 197.1);
+  --muted: oklch(0.275 0.011 216.9);
+  --muted-foreground: oklch(0.723 0.014 214.4);
+  --accent: oklch(0.275 0.011 216.9);
+  --accent-foreground: oklch(0.987 0.002 197.1);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
-  --chart-1: oklch(0.871 0.006 286.286);
-  --chart-2: oklch(0.552 0.016 285.938);
-  --chart-3: oklch(0.442 0.017 285.786);
-  --chart-4: oklch(0.37 0.013 285.805);
-  --chart-5: oklch(0.274 0.006 286.033);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.56 0.021 213.5);
+  --chart-1: oklch(0.872 0.007 219.6);
+  --chart-2: oklch(0.56 0.021 213.5);
+  --chart-3: oklch(0.45 0.017 213.2);
+  --chart-4: oklch(0.378 0.015 216);
+  --chart-5: oklch(0.275 0.011 216.9);
+  --sidebar: oklch(0.218 0.008 223.9);
+  --sidebar-foreground: oklch(0.987 0.002 197.1);
   --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-primary-foreground: oklch(0.987 0.002 197.1);
+  --sidebar-accent: oklch(0.275 0.011 216.9);
+  --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  --sidebar-ring: oklch(0.56 0.021 213.5);
   /* Collected BASE tile. Grey rather than coloured: unlike the four variants,
      base Sprites share no colour to borrow — measured across all 21 families
      their artwork hues cover the whole wheel (1° to 357°: Blinky red, Pond
      green, Mega Man cyan, Storm Scout indigo, Klombo magenta), averaging to a
      meaningless brown. So no hue is taken from the art, which would anyway
      imply a sixth variant type.
-     It is a cool grey rather than a dead one: hue 256 at chroma 0.022, which
-     is where Tailwind's Slate ramp sits (slate-300 measures L 0.869 C 0.020
-     H 252.9), so it reads as a hint of blue without becoming a blue tile.
-     Chroma is an order of magnitude below the Loot Hacker tile's 0.245, so the
-     two do not read as the same family. The theme's own neutral (Zinc,
-     hue 286) was violet-leaning and at chroma 0.004 effectively colourless.
+     It is a cool grey rather than a dead one: hue 214.4 at chroma 0.022, the
+     theme's own neutral hue (Mist, which is a blue-grey palette — its
+     --muted-foreground is oklch(0.723 0.014 214.4)), carried at a chroma just
+     above the ramp's own so the blue actually reads at tile size. Chroma stays
+     an order of magnitude below the Loot Hacker tile's 0.245, so the two do
+     not read as the same family. Under the previous palette (Zinc, hue 286,
+     violet-leaning and effectively colourless at chroma 0.004) this had to
+     borrow Slate's hue instead; Mist supplies it directly.
      Its lightness is set by legibility, not by averaging the other tiles.
      Base artwork is dark-dominant — measured across all 21 families, mean
      relative luminance 0.251, with 27% of opaque pixels near-black (the
@@ -154,13 +156,13 @@
      tile approaches them — at --primary's luminance they sit at 1.03:1,
      effectively invisible. 0.820 is the best compromise across both ends.
      Opaque, since an alpha wash over a near-black panel cannot reach it. */
-  --sprite-base-collected: oklch(0.82 0.022 256);
+  --sprite-base-collected: oklch(0.82 0.022 214.4);
   /* The two ends of the base tile's gradient: the value above, shaded ±0.09 in
      lightness so it stays the midpoint. Same treatment as the four coloured
      tiles (see VARIANT_GRADIENT in lib/variant-colors.ts); kept here so all
      three base values are retuned together. */
-  --sprite-base-collected-top: oklch(0.73 0.022 256);
-  --sprite-base-collected-bottom: oklch(0.91 0.022 256);
+  --sprite-base-collected-top: oklch(0.73 0.022 214.4);
+  --sprite-base-collected-bottom: oklch(0.91 0.022 214.4);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
   --sprite-gold: #EED12B;
