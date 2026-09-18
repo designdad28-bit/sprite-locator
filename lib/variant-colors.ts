@@ -31,9 +31,11 @@ const VARIANT_COLOR: Record<string, string> = {
 };
 
 /**
- * The base/normal variant's accent: the same grey as the search field, so the
- * neutral column reads as collected without borrowing a hue that would imply a
- * fourth variant type. See --sprite-base-collected in app/globals.css.
+ * The base/normal variant's accent: grey, because base Sprites — unlike the
+ * four variants — share no colour to borrow (their artwork hues span the whole
+ * wheel; see --sprite-base-collected in app/globals.css for the measurement).
+ * It is pitched at the mean lightness of the four coloured tiles so the
+ * neutral column reads as their peer rather than as an empty slot.
  */
 const BASE_VARIANT_COLOR = "var(--sprite-base-collected)";
 

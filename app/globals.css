@@ -127,10 +127,19 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
-  /* Collected BASE tile: the same grey as the search field. Both are --input
-     painted straight onto the panel, so they composite identically — an opaque
-     approximation would drift, since the browser need not blend alpha in sRGB. */
-  --sprite-base-collected: var(--input);
+  /* Collected BASE tile. Neutral on purpose: unlike the four variants, base
+     Sprites share no colour to borrow — measured across all 21 families their
+     artwork hues cover the whole wheel (1° to 357°: Blinky red, Pond green,
+     Mega Man cyan, Storm Scout indigo, Klombo magenta), averaging to a
+     meaningless brown. So it stays grey rather than taking an arbitrary hue
+     that would imply a sixth variant type.
+     What it does match is weight: OKLCH L 0.644, the mean lightness of the
+     four coloured tiles, on the theme's own faint cool cast (H 285.9, the
+     --card hue). It used to be --input, i.e. 15% white over the panel, which
+     composited to L 0.353 — half their lightness, so the base column read as
+     a faint wash beside its neighbours instead of a peer. Opaque now, so it
+     can hit that lightness at all. */
+  --sprite-base-collected: oklch(0.644 0.006 285.885);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
   --sprite-gold: #EED12B;
