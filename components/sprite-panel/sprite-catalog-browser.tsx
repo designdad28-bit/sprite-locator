@@ -8,7 +8,7 @@ import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
 import { rarityAccent } from "@/lib/rarity";
 import { displayName } from "@/lib/sprite-name";
-import { VARIANT_SLOTS, variantColor, variantKey, variantLabel } from "@/lib/variant-colors";
+import { VARIANT_SLOTS, variantGradient, variantKey, variantLabel } from "@/lib/variant-colors";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -393,7 +393,7 @@ export function SpriteCatalogBrowser({
                       }
                       const status = getStatus(v.id);
                       const label = variantLabel(v.variant);
-                      const accent = variantColor(v.variant);
+                      const accent = variantGradient(v.variant);
                       const isColored = status !== "default";
                       return (
                         <button

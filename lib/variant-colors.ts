@@ -31,6 +31,46 @@ const VARIANT_COLOR: Record<string, string> = {
 };
 
 /**
+ * Per-variant tile gradients: the same colour, shaded top-dark to bottom-light.
+ *
+ * Expressed in OKLCH so the intent is legible — every stop keeps its variant's
+ * measured artwork hue and only lightness moves, by -0.09 at the top and +0.09
+ * at the bottom of the solid value in VARIANT_COLOR above. The solid therefore
+ * remains the gradient's midpoint, so a tile still reads as the same colour it
+ * was.
+ *
+ * Chroma is not constant across the two stops: it is capped at whatever sRGB
+ * holds at each lightness, which is why the lighter stop of indigo (0.236 from
+ * 0.295) and purple (0.223 from 0.308) is less saturated than its solid. Those
+ * hues run out of gamut as they lighten — the alternative would be letting the
+ * browser gamut-map them for us, with less control over where.
+ *
+ * VARIANT_COLOR stays the single solid value, since the detail panel paints it
+ * on borders and text where a gradient is not a valid value.
+ */
+const VARIANT_GRADIENT: Record<string, string> = {
+  gold: "linear-gradient(to bottom, oklch(0.636 0.130 86), oklch(0.816 0.149 86))",
+  cheatmaster: "linear-gradient(to bottom, oklch(0.637 0.205 140), oklch(0.817 0.234 140))",
+  hacker: "linear-gradient(to bottom, oklch(0.395 0.245 276.9), oklch(0.575 0.236 276.9))",
+  reaper: "linear-gradient(to bottom, oklch(0.546 0.265 318), oklch(0.726 0.223 318))",
+};
+
+/**
+ * The base tile's gradient. Its stops live beside the solid in globals.css
+ * rather than here, so the three cannot drift apart — that value is chosen by
+ * measurement against the artwork (see the comment there) and is the one most
+ * likely to be retuned.
+ */
+const BASE_VARIANT_GRADIENT =
+  "linear-gradient(to bottom, var(--sprite-base-collected-top), var(--sprite-base-collected-bottom))";
+
+/** The tile fill for a variant: its colour shaded dark-to-light, top to bottom. */
+export function variantGradient(variant: string | null): string | null {
+  if (!variant) return BASE_VARIANT_GRADIENT;
+  return VARIANT_GRADIENT[variantKey(variant)] ?? null;
+}
+
+/**
  * The base/normal variant's accent: grey, because base Sprites — unlike the
  * four variants — share no colour to borrow (their artwork hues span the whole
  * wheel; see --sprite-base-collected in app/globals.css for the measurement).

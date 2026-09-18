@@ -149,6 +149,12 @@
      effectively invisible. 0.820 is the best compromise across both ends.
      Opaque, since an alpha wash over a near-black panel cannot reach it. */
   --sprite-base-collected: oklch(0.82 0.004 286.32);
+  /* The two ends of the base tile's gradient: the value above, shaded ±0.09 in
+     lightness so it stays the midpoint. Same treatment as the four coloured
+     tiles (see VARIANT_GRADIENT in lib/variant-colors.ts); kept here so all
+     three base values are retuned together. */
+  --sprite-base-collected-top: oklch(0.73 0.004 286.32);
+  --sprite-base-collected-bottom: oklch(0.91 0.004 286.32);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
   --sprite-gold: #EED12B;
