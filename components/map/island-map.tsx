@@ -334,59 +334,8 @@ const COASTLINE_TIGHTEN = { slope: 5.0, intercept: -0.075 };
  * that distinction matters: scaling the mask up would drag the coastline hole
  * out with it and open a ring of void around the island. Widening the viewBox
  * leaves the hole exactly where it belongs and pads opaque white around it.
- *
- * It is far larger than covering the tiles needs, because the cover also
- * carries the water gradient below: at the fitted zoom the tile square is
- * barely wider than the map column, and anything the cover didn't reach would
- * fall back to the flat panel colour and show as a band down the side.
  */
-const VOID_COVER_BLEED = 0.75;
-
-/**
- * The island's own water, sampled north to south, used as the field around it.
- *
- * Measured from the z=3 composite on fortnite.gg's origin: for each of ten
- * horizontal bands across the island, the average of that band's water pixels
- * — blue-dominant, saturation over 0.25, excluding the flat void. Each band
- * averaged 59k-135k pixels, so these are the map's real colours, not a guess.
- *
- * The run is the island's own geography: cold navy off the northern ice,
- * warming through the middle, turquoise at the tropical south, then dropping
- * back as the water deepens past the last coast.
- *
- * Positions are fractions of the tile square, matching ISLAND_OUTLINE's space.
- */
-const WATER_BY_LATITUDE: ReadonlyArray<readonly [number, string]> = [
-  [0.118, "#193656"],
-  [0.204, "#173C5D"],
-  [0.29, "#184062"],
-  [0.375, "#1C4768"],
-  [0.461, "#29527B"],
-  [0.547, "#24537C"],
-  [0.633, "#0D6176"],
-  [0.719, "#146D7F"],
-  [0.804, "#21818C"],
-  [0.89, "#165163"],
-];
-
-/**
- * That run as a CSS gradient across the cover.
- *
- * The cover spans the tile square plus VOID_COVER_BLEED on each side, so a
- * stop at fraction y of the square sits at (BLEED + y) / (1 + 2 * BLEED) of
- * the element. Because the cover is positioned in layer space, the gradient
- * is pinned to the map itself — it pans and zooms with the island rather than
- * sliding against it, and the water off any given coast stays the colour that
- * coast actually has. Past the first and last stop CSS holds the end colour,
- * which is what should happen out in open ocean.
- */
-const WATER_GRADIENT = (() => {
-  const span = 1 + 2 * VOID_COVER_BLEED;
-  const stops = WATER_BY_LATITUDE.map(
-    ([y, hex]) => `${hex} ${(((VOID_COVER_BLEED + y) / span) * 100).toFixed(2)}%`
-  );
-  return `linear-gradient(to bottom, ${stops.join(", ")})`;
-})();
+const VOID_COVER_BLEED = 0.06;
 
 const VOID_MASK_URL = (() => {
   const island = ISLAND_OUTLINE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("") + "Z";
@@ -448,7 +397,7 @@ function IslandClip({ worldSize, nativeZoom }: { worldSize: number; nativeZoom: 
     Object.assign(cover.style, {
       position: "absolute",
       transformOrigin: "0 0",
-      background: WATER_GRADIENT,
+      background: "var(--card)",
       maskImage: VOID_MASK_URL,
       webkitMaskImage: VOID_MASK_URL,
       maskRepeat: "no-repeat",
