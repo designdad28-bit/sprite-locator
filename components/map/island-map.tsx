@@ -333,65 +333,88 @@ const VOID_MASK_URL = (() => {
  * the trace's staircase. See lib/map/island-outline.ts for why the grey can't
  * simply be recoloured.
  *
- * The overlay sits above the tile pane (z 200) and below the marker pane
- * (z 600), so findings and POI labels still draw on top of it.
+ * The cover lives INSIDE the map pane, in its own Leaflet pane above the tiles
+ * (z 200) and below the markers (z 600), so findings and POI labels still draw
+ * on top of it.
  *
- * The mask image never changes; only where it is painted does. The outline
- * lives in 0-1 fraction space, which is exactly the tile square, so the mask
- * is sized to that square and positioned at its top-left — in container
- * points, which is the overlay's own coordinate space. Two property writes per
- * frame, no re-encoding.
+ * Two things keep it registered with the tiles.
+ *
+ * Position and size are in layer points, which hold steady through a pan — the
+ * map pane moves instead — so the box is only laid out again when the view
+ * resets under it, not per frame.
+ *
+ * Zoom is the harder half. Leaflet animates a zoom per LAYER, not by scaling
+ * the map pane: each animated layer transforms itself and the shared CSS
+ * transition carries them together. A cover that ignores this jumps straight to
+ * the destination geometry while the tiles are still travelling — measured at
+ * 0.57x the tiles' width 200ms in, with the cover's edge inside theirs, which
+ * is the mask sweeping across the map mid-zoom. So it animates itself the same
+ * way Leaflet's own overlays do: `leaflet-zoom-animated` for the transition,
+ * and a zoomanim handler that transforms to the destination.
+ *
+ * `_latLngToNewLayerPoint` is private, but it is the documented-by-use way to
+ * do this — ImageOverlay, Marker and Path all animate through it.
  */
 function IslandClip({ worldSize, nativeZoom }: { worldSize: number; nativeZoom: number }) {
   const map = useMap();
 
   useEffect(() => {
-    const overlay = document.createElement("div");
-    overlay.dataset.slot = "void-cover";
-    Object.assign(overlay.style, {
+    const pane = map.createPane("voidCover");
+    pane.style.zIndex = "450";
+    pane.style.pointerEvents = "none";
+
+    const cover = document.createElement("div");
+    cover.dataset.slot = "void-cover";
+    cover.className = "leaflet-zoom-animated";
+    Object.assign(cover.style, {
       position: "absolute",
-      inset: "0",
-      zIndex: "450",
-      pointerEvents: "none",
+      transformOrigin: "0 0",
       background: "var(--background)",
-      maskRepeat: "no-repeat",
-      webkitMaskRepeat: "no-repeat",
       maskImage: VOID_MASK_URL,
       webkitMaskImage: VOID_MASK_URL,
+      maskRepeat: "no-repeat",
+      webkitMaskRepeat: "no-repeat",
+      maskSize: "100% 100%",
+      webkitMaskSize: "100% 100%",
     } as Partial<CSSStyleDeclaration>);
-    map.getContainer().appendChild(overlay);
+    pane.appendChild(cover);
 
-    const corner = (fx: number, fy: number) =>
-      map.latLngToContainerPoint(
-        CRS.Simple.pointToLatLng(L.point(fx * worldSize, fy * worldSize), nativeZoom)
-      );
+    // The cover's own corners in fraction space: the tile square grown by the
+    // bleed, which is exactly what the mask's viewBox spans.
+    const B = VOID_COVER_BLEED;
+    const cornerLatLng = (f: number) =>
+      CRS.Simple.pointToLatLng(L.point(f * worldSize, f * worldSize), nativeZoom);
+    const northWest = cornerLatLng(-B);
 
-    function draw() {
-      const topLeft = corner(0, 0);
-      const bottomRight = corner(1, 1);
-      const style = overlay.style as CSSStyleDeclaration & Record<string, string>;
-      // The mask image spans the square plus VOID_COVER_BLEED on each side, so
-      // it is sized and offset to that wider box. The coastline hole still
-      // lands on the square itself. Overhanging is free: beyond the square
-      // there are no tiles, and the cover is the same colour as the ground it
-      // spills onto.
-      const w = bottomRight.x - topLeft.x;
-      const h = bottomRight.y - topLeft.y;
-      const size = `${(w * (1 + 2 * VOID_COVER_BLEED)).toFixed(1)}px ${(h * (1 + 2 * VOID_COVER_BLEED)).toFixed(1)}px`;
-      const position = `${(topLeft.x - w * VOID_COVER_BLEED).toFixed(1)}px ${(topLeft.y - h * VOID_COVER_BLEED).toFixed(1)}px`;
-      style.maskSize = style.webkitMaskSize = size;
-      style.maskPosition = style.webkitMaskPosition = position;
+    function layout() {
+      const topLeft = map.latLngToLayerPoint(northWest);
+      const bottomRight = map.latLngToLayerPoint(cornerLatLng(1 + B));
+      cover.style.width = `${bottomRight.x - topLeft.x}px`;
+      cover.style.height = `${bottomRight.y - topLeft.y}px`;
+      L.DomUtil.setPosition(cover, topLeft);
     }
 
-    draw();
-    // `move` fires continuously through a pan, `zoom` through the animated
-    // zoom frames, and the other two catch the jumps.
-    map.on("move zoom viewreset resize", draw);
+    function onZoomAnim(e: L.ZoomAnimEvent) {
+      const scale = map.getZoomScale(e.zoom, map.getZoom());
+      const offset = (
+        map as unknown as {
+          _latLngToNewLayerPoint: (ll: L.LatLng, zoom: number, center: L.LatLng) => L.Point;
+        }
+      )._latLngToNewLayerPoint(northWest, e.zoom, e.center);
+      L.DomUtil.setTransform(cover, offset, scale);
+    }
+
+    layout();
+    map.on("zoomanim", onZoomAnim);
+    map.on("zoomend viewreset resize", layout);
     return () => {
-      map.off("move zoom viewreset resize", draw);
-      overlay.remove();
+      map.off("zoomanim", onZoomAnim);
+      map.off("zoomend viewreset resize", layout);
+      cover.remove();
+      pane.remove();
     };
   }, [map, worldSize, nativeZoom]);
+
 
   return null;
 }
