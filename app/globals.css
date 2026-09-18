@@ -133,13 +133,22 @@
      Mega Man cyan, Storm Scout indigo, Klombo magenta), averaging to a
      meaningless brown. So it stays grey rather than taking an arbitrary hue
      that would imply a sixth variant type.
-     What it does match is weight: OKLCH L 0.644, the mean lightness of the
-     four coloured tiles, on the theme's own faint cool cast (H 285.9, the
-     --card hue). It used to be --input, i.e. 15% white over the panel, which
-     composited to L 0.353 — half their lightness, so the base column read as
-     a faint wash beside its neighbours instead of a peer. Opaque now, so it
-     can hit that lightness at all. */
-  --sprite-base-collected: oklch(0.644 0.006 285.885);
+     Its lightness is set by legibility, not by averaging the other tiles.
+     Base artwork is dark-dominant — measured across all 21 families, mean
+     relative luminance 0.251, with 27% of opaque pixels near-black (the
+     outlines and shadows that define each silhouette) against only 10%
+     near-white. Two earlier values both failed that: --input (15% white over
+     the panel) composited to L 0.353, and matching the coloured tiles' mean
+     lightness gave L 0.644 / luminance 0.268 — within 1.06:1 of the artwork
+     itself, so sprite and background were the same brightness and the column
+     read muddy.
+     L 0.820 doubles that separation to 2.00:1, and gives 7.54:1 against the
+     near-black outlines. Deliberately NOT lighter: the white-bodied sprites
+     (Onigiri is 43% near-white pixels, Tails 35%) lose their interiors as the
+     tile approaches them — at --primary's luminance they sit at 1.03:1,
+     effectively invisible. 0.820 is the best compromise across both ends.
+     Opaque, since an alpha wash over a near-black panel cannot reach it. */
+  --sprite-base-collected: oklch(0.82 0.004 286.32);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
   --sprite-gold: #EED12B;
