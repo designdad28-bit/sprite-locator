@@ -270,32 +270,89 @@ function clusterFindings(
 }
 
 /**
- * Clips the tile pane to the island's coastline, so fortnite.gg's flat grey
- * void never paints and the panel colour behind the map shows around the
- * island instead. See lib/map/island-outline.ts for why this has to be a clip
- * rather than a recolour.
+ * The coastline as an SVG mask, built once: a 0-1 viewBox filled white with
+ * the island punched out of it, then blurred so the hole's edge falls off
+ * instead of stopping dead.
  *
- * Only the tile pane is clipped — markers, POI labels and the controls sit in
- * other panes and are untouched. The polygon is built in layer points, the
- * same coordinate space the tile pane is laid out in, so it stays registered
- * with the tiles while Leaflet transforms that pane to pan; it is rebuilt
- * whenever the view moves, because zooming changes the scale between the
- * outline's fraction space and layer space.
+ * This is the INVERSE of the island on purpose. The obvious approach — mask
+ * the tile pane down to the island — is a dead end: Leaflet's panes are
+ * zero-size boxes, and a CSS mask is clipped to its element's box, so masking
+ * the pane hides every tile. Giving the pane a box does work, but only while
+ * the tile square sits in positive layer coordinates; zoom into a corner and
+ * they go negative and the island gets clipped away.
+ *
+ * So instead of cutting the tiles down, we paint OVER them: an overlay the
+ * size of the map container, filled with the page's own ground, showing
+ * everywhere except the island. The container is a real, always-positive box,
+ * which sidesteps both problems.
+ *
+ * fill-rule evenodd is what makes the island a hole: the outer rectangle and
+ * the coastline are subpaths of one path, so the coastline subtracts.
+ *
+ * The blur is in viewBox units, so the coast keeps the same softness relative
+ * to the island at every zoom. sRGB interpolation is set explicitly; the
+ * filter default is linearRGB, which makes the falloff look bitten-into
+ * rather than soft.
+ */
+const COASTLINE_FEATHER = 0.004;
+
+const VOID_MASK_URL = (() => {
+  const island = ISLAND_OUTLINE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("") + "Z";
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" preserveAspectRatio="none">` +
+    `<filter id="f" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">` +
+    `<feGaussianBlur stdDeviation="${COASTLINE_FEATHER}"/></filter>` +
+    `<path fill="#fff" fill-rule="evenodd" filter="url(#f)" d="M0 0H1V1H0Z${island}"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+})();
+
+/**
+ * Hides fortnite.gg's flat grey void by covering it with the app's own ground,
+ * feathered along the coastline so the island blends out rather than ending on
+ * the trace's staircase. See lib/map/island-outline.ts for why the grey can't
+ * simply be recoloured.
+ *
+ * The overlay sits above the tile pane (z 200) and below the marker pane
+ * (z 600), so findings and POI labels still draw on top of it.
+ *
+ * The mask image never changes; only where it is painted does. The outline
+ * lives in 0-1 fraction space, which is exactly the tile square, so the mask
+ * is sized to that square and positioned at its top-left — in container
+ * points, which is the overlay's own coordinate space. Two property writes per
+ * frame, no re-encoding.
  */
 function IslandClip({ worldSize, nativeZoom }: { worldSize: number; nativeZoom: number }) {
   const map = useMap();
 
   useEffect(() => {
-    const pane = map.getPane("tilePane");
-    if (!pane) return;
+    const overlay = document.createElement("div");
+    overlay.dataset.slot = "void-cover";
+    Object.assign(overlay.style, {
+      position: "absolute",
+      inset: "0",
+      zIndex: "450",
+      pointerEvents: "none",
+      background: "var(--background)",
+      maskRepeat: "no-repeat",
+      webkitMaskRepeat: "no-repeat",
+      maskImage: VOID_MASK_URL,
+      webkitMaskImage: VOID_MASK_URL,
+    } as Partial<CSSStyleDeclaration>);
+    map.getContainer().appendChild(overlay);
+
+    const corner = (fx: number, fy: number) =>
+      map.latLngToContainerPoint(
+        CRS.Simple.pointToLatLng(L.point(fx * worldSize, fy * worldSize), nativeZoom)
+      );
 
     function draw() {
-      const points = ISLAND_OUTLINE.map(([fx, fy]) => {
-        const latlng = CRS.Simple.pointToLatLng(L.point(fx * worldSize, fy * worldSize), nativeZoom);
-        const p = map.latLngToLayerPoint(latlng);
-        return `${p.x.toFixed(1)}px ${p.y.toFixed(1)}px`;
-      });
-      pane!.style.clipPath = `polygon(${points.join(",")})`;
+      const topLeft = corner(0, 0);
+      const bottomRight = corner(1, 1);
+      const style = overlay.style as CSSStyleDeclaration & Record<string, string>;
+      const size = `${(bottomRight.x - topLeft.x).toFixed(1)}px ${(bottomRight.y - topLeft.y).toFixed(1)}px`;
+      const position = `${topLeft.x.toFixed(1)}px ${topLeft.y.toFixed(1)}px`;
+      style.maskSize = style.webkitMaskSize = size;
+      style.maskPosition = style.webkitMaskPosition = position;
     }
 
     draw();
@@ -304,7 +361,7 @@ function IslandClip({ worldSize, nativeZoom }: { worldSize: number; nativeZoom: 
     map.on("move zoom viewreset resize", draw);
     return () => {
       map.off("move zoom viewreset resize", draw);
-      pane.style.clipPath = "";
+      overlay.remove();
     };
   }, [map, worldSize, nativeZoom]);
 
