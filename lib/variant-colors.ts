@@ -125,17 +125,21 @@ export const VARIANT_NAME: Record<string, string> = {
  * particular being all but unreadable. Both are lifted in lightness, and only
  * as far as clearing 4.5:1 requires, keeping their hue and chroma so they
  * still read as the same colour as the tile: indigo L 0.485 -> 0.620,
- * purple 0.636 -> 0.646 (the latter barely perceptible).
+ * purple 0.636 -> 0.645 (the latter barely perceptible). Indigo's chroma is
+ * also pulled to 0.207, the most its hue holds at that lightness, so the value
+ * is inside sRGB and the browser is not left to gamut-map it somewhere
+ * unpredictable.
  *
- * Uncollected tiles are not included — their caption stays muted, because the
- * fill their sprite sits on is the muted empty-slot grey, not a variant
- * colour.
+ * Applied whether or not the sprite is collected, so the row reads as a legend
+ * of the five variants rather than only labelling what you own. The dashed
+ * placeholder slots are the exception and stay dimmed: a family with no such
+ * variant has no fill to match.
  */
 const VARIANT_LABEL_COLOR: Record<string, string> = {
   gold: "#D09E00", // the tile colour, 7.23:1
   cheatmaster: "#3EC700", // the tile colour, 7.91:1
-  hacker: "oklch(0.62 0.236 276.9)", // lifted from L 0.485 for legibility, 4.58:1
-  reaper: "oklch(0.646 0.301 318)", // lifted from L 0.636, 4.60:1
+  hacker: "oklch(0.62 0.207 276.9)", // lifted from L 0.485 for legibility, 4.58:1
+  reaper: "oklch(0.645 0.300 318)", // lifted from L 0.636, 4.58:1
 };
 
 /** Matches the caption above a tile to the fill beneath it. Null when there is no variant colour to match. */

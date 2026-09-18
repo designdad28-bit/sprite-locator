@@ -369,7 +369,7 @@ export function SpriteCatalogBrowser({
                   <div className="no-scrollbar -mx-3 flex items-center gap-2 overflow-x-auto px-3 py-2">
                     {VARIANT_SLOTS.map((slot) => {
                       const v = group.variants.find((x) => variantKey(x.variant) === slot);
-                      // Not every family ships all four variants (Mega Man has only
+                      // Not every family ships all five variants (Mega Man has only
                       // the base one). Render a placeholder so the columns line up
                       // and every tile is the same size.
                       if (!v) {
@@ -379,7 +379,17 @@ export function SpriteCatalogBrowser({
                             data-slot="variant-slot-empty"
                             className="flex w-[72px] shrink-0 flex-col items-center gap-1"
                           >
-                            <span className="text-[10px] font-medium leading-5 text-muted-foreground/50">
+                            {/* Colour-coded like a real tile's caption, so the
+                                five columns stay identifiable straight down
+                                the sidebar. Not dimmed: every variant colour
+                                falls below the 4.5:1 small-text floor once
+                                faded (indigo reaches 2.7:1 at 70%), and the
+                                dashed border and Ban icon below already say
+                                the variant doesn't exist. */}
+                            <span
+                              className="text-[10px] font-medium leading-5"
+                              style={{ color: variantLabelColor(slot === "normal" ? null : slot) ?? undefined }}
+                            >
                               {variantLabel(slot)}
                             </span>
                             <span
@@ -405,16 +415,15 @@ export function SpriteCatalogBrowser({
                           aria-label={`${displayName(v.name)}: ${status}, click to change`}
                           className="group flex w-[72px] shrink-0 flex-col items-center gap-1 rounded-[6px] outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50"
                         >
-                          {/* Caption takes the colour of the fill its sprite
-                              sits on. Only once collected: before that the
-                              fill is the muted empty-slot grey, so the muted
-                              caption is already the honest match. */}
+                          {/* Caption carries its variant's colour whether or
+                              not the sprite is collected, so the row reads as
+                              a legend of the five variants rather than only
+                              labelling what you happen to own. Placeholder
+                              slots above stay dimmed — a family with no such
+                              variant has no fill to match. */}
                           <span
-                            className={cn(
-                              "text-[10px] font-medium leading-5",
-                              !isColored && "text-muted-foreground"
-                            )}
-                            style={isColored ? { color: variantLabelColor(v.variant) ?? undefined } : undefined}
+                            className="text-[10px] font-medium leading-5"
+                            style={{ color: variantLabelColor(v.variant) ?? undefined }}
                           >
                             {label}
                           </span>
