@@ -30,9 +30,21 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CATALOG = ROOT / "public" / "data" / "sprites.json"
 OUT = ROOT / "lib" / "sprite-icon-metrics.ts"
 
-# fortnite.gg's CDN 403s a default user-agent. These are the same public,
-# unprotected static assets the app already loads in the browser; we identify
-# as a normal browser rather than bypassing any access control.
+# BROKEN AS OF 2026-09-17: fortnite.gg now 403s these image requests even with
+# a browser user-agent, returning an HTML block page instead of the webp. Their
+# hotlink protection keys on the Referer, and defeating it is off-limits, so
+# this script can no longer fetch the icons itself.
+#
+# Re-measure in a real browser instead — the same thing a normal visitor's
+# browser does. On https://fortnite.gg/sprites, for each
+# `.sprite-card[data-variant="base"]` of the current season, load its
+# `src || data-src` into a canvas (same-origin there, so the pixels are
+# readable), scan for the first and last row with alpha > 8, and take
+# (last - first + 1) / height as the fill ratio. Then normalize DOWN to the
+# least-filled icon, exactly as _normalize below does, and write the result
+# into lib/sprite-icon-metrics.ts.
+#
+# The UA below is left in place for if/when direct fetching works again.
 UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/120 Safari/537.36"

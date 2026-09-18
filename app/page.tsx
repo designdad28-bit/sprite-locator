@@ -19,12 +19,15 @@ import { cn } from "@/lib/utils";
 // it (see the map wrapper below), so the island is fitted and centered in the
 // space the sidebar doesn't cover, rather than padded around the panel.
 //
-// Sized so a card's four variant tiles fit on one line with nothing to scroll:
-// 4 tiles x 72px + 3 gaps x 8px + the row's own 12px sides = 336, plus the
-// 2px border the panel draws on its map-facing edge = 338. The extra 2px is
+// Sized so a card's variant tiles fit on one line with nothing to scroll:
+// 5 tiles x 72px + 4 gaps x 8px + the row's own 12px sides = 416, plus the
+// 2px border the panel draws on its map-facing edge = 418. The extra 2px is
 // slack against sub-pixel rounding, which would otherwise be enough on its own
 // to bring the horizontal scroll back.
-const SIDEBAR_WIDTH = 340;
+//
+// Was 340 for four tiles, until the 2026-09-17 patch added a fifth variant
+// (Bounty Hunter) to every family — see VARIANT_SLOTS in lib/variant-colors.ts.
+const SIDEBAR_WIDTH = 420;
 
 export default function Home() {
   const { findings, addFinding } = useFindings();

@@ -296,27 +296,27 @@ function TileWorldSetup({
   const map = useMap();
 
   useEffect(() => {
-    // What panning is clamped to: the tile square, widened on its short sides
-    // just enough to be centered on the island rather than on the square.
-    //
-    // When the view is wider (or taller) than these bounds, Leaflet's
-    // maxBounds (viscosity 1) re-centers the bounds in the view, overriding
-    // fitBounds. With the bare square, the island, which sits left of the
-    // square's middle (x ≈ 0.451), landed ~50px off-center whenever the map
-    // container outgrew the square, e.g. with the sidebar collapsed. Centering
-    // the bounds on the island keeps it centered in every case, and they still
-    // contain every tile, so nothing that could be panned to before is lost.
-    const cx = (ISLAND_BOUNDS.minX + ISLAND_BOUNDS.maxX) / 2;
-    const cy = (ISLAND_BOUNDS.minY + ISLAND_BOUNDS.maxY) / 2;
-    const halfW = Math.max(cx, 1 - cx);
-    const halfH = Math.max(cy, 1 - cy);
-    const panBounds = L.latLngBounds(
-      CRS.Simple.pointToLatLng(L.point((cx - halfW) * worldSize, (cy + halfH) * worldSize), nativeZoom),
-      CRS.Simple.pointToLatLng(L.point((cx + halfW) * worldSize, (cy - halfH) * worldSize), nativeZoom)
-    );
     // The land itself — what the view is sized and centered on, so the island
     // fills the window instead of the square's surrounding void.
     const bounds = islandFitBounds(worldSize, nativeZoom);
+
+    // Panning is clamped to the island itself, NOT to the tile square.
+    //
+    // Leaflet treats maxBounds two ways: when the view is LARGER than the
+    // bounds on an axis it centers the bounds in the view; when smaller it
+    // clamps the edges. Any bounds taller or wider than the island therefore
+    // leaves slack for the clamp to pin the view against an edge, and the fit
+    // loses — the island ends up shoved against one side with its far edge
+    // cropped (~80px low at some window sizes; this is the bug that kept
+    // coming back as the sidebar width changed). Clamping to exactly what we
+    // fit to removes that slack entirely: the two agree by construction, so
+    // "centered" is the only state that satisfies both.
+    //
+    // The tradeoff is that panning no longer reaches the open ocean outside
+    // the coastline. Since minZoom is the fitted zoom, the only time the
+    // clamp does anything is when the user has deliberately zoomed in, and
+    // keeping them over land is the better behaviour there anyway.
+    const panBounds = bounds;
 
     function applyFit() {
       // getBoundsZoom() clamps what it returns to the map's CURRENT minZoom

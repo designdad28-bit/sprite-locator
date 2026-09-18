@@ -11,24 +11,30 @@
 // Unknown ids fall back to 1 — a new Sprite renders unscaled rather than
 // wrong, until this is regenerated.
 const ICON_SCALE: Record<string, number> = {
-  "jackrabbit-sprite": 0.7686,
-  "crown-sprite": 0.7956,
-  "klombo-sprite": 0.8135,
-  "overshield-sprite": 0.838,
+  "jackrabbit-sprite": 0.7702,
+  "crash-bandicoot-sprite": 0.7702,
+  "birthday-sprite": 0.7751,
+  "crown-sprite": 0.7955,
+  "pond-sprite": 0.7955,
+  "klombo-sprite": 0.8153,
+  "morgana-sprite": 0.8264,
   "mega-man-sprite": 0.8399,
-  "tails-sprite": 0.8518,
-  "shadow-sprite": 0.8599,
+  "overshield-sprite": 0.8399,
+  "tails-sprite": 0.8517,
+  "shadow-sprite": 0.8598,
   "sonic-sprite": 0.8744,
   "adventure-sprite": 0.8916,
   "storm-scout-sprite": 0.896,
-  "bush-sprite": 0.9403,
+  "blinky-sprite": 0.9258,
+  "bush-sprite": 0.9402,
   "killswitch-sprite": 0.9427,
-  "8-bit-sprite": 0.9526,
-  "x-ray-sprite": 0.9628,
-  "onigiri-sprite": 0.9653,
+  "8-bit-sprite": 0.9576,
+  "x-ray-sprite": 0.9678,
+  "onigiri-sprite": 0.9705,
   "jonesy-sprite": 1.0,
 };
 
-export function spriteIconScale(spriteId: string): number {
-  return ICON_SCALE[spriteId] ?? 1;
+/** 1 for anything unmeasured, so an unknown Sprite renders unscaled rather than wrong. */
+export function spriteIconScale(id: string): number {
+  return ICON_SCALE[id] ?? 1;
 }
