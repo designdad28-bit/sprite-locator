@@ -190,10 +190,12 @@
     /* The app's own ground, so there's no black flash or gap behind the shell
        before hydration, on resize, or in any sliver the flex layout doesn't
        cover. This used to be hard-coded to fortnite.gg's void grey so the map's
-       letterbox blended with their tiles; the tile pane is now clipped to the
-       coastline (see IslandClip), so nothing outside the island is theirs to
-       match and this follows the theme instead. */
-    background: var(--background);
+       letterbox blended with their tiles; the island is now cut out of a cover
+       painted in --card (see IslandClip), so nothing outside it is theirs to
+       match. --card rather than --background so every surface behind the app —
+       the panels, the field around the island, and any sliver between them —
+       is the one colour. */
+    background: var(--card);
     /* This is a single full-window app, not a scrolling document: pin the
        document box to the viewport itself so the shell can't end up sized to
        anything but the window (a stale height, a phantom scrollbar, an

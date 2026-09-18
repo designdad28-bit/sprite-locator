@@ -369,7 +369,7 @@ function IslandClip({ worldSize, nativeZoom }: { worldSize: number; nativeZoom: 
     Object.assign(cover.style, {
       position: "absolute",
       transformOrigin: "0 0",
-      background: "var(--background)",
+      background: "var(--card)",
       maskImage: VOID_MASK_URL,
       webkitMaskImage: VOID_MASK_URL,
       maskRepeat: "no-repeat",
@@ -643,10 +643,11 @@ export default function IslandMap({
         attributionControl={false}
         className={`h-full w-full ${isAddMode ? "cursor-crosshair" : ""}`}
         // The island is clipped to its coastline (see IslandClip), so nothing
-        // here has to match fortnite.gg's void grey any more — the app's own
-        // ground shows around the island instead. --map-background still feeds
-        // the tile-seam patch in globals.css, so it tracks whatever that is.
-        style={{ backgroundColor: "var(--background)", "--map-background": "var(--background)" } as CSSProperties}
+        // here has to match fortnite.gg's void grey any more. --card rather
+        // than --background so the field around the island reads as the same
+        // surface as the panels either side of it. --map-background still
+        // feeds the tile-seam patch in globals.css, so it tracks this.
+        style={{ backgroundColor: "var(--card)", "--map-background": "var(--card)" } as CSSProperties}
       >
       <TileWorldSetup
         worldSize={worldSize}
