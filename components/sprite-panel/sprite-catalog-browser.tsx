@@ -464,7 +464,7 @@ export function SpriteCatalogBrowser({
                                   "absolute inset-0 size-full object-cover transition-all duration-150 group-hover:scale-110",
                                   // Uncollected sprites read as black-and-white, and come
                                   // up to full color on hover.
-                                  !isColored && "grayscale group-hover:grayscale-0"
+                                  !isColored && "sprite-unowned group-hover:[filter:none]"
                                 )}
                               />
                             ) : (

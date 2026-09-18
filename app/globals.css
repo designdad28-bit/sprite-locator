@@ -387,3 +387,17 @@
   background-repeat: no-repeat;
   background-attachment: local;
 }
+
+/* Uncollected Sprite art: a Reef duotone rather than a flat greyscale.
+   Greyscale left the one part of the UI outside the palette — a grey sprite on
+   a teal panel read as a different material. This maps luminance onto the same
+   ramp everything else uses: hue 196, from #0A3535 in the shadows to #B0DBDB
+   in the highlights.
+   The shadow end sits a step above the panel (--card, #002526) so a dark sprite
+   still separates from what's behind it, and the light end stops well short of
+   white so the tile still reads as "not collected yet" beside a collected one.
+   Applied through an SVG filter because CSS's own filters can't place both ends
+   of a duotone — grayscale/sepia/hue-rotate only swings the midtones. */
+@utility sprite-unowned {
+  filter: url("#reef-duotone");
+}

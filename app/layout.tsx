@@ -42,6 +42,32 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           the shell a flex item that can be sized by its container rather than
           by the window. */}
       <body className="text-foreground">
+        {/* The duotone that tints uncollected Sprite art into the Reef ramp
+            (see .sprite-unowned in globals.css). It lives here because a CSS
+            filter can only reference an SVG filter that is actually in the
+            document — a data: URI is not reliably resolved for filter refs —
+            and it is defined once at the root so every Sprite list can point
+            at the same one.
+            feColorMatrix flattens the art to luminance; feComponentTransfer
+            then maps 0 to #0A3535 and 1 to #B0DBDB, both hue 196. sRGB
+            interpolation is explicit: the default, linearRGB, washes the
+            midtones out. */}
+        <svg aria-hidden="true" focusable="false" className="pointer-events-none absolute size-0">
+          <filter id="reef-duotone" colorInterpolationFilters="sRGB">
+            <feColorMatrix
+              type="matrix"
+              values="0.2126 0.7152 0.0722 0 0
+                      0.2126 0.7152 0.0722 0 0
+                      0.2126 0.7152 0.0722 0 0
+                      0 0 0 1 0"
+            />
+            <feComponentTransfer>
+              <feFuncR type="table" tableValues="0.039 0.688" />
+              <feFuncG type="table" tableValues="0.207 0.858" />
+              <feFuncB type="table" tableValues="0.208 0.857" />
+            </feComponentTransfer>
+          </filter>
+        </svg>
         <SpriteCatalogProvider>{children}</SpriteCatalogProvider>
       </body>
     </html>
