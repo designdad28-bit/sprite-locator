@@ -294,7 +294,7 @@ function clusterFindings(
  * filter default is linearRGB, which makes the falloff look bitten-into
  * rather than soft.
  */
-const COASTLINE_FEATHER = 0.010;
+const COASTLINE_FEATHER = 0.020;
 
 /**
  * Pulls the cover further over the coast, so no raw void survives at the edge.
@@ -320,7 +320,7 @@ const COASTLINE_FEATHER = 0.010;
  * The slope also steepens the ramp, which is why FEATHER above went up to
  * compensate: the visible softness is roughly feather / slope.
  */
-const COASTLINE_TIGHTEN = { slope: 5.0, intercept: -0.075 };
+const COASTLINE_TIGHTEN = { slope: 4.35, intercept: 0 };
 
 /**
  * How far the mask image extends past the tile square, as a fraction of it.
