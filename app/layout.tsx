@@ -49,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             and it is defined once at the root so every Sprite list can point
             at the same one.
             feColorMatrix flattens the art to luminance; feComponentTransfer
-            then maps 0 to #0A3535 and 1 to #B0DBDB, both hue 196. sRGB
+            then maps 0 to #1E2F44 and 1 to #BED3EF, both hue 256. sRGB
             interpolation is explicit: the default, linearRGB, washes the
             midtones out. */}
         <svg aria-hidden="true" focusable="false" className="pointer-events-none absolute size-0">
@@ -62,9 +62,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                       0 0 0 1 0"
             />
             <feComponentTransfer>
-              <feFuncR type="table" tableValues="0.039 0.688" />
-              <feFuncG type="table" tableValues="0.207 0.858" />
-              <feFuncB type="table" tableValues="0.208 0.857" />
+              <feFuncR type="table" tableValues="0.118 0.745" />
+              <feFuncG type="table" tableValues="0.184 0.827" />
+              <feFuncB type="table" tableValues="0.267 0.937" />
             </feComponentTransfer>
           </filter>
         </svg>
