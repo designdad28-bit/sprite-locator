@@ -296,19 +296,34 @@ function clusterFindings(
  */
 const COASTLINE_FEATHER = 0.004;
 
+/**
+ * How far the mask image extends past the tile square, as a fraction of it.
+ *
+ * The cover has to overhang the tiles. Leaflet draws a retained tile level
+ * scaled by CSS for fractional zooms, so the rendered tiles don't land exactly
+ * where projecting the square's corners says they will — measured 2-3px out,
+ * which showed as a thin line of their grey down the east side of the map.
+ *
+ * The overhang is built into the SVG's viewBox rather than into mask-size, and
+ * that distinction matters: scaling the mask up would drag the coastline hole
+ * out with it and open a ring of void around the island. Widening the viewBox
+ * leaves the hole exactly where it belongs and pads opaque white around it.
+ */
+const VOID_COVER_BLEED = 0.06;
+
 const VOID_MASK_URL = (() => {
   const island = ISLAND_OUTLINE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("") + "Z";
+  const B = VOID_COVER_BLEED;
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" preserveAspectRatio="none">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${1 + 2 * B} ${1 + 2 * B}" preserveAspectRatio="none">` +
     `<filter id="f" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">` +
     `<feGaussianBlur stdDeviation="${COASTLINE_FEATHER}"/></filter>` +
-    // The outer rectangle is oversized, well past the 0-1 viewBox. Drawn at
-    // exactly 0-1 the blur feathers ITS edges too, so the cover turned
-    // semi-transparent along the tile square's border and fortnite.gg's grey
-    // showed through as a line down each side of the map. Pushing the
-    // rectangle out means only the coastline hole is ever blurred inside the
-    // visible area; the SVG canvas clips the overshoot away.
-    `<path fill="#fff" fill-rule="evenodd" filter="url(#f)" d="M-0.08 -0.08H1.08V1.08H-0.08Z${island}"/></svg>`;
+    // The outer rectangle runs past the viewBox on every side. Drawn flush to
+    // it, the blur feathers ITS edges too, so the cover turned semi-transparent
+    // along its own border and fortnite.gg's grey showed through as a line down
+    // the side of the map. Pushing it out means only the coastline hole is ever
+    // blurred inside the visible area; the SVG canvas clips the overshoot away.
+    `<path fill="#fff" fill-rule="evenodd" filter="url(#f)" d="M${-3 * B} ${-3 * B}H${1 + 3 * B}V${1 + 3 * B}H${-3 * B}Z${island}"/></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 })();
 
@@ -355,8 +370,15 @@ function IslandClip({ worldSize, nativeZoom }: { worldSize: number; nativeZoom: 
       const topLeft = corner(0, 0);
       const bottomRight = corner(1, 1);
       const style = overlay.style as CSSStyleDeclaration & Record<string, string>;
-      const size = `${(bottomRight.x - topLeft.x).toFixed(1)}px ${(bottomRight.y - topLeft.y).toFixed(1)}px`;
-      const position = `${topLeft.x.toFixed(1)}px ${topLeft.y.toFixed(1)}px`;
+      // The mask image spans the square plus VOID_COVER_BLEED on each side, so
+      // it is sized and offset to that wider box. The coastline hole still
+      // lands on the square itself. Overhanging is free: beyond the square
+      // there are no tiles, and the cover is the same colour as the ground it
+      // spills onto.
+      const w = bottomRight.x - topLeft.x;
+      const h = bottomRight.y - topLeft.y;
+      const size = `${(w * (1 + 2 * VOID_COVER_BLEED)).toFixed(1)}px ${(h * (1 + 2 * VOID_COVER_BLEED)).toFixed(1)}px`;
+      const position = `${(topLeft.x - w * VOID_COVER_BLEED).toFixed(1)}px ${(topLeft.y - h * VOID_COVER_BLEED).toFixed(1)}px`;
       style.maskSize = style.webkitMaskSize = size;
       style.maskPosition = style.webkitMaskPosition = position;
     }
