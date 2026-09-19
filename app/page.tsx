@@ -36,11 +36,16 @@ const SIDEBAR_WIDTH = 290;
  * tiles and 92% of a third — measured — so the cue that the row continues
  * survives. Any narrower and the third tile starts disappearing.
  *
- * The ceiling is whichever is smaller — 640, or half the window, so dragging
- * can never squeeze the map into a sliver on a narrow screen.
+ * The ceiling is the width at which the row finally completes: the 12px left
+ * pad + 5 tiles x 72 + 4 gaps x 8 + a matching 12px on the right = 416, plus
+ * the 2px border on the map-facing edge. Dragging past that would only add
+ * empty panel, since the row has nothing left to reveal.
+ *
+ * Still capped at half the window as well, so a drag can never squeeze the map
+ * into a sliver on a narrow screen.
  */
 const SIDEBAR_MIN_WIDTH = 240;
-const SIDEBAR_MAX_WIDTH = 640;
+const SIDEBAR_MAX_WIDTH = 418;
 
 /** Remembers the dragged width between visits, like the collection state does. */
 const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
@@ -82,28 +87,46 @@ export default function Home() {
   }, []);
 
   /**
-   * Drag-to-resize. Pointer capture means the drag survives the cursor leaving
-   * the 5px handle — without it, moving faster than React re-renders drops the
-   * drag. Width is read straight from the pointer's x rather than accumulated
-   * from deltas, so it can't drift over a long drag.
+   * Drag-to-resize.
+   *
+   * The move and up listeners go on the window, not the handle, so the drag
+   * keeps working however fast the cursor leaves the 5px strip. Pointer
+   * capture would usually cover that too, but it is best-effort here: it
+   * throws when there is no live pointer for the id, and having it throw
+   * before the listeners were attached is exactly how a drag silently does
+   * nothing. Window listeners work with or without it.
+   *
+   * Width is read straight from the pointer's x rather than accumulated from
+   * deltas, so it cannot drift over a long drag.
    */
   function startResize(event: React.PointerEvent<HTMLDivElement>) {
     event.preventDefault();
     const handle = event.currentTarget;
-    handle.setPointerCapture(event.pointerId);
+    const pointerId = event.pointerId;
+    try {
+      handle.setPointerCapture(pointerId);
+    } catch {
+      // No live pointer for this id — carry on with the window listeners.
+    }
 
     const onMove = (move: PointerEvent) => setSidebarWidth(clampSidebarWidth(move.clientX));
     const onUp = () => {
-      handle.releasePointerCapture(event.pointerId);
-      handle.removeEventListener("pointermove", onMove);
-      handle.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      try {
+        handle.releasePointerCapture(pointerId);
+      } catch {
+        // Nothing was captured; nothing to release.
+      }
       setSidebarWidth((width) => {
         window.localStorage.setItem(SIDEBAR_WIDTH_KEY, String(width));
         return width;
       });
     };
-    handle.addEventListener("pointermove", onMove);
-    handle.addEventListener("pointerup", onUp);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
   }
 
   function nudgeResize(event: React.KeyboardEvent<HTMLDivElement>) {
