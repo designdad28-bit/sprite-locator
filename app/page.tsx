@@ -32,9 +32,12 @@ const SIDEBAR_WIDTH = 290;
 /**
  * How far the sidebar can be dragged.
  *
- * The floor is 240. At exactly that width the variant row shows two whole
- * tiles and 92% of a third — measured — so the cue that the row continues
- * survives. Any narrower and the third tile starts disappearing.
+ * The floor is 264, chosen so the third variant tile lands whole and the
+ * fourth still peeks: the 12px left pad + 3 tiles x 72 + 2 gaps x 8 puts the
+ * third tile's right edge at 244 and the fourth's left edge at 252, leaving a
+ * 12px sliver of it (10px of tile inside the 2px border). Narrower than this
+ * and the third tile itself gets cut, which reads as a broken card rather
+ * than as a row that scrolls.
  *
  * The ceiling is the width at which the row finally completes: the 12px left
  * pad + 5 tiles x 72 + 4 gaps x 8 + a matching 12px on the right = 416, plus
@@ -44,7 +47,7 @@ const SIDEBAR_WIDTH = 290;
  * Still capped at half the window as well, so a drag can never squeeze the map
  * into a sliver on a narrow screen.
  */
-const SIDEBAR_MIN_WIDTH = 240;
+const SIDEBAR_MIN_WIDTH = 264;
 const SIDEBAR_MAX_WIDTH = 418;
 
 /** Remembers the dragged width between visits, like the collection state does. */

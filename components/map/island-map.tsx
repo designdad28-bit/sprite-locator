@@ -524,6 +524,24 @@ function TileWorldSetup({
         paddingBottomRight: [FIT_PADDING, FIT_PADDING],
       });
       map.setMaxBounds(panBounds);
+      syncDragging();
+    }
+
+    // Dragging is only offered once the user has actually zoomed in.
+    //
+    // At the fitted zoom the whole island is already on screen and maxBounds
+    // is that same box, so a drag has nowhere to go — it can only strain
+    // against the clamp. Leaflet still swaps in its grab/grabbing cursor and
+    // still fires the drag, which reads as an interaction that does nothing.
+    // Turning the handler off at the floor makes the map plainly static until
+    // there is something off-screen to reach.
+    //
+    // The floor is minZoom, which applyFit has just set to the fitted zoom;
+    // the epsilon is because zoomSnap is 0, so the zoom is a float and
+    // fitBounds can land a hair either side of the floor it just computed.
+    function syncDragging() {
+      if (map.getZoom() > map.getMinZoom() + 1e-6) map.dragging.enable();
+      else map.dragging.disable();
     }
 
     // Deferred by a frame rather than called inline. TileWorldSetup is a CHILD
@@ -538,6 +556,7 @@ function TileWorldSetup({
     // only a production build showed the bug.
     const firstFit = requestAnimationFrame(applyFit);
     map.on("resize", applyFit);
+    map.on("zoomend", syncDragging);
 
     // Leaflet's own "resize" event only fires from `invalidateSize()` — it is
     // NOT a browser resize listener. Without this, Leaflet keeps using the
@@ -563,6 +582,7 @@ function TileWorldSetup({
     return () => {
       cancelAnimationFrame(firstFit);
       map.off("resize", applyFit);
+      map.off("zoomend", syncDragging);
       resizeObserver.disconnect();
     };
   }, [map, worldSize, nativeZoom, minZoom, insetLeft]);
