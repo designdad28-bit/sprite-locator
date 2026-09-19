@@ -143,7 +143,19 @@ export function SpriteCatalogBrowser({
             sidebar shares one left edge. */}
         <div className="flex items-center gap-2 px-3 pt-4 pb-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-lockup.svg" alt="SpriteRadar" className="h-[18px] w-auto object-contain" />
+          {/* Pulled 2px left of the 12px everything else sits on, so the mark
+              looks level rather than measuring level. Two reasons it read as
+              inset: the lockup carries 3px of its own transparent padding
+              (1.4px at this size), and its mark is a circle — a round shape
+              touches the alignment line at a single point while its mass sits
+              back from it, so it needs to overhang a flat edge slightly to
+              appear flush. The crown, search field and tiles below are all
+              flat-edged and stay at 12. */}
+          <img
+            src="/brand/logo-lockup.svg"
+            alt="SpriteRadar"
+            className="-ml-[2px] h-[18px] w-auto object-contain"
+          />
           {/* ml-auto pins it to the row's right edge, opposite the logo. */}
           <button
             type="button"
