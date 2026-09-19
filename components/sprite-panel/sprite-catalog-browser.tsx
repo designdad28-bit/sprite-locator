@@ -448,6 +448,16 @@ export function SpriteCatalogBrowser({
                               status === "mastered"
                                 ? "outline-2 outline-sprite-gold"
                                 : "outline-[0.5px] outline-border",
+                              // Collected tiles cast a shadow so they sit above
+                              // the panel rather than flush in it — the fill
+                              // alone reads as a swatch painted on the surface.
+                              // Two layers: a tight one for the contact edge
+                              // and a wider, softer one for the cast. Both are
+                              // black rather than a tinted shadow, because the
+                              // panel is already dark and a coloured shadow
+                              // muddies into it instead of darkening it.
+                              isColored &&
+                                "shadow-[0_1px_2px_rgba(0,0,0,0.55),0_6px_14px_-4px_rgba(0,0,0,0.65)]",
                               // Uncollected tiles share the empty-slot fill (see the
                               // variant-slot-empty branch above), so "nothing here yet"
                               // and "not collected yet" read as the same weight.
