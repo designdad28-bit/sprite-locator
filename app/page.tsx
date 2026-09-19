@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin } from "lucide-react";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
@@ -29,6 +29,27 @@ import { cn } from "@/lib/utils";
 // — see the variant row in sprite-catalog-browser.tsx.
 const SIDEBAR_WIDTH = 290;
 
+/**
+ * How far the sidebar can be dragged.
+ *
+ * The floor is 240. At exactly that width the variant row shows two whole
+ * tiles and 92% of a third — measured — so the cue that the row continues
+ * survives. Any narrower and the third tile starts disappearing.
+ *
+ * The ceiling is whichever is smaller — 640, or half the window, so dragging
+ * can never squeeze the map into a sliver on a narrow screen.
+ */
+const SIDEBAR_MIN_WIDTH = 240;
+const SIDEBAR_MAX_WIDTH = 640;
+
+/** Remembers the dragged width between visits, like the collection state does. */
+const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
+
+function clampSidebarWidth(width: number) {
+  const ceiling = Math.min(SIDEBAR_MAX_WIDTH, Math.round(window.innerWidth / 2));
+  return Math.max(SIDEBAR_MIN_WIDTH, Math.min(ceiling, Math.round(width)));
+}
+
 /** The border each panel draws on its map-facing edge (border-r-2 / border-l-2). */
 const PANEL_BORDER = 2;
 
@@ -46,6 +67,56 @@ export default function Home() {
   const [addOpen, setAddOpen] = useState(false);
   const [addKey, setAddKey] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Starts at the default so the server and the first client render agree;
+  // any remembered width is applied just after, in the effect below.
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_WIDTH);
+
+  useEffect(() => {
+    const saved = Number(window.localStorage.getItem(SIDEBAR_WIDTH_KEY));
+    if (!Number.isFinite(saved) || saved <= 0) return;
+    // Applied on the next frame rather than straight from the effect body: a
+    // synchronous setState here costs an extra render pass before paint
+    // (react-hooks/set-state-in-effect).
+    const frame = requestAnimationFrame(() => setSidebarWidth(clampSidebarWidth(saved)));
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  /**
+   * Drag-to-resize. Pointer capture means the drag survives the cursor leaving
+   * the 5px handle — without it, moving faster than React re-renders drops the
+   * drag. Width is read straight from the pointer's x rather than accumulated
+   * from deltas, so it can't drift over a long drag.
+   */
+  function startResize(event: React.PointerEvent<HTMLDivElement>) {
+    event.preventDefault();
+    const handle = event.currentTarget;
+    handle.setPointerCapture(event.pointerId);
+
+    const onMove = (move: PointerEvent) => setSidebarWidth(clampSidebarWidth(move.clientX));
+    const onUp = () => {
+      handle.releasePointerCapture(event.pointerId);
+      handle.removeEventListener("pointermove", onMove);
+      handle.removeEventListener("pointerup", onUp);
+      setSidebarWidth((width) => {
+        window.localStorage.setItem(SIDEBAR_WIDTH_KEY, String(width));
+        return width;
+      });
+    };
+    handle.addEventListener("pointermove", onMove);
+    handle.addEventListener("pointerup", onUp);
+  }
+
+  function nudgeResize(event: React.KeyboardEvent<HTMLDivElement>) {
+    const step = event.shiftKey ? 48 : 16;
+    const delta = event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
+    if (!delta) return;
+    event.preventDefault();
+    setSidebarWidth((width) => {
+      const next = clampSidebarWidth(width + delta);
+      window.localStorage.setItem(SIDEBAR_WIDTH_KEY, String(next));
+      return next;
+    });
+  }
   const [lastAdded, setLastAdded] = useState<string | null>(null);
 
 
@@ -89,9 +160,9 @@ export default function Home() {
           // a bottom edge too, since the map sits below it.
           sidebarOpen ? "bottom-0" : "w-auto border-b-2"
         )}
-        // From the same constant the map container reserves, so the two can't
+        // From the same state the map container reserves, so the two can't
         // drift apart.
-        style={{ width: sidebarOpen ? SIDEBAR_WIDTH : undefined }}
+        style={{ width: sidebarOpen ? sidebarWidth : undefined }}
       >
         <SpriteCatalogBrowser
           selectedSpriteId={selectedSpriteId}
@@ -101,6 +172,25 @@ export default function Home() {
           collapsed={!sidebarOpen}
           onToggleCollapsed={() => setSidebarOpen((open) => !open)}
         />
+
+        {/* The drag handle, sitting on the panel's own edge. Only its middle
+            band is grabbable so it doesn't fight the sidebar's scrollbar
+            gutter, and it widens on hover rather than being visible at rest —
+            the border it sits on is the affordance. */}
+        {sidebarOpen && (
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize sidebar"
+            aria-valuenow={sidebarWidth}
+            aria-valuemin={SIDEBAR_MIN_WIDTH}
+            aria-valuemax={SIDEBAR_MAX_WIDTH}
+            tabIndex={0}
+            onPointerDown={startResize}
+            onKeyDown={nudgeResize}
+            className="absolute inset-y-0 right-0 z-10 w-[5px] translate-x-[2px] cursor-col-resize touch-none bg-transparent transition-colors hover:bg-ring/60 focus-visible:bg-ring/60 focus-visible:outline-none"
+          />
+        )}
       </motion.aside>
 
       {/* The map's container: everything the sidebar doesn't cover. The margin
@@ -111,7 +201,7 @@ export default function Home() {
       <div
         data-slot="map-container"
         className="relative min-w-0 flex-1"
-        style={{ marginLeft: sidebarOpen ? SIDEBAR_WIDTH : 0 }}
+        style={{ marginLeft: sidebarOpen ? sidebarWidth : 0 }}
       >
         <IslandMapCanvas
           findings={findings}
@@ -168,7 +258,7 @@ export default function Home() {
             key={selectedSpriteId}
             initial={{ width: 0, opacity: 0 }}
             // Same width as the left sidebar, from the same constant.
-            animate={{ width: SIDEBAR_WIDTH, opacity: 1 }}
+            animate={{ width: sidebarWidth, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             // Flush to the window like the left sidebar: no margin, no radius,
@@ -180,7 +270,7 @@ export default function Home() {
                 border, which the aside's width includes and this div's does
                 not. Without that it overhung by exactly 2px at every sidebar
                 width, giving the panel a hairline horizontal scroll. */}
-            <div className="h-full" style={{ width: SIDEBAR_WIDTH - PANEL_BORDER }}>
+            <div className="h-full" style={{ width: sidebarWidth - PANEL_BORDER }}>
               <SpriteDetailPanel
                 spriteId={selectedSpriteId}
                 findings={findings}
