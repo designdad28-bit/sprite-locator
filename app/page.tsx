@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Layers, FlaskConical } from "lucide-react";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
@@ -65,6 +64,9 @@ const SIDEBAR_MAX_WIDTH = 418;
 /** Remembers the dragged width between visits, like the collection state does. */
 const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
 
+/** Remembers whether demo findings are switched on. */
+const DEMO_MODE_KEY = "sprite-radar:demo-mode";
+
 function clampSidebarWidth(width: number) {
   const ceiling = Math.min(SIDEBAR_MAX_WIDTH, Math.round(window.innerWidth / 2));
   return Math.max(SIDEBAR_MIN_WIDTH, Math.min(ceiling, Math.round(width)));
@@ -111,23 +113,44 @@ export default function Home() {
   // every variant of whatever the Radar toggles have turned on.
   const [variantFilter, setVariantFilter] = useState<string | null>(null);
   /**
-   * Demo mode: `?demo=1` adds one synthetic finding per live Sprite so the map
-   * can be seen fully populated. Off unless asked for, never stored, and gone
-   * the moment the parameter is dropped from the URL.
+   * Demo mode adds one synthetic finding per live Sprite so the map can be seen
+   * fully populated. Off unless switched on, and never written to the database
+   * — see lib/demo-findings.ts.
    *
-   * Read in an effect rather than during render because the server has no URL
-   * to read — deriving it inline would make the first client render disagree
-   * with the server's and hydration would fail.
+   * Remembered between visits like the sidebar width, so looking around doesn't
+   * end at the next reload. That it persists is exactly why the control stays
+   * visible and lit while it is on: the map is showing data nobody logged, and
+   * that must never be a quiet state.
+   *
+   * Starts false so the server's render and the first client one agree; the
+   * stored value is applied just after, in the effect.
    */
   const [demoMode, setDemoMode] = useState(false);
   useEffect(() => {
     // Next frame rather than straight from the effect body, like the sidebar
     // width below (react-hooks/set-state-in-effect).
     const frame = requestAnimationFrame(() =>
-      setDemoMode(new URLSearchParams(window.location.search).get("demo") === "1")
+      setDemoMode(window.localStorage.getItem(DEMO_MODE_KEY) === "1")
     );
     return () => cancelAnimationFrame(frame);
   }, []);
+
+  function toggleDemoMode() {
+    const next = !demoMode;
+    window.localStorage.setItem(DEMO_MODE_KEY, next ? "1" : "0");
+    setDemoMode(next);
+    if (!next) return;
+    // Switching demo on has to pin it too. The visible set is seeded once from
+    // whatever findings existed at load, so a Sprite with no real sighting has
+    // its Radar off — and most Sprites have no real sighting, which is the
+    // whole point of demo mode. Without this the map would answer a toggle
+    // with a handful of new pins instead of a full island.
+    setVisibleSpriteIds((prev) => {
+      const ids = new Set(prev);
+      for (const finding of buildDemoFindings(sprites, pois)) ids.add(finding.spriteId);
+      return ids;
+    });
+  }
 
   // Demo findings are appended to the real ones rather than replacing them, so
   // turning the mode on never hides a genuine sighting.
@@ -370,7 +393,8 @@ export default function Home() {
           onMapClick={() => {}}
         />
 
-        <div className="pointer-events-none absolute inset-x-0 top-2 z-[500] flex items-center justify-between px-2">
+        <div className="pointer-events-none absolute inset-x-0 top-2 z-[500] flex items-center justify-between gap-2 px-2">
+          <div className="flex min-w-0 items-center gap-2">
           {/* Styled to match Add finding opposite it — same height, radius,
               card fill and shadow — so the two read as one layer of map
               controls rather than a control and a form field. */}
@@ -420,18 +444,25 @@ export default function Home() {
             </SelectContent>
           </Select>
 
-          {/* Unmissable while demo mode is on, because the map is showing data
-              nobody logged. Links out rather than offering a toggle: the URL
-              is what turns this on, so the URL is what turns it off. */}
-          {demoMode && (
-            <Link
-              href="/"
-              className="pointer-events-auto mx-2 flex h-9 shrink-0 items-center gap-2 rounded-md border border-sprite-gold/60 bg-card px-4 text-sm font-medium whitespace-nowrap text-sprite-gold shadow-lg"
-            >
-              <FlaskConical className="size-4" strokeWidth={1.5} />
-              Demo data — exit
-            </Link>
-          )}
+          {/* Always present, so the mode can be left as easily as it is
+              entered — but it never looks the same in both states. Lit and
+              labelled while on, because the map is then showing data nobody
+              logged and that must not be a quiet state. */}
+          <button
+            type="button"
+            onClick={toggleDemoMode}
+            aria-pressed={demoMode}
+            className={cn(
+              "pointer-events-auto flex h-9 shrink-0 items-center gap-2 rounded-md border bg-card px-4 text-sm font-medium whitespace-nowrap shadow-lg transition-colors outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50",
+              demoMode
+                ? "border-sprite-gold/60 text-sprite-gold"
+                : "border-border text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <FlaskConical className="size-4" strokeWidth={1.5} />
+            {demoMode ? "Demo data — on" : "Demo data"}
+          </button>
+          </div>
 
           <Button
             variant="outline"
