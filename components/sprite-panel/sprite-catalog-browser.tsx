@@ -318,10 +318,26 @@ export function SpriteCatalogBrowser({
                         <span className="size-14 shrink-0 rounded-md bg-input/30" />
                       )}
                       <span className="flex min-w-0 flex-col items-start justify-center gap-0.5">
-                        <span className="font-heading text-[18px] font-medium leading-[1.15] text-white">
-                          {group.family}
+                        <span className="flex min-w-0 items-center gap-1.5">
+                          <span className="truncate font-heading text-[18px] font-medium leading-[1.15] text-white">
+                            {group.family}
+                          </span>
+                          {/* Sized down from the Radar's 20px and moved off the
+                              right edge to sit with the name it describes —
+                              it opens that Sprite's detail panel, so it reads
+                              as part of the title rather than as a second map
+                              control beside the Radar. */}
+                          <button
+                            type="button"
+                            data-slot="sprite-details"
+                            onClick={() => onSelect(baseVariant.id)}
+                            aria-label={`${group.family} details`}
+                            className="shrink-0 rounded-sm text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
+                          >
+                            <Info className="size-3.5" strokeWidth={1.75} />
+                          </button>
                         </span>
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-3">
                         {/* Atlassian lozenge colors (see rarityAccent). Inline rather
                             than classes because the values come from their token set,
                             not Tailwind's palette. h-auto + leading-none so the pill
@@ -341,13 +357,42 @@ export function SpriteCatalogBrowser({
                         >
                           {group.rarity ? group.rarity.charAt(0).toUpperCase() + group.rarity.slice(1) : "Unknown"}
                         </Badge>
-                        {/* Same split as the mastery card: the count you've earned in
-                            gold, the total muted so it reads as the denominator.
+                        {/* One dot per variant SLOT, in VARIANT_SLOTS order, so a
+                            dot's position tells you which variant it stands for:
+                            the second dot is always gold, the fifth always bounty
+                            hunter. That is why all five are always drawn, even for
+                            a family that doesn't have all five — dropping the
+                            missing ones would shift every dot after them onto the
+                            wrong variant. Slots the family has no variant for are
+                            dimmed instead, the same thing the dashed tile and its
+                            Ban icon say further down the card.
                             h-4 caps the box at the badge's 16px (10px text + 2px
                             padding + 1px border, each side) so the row stays one
-                            badge tall; items-center lines the digits up with it. */}
-                        <span className="flex h-4 items-center text-[12px] font-medium leading-none tabular-nums text-muted-foreground">
-                          (<span className="text-sprite-gold">{masteredInSet}</span>/{group.variants.length})
+                            badge tall. */}
+                        <span
+                          className="flex h-4 items-center gap-1"
+                          role="img"
+                          aria-label={`${masteredInSet} of ${group.variants.length} mastered`}
+                        >
+                          {VARIANT_SLOTS.map((slot) => {
+                            const v = group.variants.find((x) => variantKey(x.variant) === slot);
+                            const mastered = v ? getStatus(v.id) === "mastered" : false;
+                            return (
+                              <span
+                                key={slot}
+                                data-slot="mastery-dot"
+                                data-state={!v ? "absent" : mastered ? "mastered" : "unmastered"}
+                                className={cn(
+                                  "size-2 rounded-full",
+                                  mastered
+                                    ? "bg-sprite-gold"
+                                    : v
+                                      ? "bg-muted-foreground/40"
+                                      : "bg-muted-foreground/15"
+                                )}
+                              />
+                            );
+                          })}
                         </span>
                         </span>
                       </span>
@@ -371,15 +416,6 @@ export function SpriteCatalogBrowser({
                         )}
                       >
                         <Radar className="size-5" strokeWidth={1.5} />
-                      </button>
-                      <button
-                        type="button"
-                        data-slot="sprite-details"
-                        onClick={() => onSelect(baseVariant.id)}
-                        aria-label={`${group.family} details`}
-                        className="rounded-sm text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
-                      >
-                        <Info className="size-5" strokeWidth={1.5} />
                       </button>
                     </span>
                   </div>
