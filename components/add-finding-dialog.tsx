@@ -57,9 +57,14 @@ function LootThumb({ icon }: { icon: string | null }) {
 
 export interface AddFindingValues {
   poiId: string;
-  /** The family's base Sprite — what a finding is logged against. */
+  /**
+   * The Sprite a finding is logged against: the id of the VARIANT that was
+   * found (gold-jonesy-sprite), not the family's base one. The two pickers
+   * below ask for family and variant separately because that is the easier
+   * question to answer, but the answer resolves to a single catalog sprite.
+   */
   spriteId: string;
-  /** Which of that family's four variants was found, as a slot key ("gold"). */
+  /** Which variant was found, as a slot key ("gold"). Kept for the stored row's own label. */
   variant: string;
   lootSource: string;
 }
@@ -108,7 +113,9 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
     const family = sprites.filter((s) => s.family === chosen.family && s.currentlyLive);
     return VARIANT_SLOTS.map((slot) => {
       const match = family.find((s) => variantKey(s.variant) === slot);
-      return match ? { slot, icon: match.icon, label: VARIANT_NAME[slot] ?? slot } : null;
+      // `id` is the variant's OWN catalog sprite id (gold-jonesy-sprite), which
+      // is what the finding is logged against — see the confirm handler below.
+      return match ? { slot, id: match.id, icon: match.icon, label: VARIANT_NAME[slot] ?? slot } : null;
     }).filter((v) => v !== null);
   }, [spriteId, sprites]);
 
@@ -117,6 +124,10 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
   const source = lootSource;
 
   const poiName = (id: string) => titleCase(pois.find((p) => p.id === id)?.name ?? "");
+  // The picked family + variant, resolved back to the one catalog sprite they
+  // name. Null only while the variant picker is still empty.
+  const variantSpriteId = variants.find((v) => v.slot === variant)?.id ?? null;
+
   const canConfirm = poiId !== null && spriteId !== null && variant !== null && source !== null;
 
   return (
@@ -267,7 +278,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
             disabled={!canConfirm}
             onClick={() => {
               if (poiId && spriteId && variant && source) {
-                onConfirm({ poiId, spriteId, variant, lootSource: source });
+                onConfirm({ poiId, spriteId: variantSpriteId ?? spriteId, variant, lootSource: source });
               }
             }}
           >

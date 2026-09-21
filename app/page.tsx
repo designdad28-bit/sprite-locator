@@ -146,11 +146,16 @@ export default function Home() {
   const [lastAdded, setLastAdded] = useState<string | null>(null);
 
 
-  function toggleSpriteVisibility(id: string) {
+  // Findings are pinned per VARIANT, not per family: `ids` is one variant's
+  // sprite id when a caption is clicked, and the family's whole set when the
+  // card's Radar master is.
+  function setSpriteVisibility(ids: string[], visible: boolean) {
     setVisibleSpriteIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      for (const id of ids) {
+        if (visible) next.add(id);
+        else next.delete(id);
+      }
       return next;
     });
   }
@@ -194,7 +199,7 @@ export default function Home() {
           selectedSpriteId={selectedSpriteId}
           onSelect={setSelectedSpriteId}
           visibleSpriteIds={visibleSpriteIds}
-          onToggleVisibility={toggleSpriteVisibility}
+          onSetVisibility={setSpriteVisibility}
           collapsed={!sidebarOpen}
           onToggleCollapsed={() => setSidebarOpen((open) => !open)}
         />

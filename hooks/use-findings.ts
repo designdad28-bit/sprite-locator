@@ -77,10 +77,22 @@ export function useFindings() {
     if (pois.length === 0 || sprites.length === 0) return [];
 
     const poiByName = new Map(pois.map((p) => [normalize(p.name), p]));
+    // Every variant is its own catalog sprite with its own id, and a finding
+    // names the variant that was actually found ("Gold Jonesy"), not its
+    // family. Keying on all of them rather than base sprites only is what
+    // makes a finding variant-specific: the row resolves to
+    // `gold-jonesy-sprite`, so the Radar toggle and the map pin are about the
+    // gold one and not about Jonesy in general.
+    //
+    // The 101 live sprites' display names are unique (verified against the
+    // catalog), so a name resolves to exactly one of them.
+    //
+    // Rows written before this — the 17 imported from the original log — name
+    // a family with no variant, so they resolve to the base sprite, which is
+    // how they have always pinned. They are the base variant as far as the
+    // record goes; the log didn't distinguish, and nothing here invents one.
     const spriteByName = new Map(
-      sprites
-        .filter((s) => s.variant === null)
-        .map((s) => [normalize(displayName(s.name)), s])
+      sprites.filter((s) => s.currentlyLive).map((s) => [normalize(displayName(s.name)), s])
     );
     const sourceByLabel = new Map(LOOT_SOURCES.map((s) => [normalize(s.label), s]));
 
