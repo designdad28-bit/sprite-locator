@@ -19,8 +19,8 @@ import {
 import { Finding } from "@/lib/findings";
 import { Poi } from "@/lib/map/pois";
 import { ISLAND_OUTLINE } from "@/lib/map/island-outline";
+import { variantColor } from "@/lib/variant-colors";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
-import { rarityAccent, type RarityAccent } from "@/lib/rarity";
 
 /**
  * The island's box, shrunk around its center by ISLAND_FIT_SCALE. Fitting a
@@ -212,8 +212,18 @@ function markerOffset(
   return [dx, dy];
 }
 
+/**
+ * `accent` is the VARIANT's colour, not the Sprite's rarity.
+ *
+ * A finding is logged against the variant that was found, so the pin can say
+ * which one it was — and the variant colours are the same ones the catalog
+ * tiles are painted in (lib/variant-colors.ts), so a gold pin on the map and
+ * the gold tile in the sidebar read as the same thing. Rarity is a property of
+ * the Sprite rather than of the sighting, and the sidebar's badge already
+ * carries it.
+ */
 function makeIcon(
-  accent: RarityAccent,
+  accent: string,
   icon: string | null,
   isNew: boolean | undefined,
   size: number,
@@ -225,7 +235,7 @@ function makeIcon(
   return L.divIcon({
     className: "sprite-marker-wrapper",
     html: `
-      <span class="sprite-marker ${isNew ? "sprite-marker--new" : ""}" style="--marker-fill:${accent.solid};--marker-ring:${accent.solid};--marker-size:${size}px">
+      <span class="sprite-marker ${isNew ? "sprite-marker--new" : ""}" style="--marker-fill:${accent};--marker-ring:${accent};--marker-size:${size}px">
         <span class="sprite-marker__ping"></span>
         ${inner}
       </span>
@@ -732,7 +742,9 @@ export default function IslandMap({
           L.point(f.x * worldSize, f.y * worldSize),
           provider.nativeZoom
         );
-        const accent = rarityAccent(sprite.rarity);
+        // Falls back to the base colour for a Sprite whose variant has no
+        // colour of its own, rather than leaving the marker vars empty.
+        const accent = variantColor(sprite.variant) ?? "var(--sprite-base-collected)";
         const size = markerSize(count);
         const fencePx = f.poiId ? (fences.get(f.poiId) ?? 0) * pxPerFraction : 0;
         return (
