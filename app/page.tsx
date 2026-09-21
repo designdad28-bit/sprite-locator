@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Layers } from "lucide-react";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
@@ -111,6 +111,25 @@ export default function Home() {
   // Starts at the default so the server and the first client render agree;
   // any remembered width is applied just after, in the effect below.
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_WIDTH);
+
+  // Everything already found is pinned on arrival: the map's job when it opens
+  // is to show what is known, not an empty island waiting to be switched on.
+  //
+  // Seeded once, the first time findings arrive, rather than tracked — after
+  // that the Radar toggles own this state, and re-seeding on every refetch
+  // would switch back on whatever the user had deliberately switched off (a
+  // refetch happens on every added finding).
+  const seededVisibility = useRef(false);
+  useEffect(() => {
+    if (seededVisibility.current || findings.length === 0) return;
+    seededVisibility.current = true;
+    // Next frame rather than straight from the effect body, like the sidebar
+    // width below (react-hooks/set-state-in-effect).
+    const frame = requestAnimationFrame(() =>
+      setVisibleSpriteIds(new Set(findings.map((f) => f.spriteId)))
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [findings]);
 
   useEffect(() => {
     const saved = Number(window.localStorage.getItem(SIDEBAR_WIDTH_KEY));

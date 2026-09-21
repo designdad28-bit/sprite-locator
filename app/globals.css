@@ -134,42 +134,43 @@
      only getting brighter. */
   --wash-a: rgba(35, 73, 147, 0.34);
   --wash-b: rgba(0, 73, 100, 0.30);
-  /* Collected BASE tile. Grey rather than coloured: unlike the four variants,
-     base Sprites share no colour to borrow — measured across all 21 families
-     their artwork hues cover the whole wheel (1° to 357°: Blinky red, Pond
-     green, Mega Man cyan, Storm Scout indigo, Klombo magenta), averaging to a
-     meaningless brown. So no hue is taken from the art, which would anyway
-     imply a sixth variant type.
-     It is a cool grey rather than a dead one: hue 214.4 at chroma 0.022, the
-     theme's own neutral hue (Mist, which is a blue-grey palette — its
-     --muted-foreground is oklch(0.723 0.014 214.4)), carried at a chroma just
-     above the ramp's own so the blue actually reads at tile size. Chroma stays
-     an order of magnitude below the Loot Hacker tile's 0.245, so the two do
-     not read as the same family. Under the previous palette (Zinc, hue 286,
-     violet-leaning and effectively colourless at chroma 0.004) this had to
-     borrow Slate's hue instead; Mist supplies it directly.
-     Its lightness is set by legibility, not by averaging the other tiles.
-     Base artwork is dark-dominant — measured across all 21 families, mean
-     relative luminance 0.251, with 27% of opaque pixels near-black (the
-     outlines and shadows that define each silhouette) against only 10%
-     near-white. Two earlier values both failed that: --input (15% white over
-     the panel) composited to L 0.353, and matching the coloured tiles' mean
-     lightness gave L 0.644 / luminance 0.268 — within 1.06:1 of the artwork
-     itself, so sprite and background were the same brightness and the column
-     read muddy.
-     L 0.820 doubles that separation to 2.00:1, and gives 7.54:1 against the
-     near-black outlines. Deliberately NOT lighter: the white-bodied sprites
-     (Onigiri is 43% near-white pixels, Tails 35%) lose their interiors as the
-     tile approaches them — at --primary's luminance they sit at 1.03:1,
-     effectively invisible. 0.820 is the best compromise across both ends.
+  /* Collected BASE tile — and, since variantColor(null) reads this var, the
+     base map pin and the BASE caption too.
+     NOT taken from the artwork: measured across all 21 families, base Sprites'
+     hues cover the whole wheel (1 deg to 357 deg: Blinky red, Pond green, Mega
+     Man cyan, Storm Scout indigo, Klombo magenta) and average to a meaningless
+     brown. A sky blue is chosen instead, and the exact hue picked for
+     separation from the four variants.
+     Hue 225 is 85 deg from cheat master (140) and 52 deg from loot hacker
+     (276.8). Hacker is the near neighbour, so lightness carries that pair
+     rather than hue alone: 0.70 here against hacker's 0.485, with far less
+     chroma (0.133 against 0.295), so the bright sky and the deep indigo do not
+     read as the same family at marker size.
+     Lightness and chroma sit inside the coloured tiles' own range, so the base
+     reads as their peer rather than as a sixth variant type or an empty slot.
+     L 0.70 is the ceiling, not a free choice. Base artwork is dark-dominant —
+     mean relative luminance 0.251, 27% of opaque pixels near-black against 10%
+     near-white — but the white-bodied Sprites are the hard end (Onigiri is 43%
+     near-white pixels, Tails 35%), and this hue loses them as it brightens:
+     2.57:1 against pure white here, but only 1.78:1 at L 0.80. The previous
+     grey managed 1.62:1, so this is an improvement at 0.70 and a regression
+     above it. Against the near-black outlines it gives 6.77:1, and as a 10px
+     caption on --card 6.44:1 — so unlike the hacker and bounty labels it needs
+     no lift for legibility.
+     The risk to watch is the map rather than the panel: this is the one hue
+     family that the island's own water shares, and it is close to the app's
+     navy surface. Brightness is what separates it from both — L 0.70 against
+     --card's 0.24 — not hue.
      Opaque, since an alpha wash over a near-black panel cannot reach it. */
-  --sprite-base-collected: oklch(0.82 0.022 214.4);
+  --sprite-base-collected: oklch(0.70 0.133 225);
   /* The two ends of the base tile's gradient: the value above, shaded ±0.09 in
      lightness so it stays the midpoint. Same treatment as the four coloured
      tiles (see VARIANT_GRADIENT in lib/variant-colors.ts); kept here so all
-     three base values are retuned together. */
-  --sprite-base-collected-top: oklch(0.73 0.022 214.4);
-  --sprite-base-collected-bottom: oklch(0.91 0.022 214.4);
+     three base values are retuned together. The top stop's chroma is capped at
+     0.116, what sRGB holds at that lightness, rather than left for the browser
+     to gamut-map somewhere unpredictable. */
+  --sprite-base-collected-top: oklch(0.61 0.116 225);
+  --sprite-base-collected-bottom: oklch(0.79 0.133 225);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
   --sprite-gold: #EED12B;
@@ -283,15 +284,30 @@
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 13px;
-  letter-spacing: 0.02em;
+  /* Uppercase needs air that lowercase doesn't: caps have no ascenders or
+     descenders to separate them, so at 0.02em the words read as one block. */
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: #f5f5f0;
-  text-shadow:
-    -1.5px -1.5px 0 #000,
-    1.5px -1.5px 0 #000,
-    -1.5px 1.5px 0 #000,
-    1.5px 1.5px 0 #000,
-    0 2px 4px rgba(0, 0, 0, 0.6);
+  /* A real stroke, not four offset copies of the text.
+     The previous rule faked an outline with shadows at the four diagonals,
+     which is why the labels looked hand-cut: that outline is double-weight at
+     the corners and thinnest along the flat edges of a letterform, so curves
+     come out lumpy and stepped. -webkit-text-stroke follows the glyph's own
+     outline at an even weight all the way round.
+     paint-order is what makes it usable: by default the stroke is painted
+     over the fill, and since a stroke straddles the outline it would eat half
+     the letter's own weight, thinning the type. Painting stroke first puts the
+     fill back on top, so only the outer half shows — which is also why the
+     width is 3px for a ~1.5px ring, matching the old weight at the corners.
+     Softened to 70% black rather than pure: at full strength a hard ring this
+     size reads as a sticker on top of the map instead of a label on it. */
+  -webkit-text-stroke: 3px rgba(0, 0, 0, 0.7);
+  paint-order: stroke fill;
+  /* Depth only — the separation is the stroke's job now, so this is a soft
+     cast rather than the old hard 2px step. */
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  -webkit-font-smoothing: antialiased;
   pointer-events: none;
   user-select: none;
 }
@@ -315,7 +331,9 @@
   inset: calc(var(--marker-size, 60px) * 0.3167);
   border-radius: 9999px;
   background: var(--marker-ring);
-  box-shadow: 0 0 8px 1px var(--marker-ring), 0 0 0 2px rgba(0, 0, 0, 0.6);
+  /* White hairline, then the dark ring outside it — same treatment as the
+     badge below, so an icon-less pin reads as the same object. */
+  box-shadow: 0 0 0 1px #fff, 0 0 8px 1px var(--marker-ring), 0 0 0 3px rgba(0, 0, 0, 0.6);
   transition: transform 0.15s ease;
 }
 
@@ -324,11 +342,15 @@
   inset: 0;
   border-radius: 9999px;
   overflow: hidden;
-  /* Same style as a rarity badge in the catalog: one solid fill, with the
-     outline in that same color so no contrasting ring shows (see
-     rarityAccent.solid). Opaque, so no map terrain bleeds through. */
+  /* One solid fill in the variant's colour, ringed by a white hairline.
+     Opaque, so no map terrain bleeds through.
+     The ring is white rather than the fill's own colour: the fills are now
+     variant colours spanning most of the wheel, and any one of them lands on
+     terrain somewhere that shares it. White belongs to no variant, so it
+     separates every pin from the island without competing with the colour it
+     is outlining. */
   background: var(--marker-fill);
-  outline: 1px solid var(--marker-ring);
+  outline: 1px solid #fff;
   /* Negative offset keeps the outline inside the badge's box, so the icon
      footprint Leaflet positions against stays exactly --marker-size. */
   outline-offset: -1px;

@@ -171,45 +171,114 @@ function seedFrom(id: string): [number, number] {
   return [a, b];
 }
 
+/** How many times the separation pass sweeps a cluster before giving up. */
+const RELAX_PASSES = 32;
+
 /**
- * Where the nth pin of a cluster sits relative to its POI: a stable random spot
- * inside the fence, in screen pixels.
+ * Where each pin of a cluster sits relative to its POI, in screen pixels.
  *
- * Angles are drawn within the pin's own slice of the circle and radii start at
- * the tightest non-overlapping ring, so "random" can never put two pins on top
- * of each other — at low zoom, where the fence is only a few pixels across,
- * that floor is all there is and the scatter degrades into an even ring.
+ * Pins are scattered, not arranged. An earlier version gave every pin an equal
+ * slice of a circle and drew its angle within that slice, over a radius floor
+ * that guaranteed no two could touch. That made overlap impossible by
+ * construction, but it also made the arrangement a ring by construction: equal
+ * slices are equal angles, and wherever the fence was tight the floor was the
+ * only radius available, so five or six sightings at one location drew a
+ * perfect circle around it.
+ *
+ * Here the draw is free — any angle, any radius inside the fence — and the
+ * separation is enforced afterwards instead, by pushing overlapping pairs
+ * apart until they clear. Nothing about the result repeats from one location
+ * to the next.
+ *
+ * Still deterministic, which is the property that actually matters: a pin that
+ * moved on every render would be a sighting you couldn't trust. Positions come
+ * only from the finding ids, and the ids are sorted before placing, so the
+ * layout doesn't depend on the order rows came back from the database either.
  */
-function markerOffset(
-  index: number,
-  count: number,
+function scatterOffsets(
+  ids: string[],
   size: number,
   fencePx: number,
-  seed: [number, number],
   clearsLabel: boolean
-): [number, number] {
-  const minRadius = ringRadius(count, size);
-  const maxRadius = Math.max(minRadius, fencePx - size / 2);
-  // sqrt keeps the draw uniform over the fence's area rather than bunching
-  // pins toward the middle.
-  const radius = minRadius + (maxRadius - minRadius) * Math.sqrt(seed[1]);
+): Map<string, [number, number]> {
+  // Sorted so the relaxation below — which is order-sensitive — is fed the
+  // same sequence on every render regardless of fetch order.
+  const order = [...ids].sort();
+  const minDist = size + MARKER_GAP;
+  // How far the cluster may spread: the fence where it has room, otherwise the
+  // radius a ring of this many pins would have needed. A fence too small to
+  // hold everyone makes the cluster grow rather than letting pins overlap.
+  const spread = Math.max(fencePx - size / 2, ringRadius(order.length, size));
 
-  const slice = (2 * Math.PI) / count;
-  // Bounded by ANGLE_JITTER, the same figure ringRadius() assumed when it
-  // worked out the minimum separation — the two have to agree or pins touch.
-  const angle = index * slice + (seed[0] - 0.5) * slice * ANGLE_JITTER - Math.PI / 2;
+  const pts: [number, number][] = order.map((id) => {
+    const [a, b] = seedFrom(id);
+    const angle = a * 2 * Math.PI;
+    // sqrt keeps the draw uniform over the fence's area rather than bunching
+    // pins toward the middle.
+    const radius = spread * Math.sqrt(b);
+    return [radius * Math.cos(angle), radius * Math.sin(angle)];
+  });
 
-  const dx = radius * Math.cos(angle);
-  let dy = radius * Math.sin(angle);
-
-  if (clearsLabel) {
-    // The label is one horizontal line centered on the POI. Push any pin that
-    // lands on it out to the nearer side rather than re-rolling, so the pin
-    // stays where its seed put it horizontally.
-    const bandY = POI_LABEL_CLEARANCE + size / 2;
-    if (Math.abs(dy) < bandY) dy = dy >= 0 ? bandY : -bandY;
+  for (let pass = 0; pass < RELAX_PASSES; pass++) {
+    let moved = false;
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const dx = pts[j][0] - pts[i][0];
+        const dy = pts[j][1] - pts[i][1];
+        const d = Math.hypot(dx, dy);
+        if (d >= minDist) continue;
+        let ux: number;
+        let uy: number;
+        if (d < 1e-6) {
+          // Two pins on the same point have no direction to separate along.
+          // Taking one from the pair's own ids keeps it deterministic and
+          // keeps different pairs from all splitting the same way.
+          const [a] = seedFrom(order[i] + order[j]);
+          ux = Math.cos(a * 2 * Math.PI);
+          uy = Math.sin(a * 2 * Math.PI);
+        } else {
+          ux = dx / d;
+          uy = dy / d;
+        }
+        const push = (minDist - d) / 2;
+        pts[i][0] -= ux * push;
+        pts[i][1] -= uy * push;
+        pts[j][0] += ux * push;
+        pts[j][1] += uy * push;
+        moved = true;
+      }
+    }
+    if (!moved) break;
   }
-  return [dx, dy];
+
+  // Re-centre on the POI. Separation pushes outward from wherever the crowding
+  // happened to be, which can leave the whole cluster sitting off to one side
+  // of the location it belongs to. Clamping pins back inside the fence would
+  // have been the other option, but that piles them against the boundary —
+  // which is the ring again.
+  let cx = 0;
+  let cy = 0;
+  for (const [x, y] of pts) {
+    cx += x;
+    cy += y;
+  }
+  cx /= pts.length;
+  cy /= pts.length;
+
+  const out = new Map<string, [number, number]>();
+  order.forEach((id, i) => {
+    const dx = pts[i][0] - cx;
+    let dy = pts[i][1] - cy;
+    if (clearsLabel) {
+      // The label is one horizontal line centered on the POI. Push any pin that
+      // lands on it out to the nearer side rather than re-rolling, so the pin
+      // stays where its seed put it horizontally.
+      const bandY = POI_LABEL_CLEARANCE + size / 2;
+      if (Math.abs(dy) < bandY) dy = dy >= 0 ? bandY : -bandY;
+    }
+    out.set(id, [dx, dy]);
+  });
+  return out;
 }
 
 /**
@@ -658,12 +727,50 @@ export default function IslandMap({
     };
   }, [map]);
 
-  const visibleFindings = findings.filter((f) => visibleSpriteIds.has(f.spriteId));
+  const visibleFindings = useMemo(
+    () => findings.filter((f) => visibleSpriteIds.has(f.spriteId)),
+    [findings, visibleSpriteIds]
+  );
+  const clustered = useMemo(() => clusterFindings(visibleFindings), [visibleFindings]);
   const fences = useMemo(() => buildFences(pois), [pois]);
   // CRS.Simple: one unit of normalized map fraction is this many screen px at
   // the current zoom. Converting the fence here is what makes the scatter widen
   // as you zoom into a location instead of staying a fixed pixel blob.
   const pxPerFraction = worldSize * 2 ** ((zoom ?? provider.minZoom) - provider.nativeZoom);
+
+  /**
+   * Every pin's offset from its POI, keyed by finding id.
+   *
+   * Placed a whole cluster at a time rather than a pin at a time: pins are now
+   * separated by pushing overlapping pairs apart (see scatterOffsets), and a
+   * pin can't be pushed off another one it can't see.
+   */
+  const offsets = useMemo(() => {
+    const groups = new Map<string, typeof clustered>();
+    for (const item of clustered) {
+      // The same key clusterFindings groups on, so the two always agree on
+      // what counts as "the same place".
+      const key = item.finding.poiId ?? `${item.finding.x},${item.finding.y}`;
+      const bucket = groups.get(key);
+      if (bucket) bucket.push(item);
+      else groups.set(key, [item]);
+    }
+    const all = new Map<string, [number, number]>();
+    for (const group of groups.values()) {
+      const first = group[0].finding;
+      const size = markerSize(group.length);
+      const fencePx = first.poiId ? (fences.get(first.poiId) ?? 0) * pxPerFraction : 0;
+      const clearsLabel = group[0].atPoi && zoom !== null && zoom >= POI_LABEL_ZOOM;
+      const placed = scatterOffsets(
+        group.map((g) => g.finding.id),
+        size,
+        fencePx,
+        clearsLabel
+      );
+      for (const [id, offset] of placed) all.set(id, offset);
+    }
+    return all;
+  }, [clustered, fences, pxPerFraction, zoom]);
 
   /**
    * Flies to a pin and zooms in on its surroundings. The target is shifted left
@@ -735,7 +842,7 @@ export default function IslandMap({
         <ClickCatcher worldSize={worldSize} nativeZoom={provider.nativeZoom} onMapClick={onMapClick} />
       )}
       <PoiLabels pois={pois} worldSize={worldSize} nativeZoom={provider.nativeZoom} />
-      {clusterFindings(visibleFindings).map(({ finding: f, index, count, atPoi }) => {
+      {clustered.map(({ finding: f, count }) => {
         const sprite = getSprite(f.spriteId);
         if (!sprite) return null;
         const latlng = L.CRS.Simple.pointToLatLng(
@@ -746,7 +853,6 @@ export default function IslandMap({
         // colour of its own, rather than leaving the marker vars empty.
         const accent = variantColor(sprite.variant) ?? "var(--sprite-base-collected)";
         const size = markerSize(count);
-        const fencePx = f.poiId ? (fences.get(f.poiId) ?? 0) * pxPerFraction : 0;
         return (
           <Marker
             key={f.id}
@@ -756,14 +862,7 @@ export default function IslandMap({
               sprite.icon,
               f.id.startsWith("f-"),
               size,
-              markerOffset(
-                index,
-                count,
-                size,
-                fencePx,
-                seedFrom(f.id),
-                atPoi && zoom !== null && zoom >= POI_LABEL_ZOOM
-              )
+              offsets.get(f.id) ?? [0, 0]
             )}
             // No popup: clicking a pin flies the map to it instead.
             eventHandlers={{ click: () => focusOn(latlng) }}
