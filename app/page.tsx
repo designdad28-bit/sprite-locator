@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Layers } from "lucide-react";
+import { MapPin, Layers, FlaskConical } from "lucide-react";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-con
 import { displayName } from "@/lib/sprite-name";
 import { AddFindingDialog, type AddFindingValues } from "@/components/add-finding-dialog";
 import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
+import { buildDemoFindings } from "@/lib/demo-findings";
 import { cn } from "@/lib/utils";
 
 // The open sidebar's width. The map lives in its own container to the right of
@@ -92,7 +94,7 @@ function AllVariantsThumb() {
 const PANEL_BORDER = 2;
 
 export default function Home() {
-  const { findings, addFinding } = useFindings();
+  const { findings: savedFindings, addFinding } = useFindings();
   const { pois } = usePois();
   const { sprites, getSprite } = useSpriteCatalog();
   const [selectedSpriteId, setSelectedSpriteId] = useState<string | null>(null);
@@ -108,6 +110,31 @@ export default function Home() {
   // Which variant the map is narrowed to, as a slot key ("gold"). null shows
   // every variant of whatever the Radar toggles have turned on.
   const [variantFilter, setVariantFilter] = useState<string | null>(null);
+  /**
+   * Demo mode: `?demo=1` adds one synthetic finding per live Sprite so the map
+   * can be seen fully populated. Off unless asked for, never stored, and gone
+   * the moment the parameter is dropped from the URL.
+   *
+   * Read in an effect rather than during render because the server has no URL
+   * to read — deriving it inline would make the first client render disagree
+   * with the server's and hydration would fail.
+   */
+  const [demoMode, setDemoMode] = useState(false);
+  useEffect(() => {
+    // Next frame rather than straight from the effect body, like the sidebar
+    // width below (react-hooks/set-state-in-effect).
+    const frame = requestAnimationFrame(() =>
+      setDemoMode(new URLSearchParams(window.location.search).get("demo") === "1")
+    );
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  // Demo findings are appended to the real ones rather than replacing them, so
+  // turning the mode on never hides a genuine sighting.
+  const findings = useMemo(
+    () => (demoMode ? [...savedFindings, ...buildDemoFindings(sprites, pois)] : savedFindings),
+    [demoMode, savedFindings, sprites, pois]
+  );
   // Starts at the default so the server and the first client render agree;
   // any remembered width is applied just after, in the effect below.
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_WIDTH);
@@ -392,6 +419,19 @@ export default function Home() {
               </SelectGroup>
             </SelectContent>
           </Select>
+
+          {/* Unmissable while demo mode is on, because the map is showing data
+              nobody logged. Links out rather than offering a toggle: the URL
+              is what turns this on, so the URL is what turns it off. */}
+          {demoMode && (
+            <Link
+              href="/"
+              className="pointer-events-auto mx-2 flex h-9 shrink-0 items-center gap-2 rounded-md border border-sprite-gold/60 bg-card px-4 text-sm font-medium whitespace-nowrap text-sprite-gold shadow-lg"
+            >
+              <FlaskConical className="size-4" strokeWidth={1.5} />
+              Demo data — exit
+            </Link>
+          )}
 
           <Button
             variant="outline"

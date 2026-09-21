@@ -26,7 +26,13 @@ export interface Finding {
   y: number;
   notes?: string;
   timestamp: number;
-  source: "user-submitted";
+  /**
+   * Where the finding came from. "demo" marks synthetic data generated for
+   * looking at the map (see lib/demo-findings.ts) — it is never written to the
+   * database and never leaves the browser, and the type carries the
+   * distinction so the two can't be confused in code either.
+   */
+  source: "user-submitted" | "demo";
 }
 
 /** When the log below was handed over — not a claimed discovery date, which the log didn't carry. */
