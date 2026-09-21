@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Filter } from "lucide-react";
+import { MapPin, Layers } from "lucide-react";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SpriteThumb } from "@/components/sprite-catalog/sprite-thumb";
 import { SpriteCatalogBrowser } from "@/components/sprite-panel/sprite-catalog-browser";
 import { SpriteDetailPanel } from "@/components/sprite-panel/sprite-detail-panel";
 import { useFindings } from "@/hooks/use-findings";
@@ -74,13 +75,26 @@ function clampSidebarWidth(width: number) {
  */
 const ALL_VARIANTS = "all";
 
+/**
+ * Stands in for a variant's artwork on the "All variants" row, which has no
+ * one variant to show. Sized like a SpriteThumb so every label in the list
+ * starts on the same edge.
+ */
+function AllVariantsThumb() {
+  return (
+    <span className="flex size-6 shrink-0 items-center justify-center">
+      <Layers className="size-4 text-muted-foreground" strokeWidth={1.5} />
+    </span>
+  );
+}
+
 /** The border each panel draws on its map-facing edge (border-r-2 / border-l-2). */
 const PANEL_BORDER = 2;
 
 export default function Home() {
   const { findings, addFinding } = useFindings();
   const { pois } = usePois();
-  const { getSprite } = useSpriteCatalog();
+  const { sprites, getSprite } = useSpriteCatalog();
   const [selectedSpriteId, setSelectedSpriteId] = useState<string | null>(null);
   // Which Sprites' findings are pinned on the map. Driven only by the Radar
   // toggle — deliberately separate from `selectedSpriteId`, which is just
@@ -164,6 +178,36 @@ export default function Home() {
   }
   const [lastAdded, setLastAdded] = useState<string | null>(null);
 
+
+  /**
+   * The filter's rows: one per variant slot, each carrying a real icon of that
+   * variant rather than a colour swatch — the same thumb + name the Add
+   * finding dialog's variant picker uses.
+   *
+   * Which Sprite's artwork stands for a variant is decided by what you are
+   * watching: with a Radar on, the rows show that Sprite's own gold / cheat
+   * master / loot hacker / bounty hunter icons, so the question reads as
+   * "which variant of this am I looking at". With nothing on — or a variant
+   * none of the watched Sprites has — it falls back to the first live Sprite
+   * that has it, so every row still carries real artwork instead of a gap.
+   */
+  const variantOptions = useMemo(() => {
+    const live = sprites.filter((s) => s.currentlyLive);
+    const watched = live.filter((s) => visibleSpriteIds.has(s.id));
+    return VARIANT_SLOTS.map((slot) => {
+      const match =
+        watched.find((s) => variantKey(s.variant) === slot) ??
+        live.find((s) => variantKey(s.variant) === slot);
+      return {
+        slot,
+        label: VARIANT_NAME[slot] ?? slot,
+        // The scale is measured per sprite id, so the id has to be the one the
+        // icon belongs to — see SpriteThumb.
+        id: match?.id ?? "",
+        icon: match?.icon ?? null,
+      };
+    });
+  }, [sprites, visibleSpriteIds]);
 
   /**
    * What the map actually pins: the Sprites whose Radar is on, narrowed to one
@@ -294,19 +338,36 @@ export default function Home() {
               aria-label="Filter the map by variant"
               className="pointer-events-auto h-9 gap-2 rounded-md border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-lg dark:bg-card"
             >
-              <Filter className="size-4" strokeWidth={1.5} />
               <SelectValue>
-                {(value: string) =>
-                  value === ALL_VARIANTS ? "All variants" : VARIANT_NAME[value] ?? value
-                }
+                {(value: string) => {
+                  const chosen = variantOptions.find((v) => v.slot === value);
+                  return (
+                    <span className="flex items-center gap-2">
+                      {chosen ? (
+                        <SpriteThumb id={chosen.id} icon={chosen.icon} />
+                      ) : (
+                        <AllVariantsThumb />
+                      )}
+                      {chosen ? chosen.label : "All variants"}
+                    </span>
+                  );
+                }}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value={ALL_VARIANTS}>All variants</SelectItem>
-                {VARIANT_SLOTS.map((slot) => (
-                  <SelectItem key={slot} value={slot}>
-                    {VARIANT_NAME[slot] ?? slot}
+                <SelectItem value={ALL_VARIANTS}>
+                  <span className="flex items-center gap-2">
+                    <AllVariantsThumb />
+                    All variants
+                  </span>
+                </SelectItem>
+                {variantOptions.map((v) => (
+                  <SelectItem key={v.slot} value={v.slot}>
+                    <span className="flex items-center gap-2">
+                      <SpriteThumb id={v.id} icon={v.icon} />
+                      {v.label}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectGroup>

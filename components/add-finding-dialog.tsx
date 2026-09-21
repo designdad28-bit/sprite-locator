@@ -5,7 +5,7 @@ import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-con
 import type { Poi } from "@/lib/map/pois";
 import { displayName } from "@/lib/sprite-name";
 import { titleCase } from "@/lib/title-case";
-import { spriteIconScale } from "@/lib/sprite-icon-metrics";
+import { SpriteThumb } from "@/components/sprite-catalog/sprite-thumb";
 import { LOOT_SOURCES, lootSourceById } from "@/lib/loot-sources";
 import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
 import { Button } from "@/components/ui/button";
@@ -32,19 +32,6 @@ import {
  * catalog headings: each icon's art fills a different share of its canvas, so
  * equal boxes alone would render visibly unequal sprites.
  */
-function SpriteThumb({ id, icon }: { id: string; icon: string | null }) {
-  if (!icon) return <span className="size-6 shrink-0" />;
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={icon}
-      alt=""
-      className="size-6 shrink-0 object-contain"
-      style={{ transform: `scale(${spriteIconScale(id)})` }}
-    />
-  );
-}
-
 /**
  * A loot source's icon at list size. Sources with no real image get an empty
  * box of the same size, so every label in the list starts on the same edge.
