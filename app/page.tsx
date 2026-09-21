@@ -1,10 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin } from "lucide-react";
+import { MapPin, Filter } from "lucide-react";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SpriteCatalogBrowser } from "@/components/sprite-panel/sprite-catalog-browser";
 import { SpriteDetailPanel } from "@/components/sprite-panel/sprite-detail-panel";
 import { useFindings } from "@/hooks/use-findings";
@@ -12,6 +20,7 @@ import { usePois } from "@/hooks/use-pois";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { displayName } from "@/lib/sprite-name";
 import { AddFindingDialog, type AddFindingValues } from "@/components/add-finding-dialog";
+import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
 import { cn } from "@/lib/utils";
 
 // The open sidebar's width. The map lives in its own container to the right of
@@ -58,6 +67,13 @@ function clampSidebarWidth(width: number) {
   return Math.max(SIDEBAR_MIN_WIDTH, Math.min(ceiling, Math.round(width)));
 }
 
+/**
+ * The variant filter's "no filter" option. A Select item needs a value, and
+ * the state's own "show everything" is null, so the two are bridged here
+ * rather than by a magic string repeated at both ends.
+ */
+const ALL_VARIANTS = "all";
+
 /** The border each panel draws on its map-facing edge (border-r-2 / border-l-2). */
 const PANEL_BORDER = 2;
 
@@ -75,6 +91,9 @@ export default function Home() {
   const [addOpen, setAddOpen] = useState(false);
   const [addKey, setAddKey] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Which variant the map is narrowed to, as a slot key ("gold"). null shows
+  // every variant of whatever the Radar toggles have turned on.
+  const [variantFilter, setVariantFilter] = useState<string | null>(null);
   // Starts at the default so the server and the first client render agree;
   // any remembered width is applied just after, in the effect below.
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_WIDTH);
@@ -146,9 +165,26 @@ export default function Home() {
   const [lastAdded, setLastAdded] = useState<string | null>(null);
 
 
-  // Findings are pinned per VARIANT, not per family: `ids` is one variant's
-  // sprite id when a caption is clicked, and the family's whole set when the
-  // card's Radar master is.
+  /**
+   * What the map actually pins: the Sprites whose Radar is on, narrowed to one
+   * variant when the filter asks for one.
+   *
+   * The two controls answer different questions and are kept separate on
+   * purpose — the Radar is "which Sprites am I hunting", the filter is "which
+   * variant of them am I looking at". Combining them here rather than in the
+   * map keeps IslandMap's contract as a plain set of ids.
+   */
+  const pinnedSpriteIds = useMemo(() => {
+    if (variantFilter === null) return visibleSpriteIds;
+    const next = new Set<string>();
+    for (const id of visibleSpriteIds) {
+      if (variantKey(getSprite(id)?.variant ?? null) === variantFilter) next.add(id);
+    }
+    return next;
+  }, [visibleSpriteIds, variantFilter, getSprite]);
+
+  // A Sprite's Radar covers every variant it has, so `ids` is that Sprite's
+  // whole set of ids.
   function setSpriteVisibility(ids: string[], visible: boolean) {
     setVisibleSpriteIds((prev) => {
       const next = new Set(prev);
@@ -236,7 +272,7 @@ export default function Home() {
       >
         <IslandMapCanvas
           findings={findings}
-          visibleSpriteIds={visibleSpriteIds}
+          visibleSpriteIds={pinnedSpriteIds}
           // Findings are logged through the Add finding modal now, not by
           // clicking the map, so map-click placement stays off.
           isAddMode={false}
@@ -244,7 +280,39 @@ export default function Home() {
           onMapClick={() => {}}
         />
 
-        <div className="pointer-events-none absolute inset-x-0 top-2 z-[500] flex items-center justify-end px-2">
+        <div className="pointer-events-none absolute inset-x-0 top-2 z-[500] flex items-center justify-between px-2">
+          {/* Styled to match Add finding opposite it — same height, radius,
+              card fill and shadow — so the two read as one layer of map
+              controls rather than a control and a form field. */}
+          <Select
+            value={variantFilter ?? ALL_VARIANTS}
+            onValueChange={(value) =>
+              setVariantFilter(value === ALL_VARIANTS ? null : (value as string))
+            }
+          >
+            <SelectTrigger
+              aria-label="Filter the map by variant"
+              className="pointer-events-auto h-9 gap-2 rounded-md border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-lg dark:bg-card"
+            >
+              <Filter className="size-4" strokeWidth={1.5} />
+              <SelectValue>
+                {(value: string) =>
+                  value === ALL_VARIANTS ? "All variants" : VARIANT_NAME[value] ?? value
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value={ALL_VARIANTS}>All variants</SelectItem>
+                {VARIANT_SLOTS.map((slot) => (
+                  <SelectItem key={slot} value={slot}>
+                    {VARIANT_NAME[slot] ?? slot}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
           <Button
             variant="outline"
             onClick={() => {

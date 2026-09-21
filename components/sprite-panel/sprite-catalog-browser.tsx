@@ -71,10 +71,11 @@ export interface SpriteCatalogBrowserProps {
   onSelect: (id: string) => void;
   visibleSpriteIds: Set<string>;
   /**
-   * Shows/hides findings on the map, per VARIANT — the caption above each tile
-   * toggles its own one, and the header's Radar applies the same call to a
-   * whole family at once. Takes a list rather than one id so the family master
-   * is a single state update instead of five.
+   * Shows/hides this Sprite's findings on the map. The Radar icon only.
+   *
+   * Takes a list because a finding is stored against the variant that was
+   * found, so one Sprite is several ids — the Radar flips all of them together
+   * in a single state update.
    */
   onSetVisibility: (ids: string[], visible: boolean) => void;
   /** When true the sidebar shrinks to just its open button in the top-left corner. */
@@ -284,12 +285,12 @@ export function SpriteCatalogBrowser({
         <motion.div variants={container} initial="hidden" animate="show">
           {filtered.map((group, index) => {
             const baseVariant = group.variants.find((v) => v.variant === null) ?? group.variants[0];
-            // The Radar is now per variant (see the captions below), so the
-            // header's is a master over the family: how many of its variants
-            // are lit decides both what it looks like and what it does next.
-            const shownCount = group.variants.filter((v) => visibleSpriteIds.has(v.id)).length;
-            const isShown = shownCount > 0;
-            const isPartial = shownCount > 0 && shownCount < group.variants.length;
+            // One Radar per Sprite, covering every variant it has: findings are
+            // stored against the variant that was actually found, so "show
+            // Jonesy" means all of Jonesy's ids. Narrowing to a single variant
+            // is the map's own filter (see app/page.tsx), not a per-tile
+            // control — it is one choice about the map rather than 101 of them.
+            const isShown = group.variants.some((v) => visibleSpriteIds.has(v.id));
             // Out of the variants this family actually has, not a flat four —
             // Mega Man ships only its base one, so it reads (0/1).
             const masteredInSet = group.variants.filter((v) => getStatus(v.id) === "mastered").length;
@@ -355,27 +356,18 @@ export function SpriteCatalogBrowser({
                       <button
                         type="button"
                         data-slot="toggle-findings"
-                        // Anything lit turns the family off; nothing lit turns
-                        // all of it on. "Off" is the more useful second press
-                        // after a partial selection — it clears the map back to
-                        // a known state, where filling the rest in would bury
-                        // whichever variant you had deliberately singled out.
                         onClick={() => onSetVisibility(group.variants.map((v) => v.id), !isShown)}
                         aria-pressed={isShown}
                         aria-label={
                           isShown
-                            ? `Hide all ${group.family} findings on the map`
-                            : `Show all ${group.family} findings on the map`
+                            ? `Hide ${group.family} findings on the map`
+                            : `Show ${group.family} findings on the map`
                         }
                         className={cn(
                           "rounded-sm transition-colors outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
                           isShown
                             ? "text-sprite-radar-active"
-                            : "text-muted-foreground hover:text-foreground",
-                          // Some-but-not-all reads as a dimmed version of the on
-                          // state rather than a third icon: it is still on, just
-                          // not everything, and the lit captions below say which.
-                          isPartial && "opacity-55"
+                            : "text-muted-foreground hover:text-foreground"
                         )}
                       >
                         <Radar className="size-5" strokeWidth={1.5} />
@@ -417,18 +409,11 @@ export function SpriteCatalogBrowser({
                                 faded (indigo reaches 2.7:1 at 70%), and the
                                 dashed border and Ban icon below already say
                                 the variant doesn't exist. */}
-                            <span className="flex w-full flex-col items-center">
-                              <span
-                                className="text-[10px] font-medium leading-[18px]"
-                                style={{ color: variantLabelColor(slot === "normal" ? null : slot) ?? undefined }}
-                              >
-                                {variantLabel(slot)}
-                              </span>
-                              {/* The Radar bar a real tile carries below. Empty
-                                  here — there is no variant to track — but kept
-                                  as a spacer so all five captions stay on one
-                                  baseline. */}
-                              <span className="h-[2px] w-full" />
+                            <span
+                              className="text-[10px] font-medium leading-5"
+                              style={{ color: variantLabelColor(slot === "normal" ? null : slot) ?? undefined }}
+                            >
+                              {variantLabel(slot)}
                             </span>
                             <span
                               className="relative flex aspect-square w-full items-center justify-center rounded-[6px] border-[0.5px] border-dashed border-border bg-muted/40"
@@ -451,59 +436,28 @@ export function SpriteCatalogBrowser({
                       const label = variantLabel(v.variant);
                       const accent = variantGradient(v.variant);
                       const isColored = status !== "default";
-                      const isPinned = visibleSpriteIds.has(v.id);
-                      const labelColor = variantLabelColor(v.variant) ?? undefined;
                       return (
-                        <div key={v.id} className="flex w-[72px] shrink-0 flex-col items-center gap-1">
-                          {/* The caption is the Radar control for THIS variant.
-                              The tile's own click is already spent on the
-                              collection ladder, and this label was doing
-                              nothing but naming the column — it is 72x20, a
-                              better target than anything that would fit inside
-                              the art, and it costs the card no extra row.
-
-                              Colour is not the state: the text stays its
-                              variant's colour lit or unlit, so the row still
-                              reads as a legend of the five variants. The bar
-                              beneath it is the state — full at on, a hint on
-                              hover so the label reads as pressable, and
-                              transparent (not absent) at rest so nothing in
-                              the row shifts. */}
-                          <button
-                            type="button"
-                            data-slot="variant-radar"
-                            data-pinned={isPinned}
-                            onClick={() => onSetVisibility([v.id], !isPinned)}
-                            aria-pressed={isPinned}
-                            aria-label={
-                              isPinned
-                                ? `Hide ${displayName(v.name)} findings on the map`
-                                : `Show ${displayName(v.name)} findings on the map`
-                            }
-                            className="group/radar flex w-full flex-col items-center rounded-[3px] outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                        <button
+                          key={v.id}
+                          type="button"
+                          data-slot="variant-tile"
+                          data-status={status}
+                          onClick={() => cycleStatus(v.id)}
+                          aria-label={`${displayName(v.name)}: ${status}, click to change`}
+                          className="group flex w-[72px] shrink-0 flex-col items-center gap-1 rounded-[6px] outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                        >
+                          {/* Caption carries its variant's colour whether or
+                              not the sprite is collected, so the row reads as
+                              a legend of the five variants rather than only
+                              labelling what you happen to own. Placeholder
+                              slots above stay dimmed — a family with no such
+                              variant has no fill to match. */}
+                          <span
+                            className="text-[10px] font-medium leading-5"
+                            style={{ color: variantLabelColor(v.variant) ?? undefined }}
                           >
-                            <span
-                              className="text-[10px] font-medium leading-[18px]"
-                              style={{ color: labelColor }}
-                            >
-                              {label}
-                            </span>
-                            <span
-                              className={cn(
-                                "h-[2px] w-full rounded-full transition-opacity duration-150",
-                                isPinned ? "opacity-100" : "opacity-0 group-hover/radar:opacity-40"
-                              )}
-                              style={{ backgroundColor: labelColor }}
-                            />
-                          </button>
-                          <button
-                            type="button"
-                            data-slot="variant-tile"
-                            data-status={status}
-                            onClick={() => cycleStatus(v.id)}
-                            aria-label={`${displayName(v.name)}: ${status}, click to change`}
-                            className="group flex w-full rounded-[6px] outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                          >
+                            {label}
+                          </span>
                           <span
                             className={cn(
                               // outline, not border: outlines paint outside the box and
@@ -564,8 +518,7 @@ export function SpriteCatalogBrowser({
                               />
                             )}
                           </span>
-                          </button>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
