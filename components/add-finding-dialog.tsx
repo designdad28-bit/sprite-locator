@@ -14,9 +14,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -121,11 +119,14 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
 
   return (
     <Dialog open={open} onOpenChange={(next) => onOpenChange(next)}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add Sprite Location</DialogTitle>
-          <DialogDescription>Log where you found a sprite and what it dropped from.</DialogDescription>
-        </DialogHeader>
+      <DialogContent showCloseButton={false}>
+        {/* No visible header: the sheet opens directly on the form, and the
+            grabber (phone) plus the backdrop/Escape (desktop) are the
+            dismissal affordances now that the X is gone. The title stays
+            for screen readers only — DialogPrimitive.Popup still needs an
+            accessible name — so removing it visually doesn't remove it from
+            the accessibility tree. */}
+        <DialogTitle className="sr-only">Add Sprite Location</DialogTitle>
 
         <div className="grid gap-5">
           <div className="grid gap-2">
@@ -274,7 +275,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
               }
             }}
           >
-            Add Sprite Location
+            Save Location
           </Button>
         </DialogFooter>
       </DialogContent>
