@@ -39,7 +39,25 @@ const ICON_SCALE: Record<string, number> = {
   "jackrabbit-sprite": 1.0,
 };
 
+/**
+ * Variant ids are the base id with a prefix ("gold-jonesy-sprite",
+ * "loot-hacker-jonesy-sprite"). Every variant is a recolour of its family's
+ * base art — same pose, same silhouette — so it takes the base's scale. Without
+ * this, every variant fell back to 1 and rendered unscaled.
+ */
+const VARIANT_PREFIXES = ["gold-", "cheat-master-", "cheatmaster-", "loot-hacker-", "bounty-hunter-"];
+
+/** Variants whose ids use the art's internal name rather than the family's. */
+const BASE_ALIAS: Record<string, string> = {
+  "bushranger-sprite": "bush-sprite",
+  "body-slam-sprite": "crash-bandicoot-sprite",
+};
+
 /** 1 for anything unmeasured, so an unknown Sprite renders unscaled rather than wrong. */
 export function spriteIconScale(id: string): number {
-  return ICON_SCALE[id] ?? 1;
+  if (id in ICON_SCALE) return ICON_SCALE[id];
+  const prefix = VARIANT_PREFIXES.find((p) => id.startsWith(p));
+  if (!prefix) return 1;
+  const base = id.slice(prefix.length);
+  return ICON_SCALE[BASE_ALIAS[base] ?? base] ?? 1;
 }

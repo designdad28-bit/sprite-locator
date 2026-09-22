@@ -620,6 +620,10 @@ export function SpriteCatalogBrowser({
                                   // up to full color on hover.
                                   !isColored && "sprite-unowned group-hover:[filter:none]"
                                 )}
+                                // Same visual-mass scale as the heading art, so tiles
+                                // match each other across families too. Composes with
+                                // the hover's `scale` property rather than replacing it.
+                                style={{ transform: `scale(${spriteIconScale(v.id)})` }}
                               />
                             ) : (
                               <span className="absolute inset-0 bg-input/30" />
