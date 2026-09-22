@@ -204,7 +204,7 @@ export function SpriteCatalogBrowser({
         <div className="relative pb-1.5">
           <Search
             className="pointer-events-none absolute top-[18px] left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            strokeWidth={1.5}
+            strokeWidth={1.875}
           />
           <Input
             type="search"
@@ -342,19 +342,32 @@ export function SpriteCatalogBrowser({
                               it opens that Sprite's detail panel, so it reads
                               as part of the title rather than as a second map
                               control beside the Radar. */}
-                          {/* icon-xs, not a bare icon: at 14px the glyph alone
-                              was a 14px target, under the 24px minimum for a
-                              control. The box is 24px and the glyph stays
-                              14px, so it looks the same and can be hit. */}
+                          {/* 20px glyph, matching the Radar opposite it — at
+                              14px it was both the smallest mark in the app and
+                              the thinnest, since a 24-unit viewBox drawn that
+                              small renders a 0.875px stroke.
+
+                              Targets: 32px on desktop, clearing the 28x28pt
+                              macOS recommendation, and 44px on a phone for
+                              iOS's 44x44pt. Both come from padding, so the
+                              glyph is unchanged.
+
+                              The negative margins are what keep it NEXT TO the
+                              name rather than floating away from it: the
+                              button's own padding insets the glyph 6px
+                              (desktop) and 12px (phone), which would otherwise
+                              add to the row's 6px gap and read as 12px / 18px
+                              of space. Pulled back, the ink sits 6px and 8px
+                              from the name. -my keeps the row from growing. */}
                           <Button
                             variant="ghost"
-                            size="icon-xs"
+                            size="icon-sm"
                             data-slot="sprite-details"
                             onClick={() => onSelect(baseVariant.id)}
                             aria-label={`${group.family} details`}
-                            className="max-md:-my-2.5 max-md:size-11 text-muted-foreground"
+                            className="-my-1.5 -ml-1.5 text-muted-foreground max-md:-my-3 max-md:-ml-2.5 max-md:size-11"
                           >
-                            <Info className="size-3.5" strokeWidth={1.5} />
+                            <Info className="size-5" strokeWidth={1.5} />
                           </Button>
                         </span>
                         <span className="flex items-center gap-3">

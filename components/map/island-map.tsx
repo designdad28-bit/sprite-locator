@@ -939,7 +939,7 @@ export default function IslandMap({
           aria-label="Reset view"
           className="rounded-full bg-card text-muted-foreground shadow-lg dark:bg-card"
         >
-          <RotateCcw strokeWidth={1.5} />
+          <RotateCcw strokeWidth={1.875} />
         </Button>
         <div className="flex flex-col overflow-hidden rounded-full border border-border bg-card shadow-lg">
           <Button
@@ -949,7 +949,7 @@ export default function IslandMap({
             aria-label="Zoom in"
             className="rounded-none text-muted-foreground focus-visible:ring-inset"
           >
-            <Plus strokeWidth={1.5} />
+            <Plus strokeWidth={1.875} />
           </Button>
           <div className="h-px w-full bg-border" />
           <Button
@@ -959,7 +959,7 @@ export default function IslandMap({
             aria-label="Zoom out"
             className="rounded-none text-muted-foreground focus-visible:ring-inset"
           >
-            <Minus strokeWidth={1.5} />
+            <Minus strokeWidth={1.875} />
           </Button>
         </div>
       </div>

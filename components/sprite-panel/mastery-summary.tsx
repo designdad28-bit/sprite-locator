@@ -49,8 +49,13 @@ export function MasterySummary() {
             // Inherits the label's gold via currentColor. Nudged down 1px:
             // hiding the base bar leaves the remaining shape sitting high in
             // the 24-unit box, so box-centering alone reads as too high.
-            className="size-4 shrink-0 translate-y-px [&>path:last-child]:hidden max-md:size-5"
-            strokeWidth={1.5}
+            // Stroke set in CSS, not as the attribute, because this is the one
+            // icon whose SIZE is responsive — 16px beside the desktop label,
+            // 20px beside the phone one. A single strokeWidth would therefore
+            // render two different weights. CSS wins over the presentation
+            // attribute, so each breakpoint gets the value that lands on the
+            // app's one weight: 1.25px of ink.
+            className="size-4 shrink-0 translate-y-px [stroke-width:1.875] [&>path:last-child]:hidden max-md:size-5 max-md:[stroke-width:1.5]"
             fill="currentColor"
           />
           Mastered

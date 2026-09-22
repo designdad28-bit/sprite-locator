@@ -152,7 +152,7 @@ const ALL_VARIANTS = "all";
 function AllVariantsThumb() {
   return (
     <span className="flex size-6 shrink-0 items-center justify-center">
-      <Layers className="size-4 text-muted-foreground" strokeWidth={1.5} />
+      <Layers className="size-4 text-muted-foreground" strokeWidth={1.875} />
     </span>
   );
 }
@@ -575,7 +575,7 @@ export default function Home() {
               demoMode ? "border-sprite-gold/60 text-sprite-gold" : "text-muted-foreground"
             )}
           >
-            <FlaskConical strokeWidth={1.5} />
+            <FlaskConical strokeWidth={1.875} />
             {demoMode ? "Demo data — on" : "Demo data"}
           </Button>
           )}
@@ -595,7 +595,7 @@ export default function Home() {
             }}
             className={cn("pointer-events-auto h-11 gap-2 px-6 font-medium shadow-lg", ADD_FINDING_STYLE)}
           >
-            <MapPin className="size-4" strokeWidth={1.5} />
+            <MapPin className="size-4" strokeWidth={1.875} />
             Add finding
           </Button>
         </div>
@@ -625,7 +625,7 @@ export default function Home() {
             }}
             className={cn("h-11 w-full gap-2 font-medium", ADD_FINDING_STYLE)}
           >
-            <MapPin className="size-4" strokeWidth={1.5} />
+            <MapPin className="size-4" strokeWidth={1.875} />
             Add finding
           </Button>
         </div>
