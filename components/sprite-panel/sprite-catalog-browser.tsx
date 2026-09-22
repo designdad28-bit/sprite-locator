@@ -22,6 +22,11 @@ const RARITY_PILLS = ["Rare", "Epic", "Legendary", "Mythic"];
 const SHOW_RARITY_TABS = false;
 const RARITY_ORDER = ["common", "uncommon", "rare", "epic", "legendary", "mythic", "special"];
 
+/** DOM id of a rarity's section, for the header scrubber to scroll to. */
+function sectionId(rarity: string | null) {
+  return `rarity-${rarity ?? "unknown"}`;
+}
+
 const container = {
   hidden: {},
   show: { transition: { staggerChildren: 0.05, delayChildren: 0.08 } },
@@ -602,8 +607,10 @@ export function SpriteCatalogBrowser({
                                 // the hover's `scale` property rather than replacing it.
                                 //
                                 // Collected tiles stand the Sprite on a glossy floor:
-                                // the art lifts 12% and shrinks to 80% to make room,
-                                // and -webkit-box-reflect mirrors it beneath, fading
+                                // the art stays centred in the tile at 92% (just
+                                // enough in from full size that the feet clear the
+                                // tile's bottom edge), and -webkit-box-reflect
+                                // mirrors it beneath, fading
                                 // from 40% opacity at the feet to nothing. -13px pulls
                                 // the reflection up over the icon's own transparent
                                 // bottom margin so it meets the feet rather than
@@ -615,7 +622,7 @@ export function SpriteCatalogBrowser({
                                 style={
                                   isColored
                                     ? ({
-                                        transform: `translateY(-12%) scale(${spriteIconScale(v.id) * 0.8})`,
+                                        transform: `scale(${spriteIconScale(v.id) * 0.92})`,
                                         WebkitBoxReflect:
                                           "below -13px linear-gradient(transparent 52%, rgb(255 255 255 / 0.4))",
                                       } as CSSProperties)
@@ -667,7 +674,7 @@ export function SpriteCatalogBrowser({
                 ? section.rarity.charAt(0).toUpperCase() + section.rarity.slice(1)
                 : "Unknown";
               return (
-                <section key={section.rarity ?? "unknown"} aria-label={`${label} Sprites`}>
+                <section key={section.rarity ?? "unknown"} id={sectionId(section.rarity)} aria-label={`${label} Sprites`}>
                   {/* An iOS-style sticky section header, in the app's own
                       material: the list's surface frosted behind it, tinted
                       from the rarity's colour at the leading edge and fading
@@ -693,11 +700,48 @@ export function SpriteCatalogBrowser({
                       boxShadow: `inset 0 -1px 0 color-mix(in oklch, ${accent.solid} 55%, transparent)`,
                     }}
                   >
-                    <RarityGem color={accent.solid} />
                     <span className="text-sm font-semibold tracking-[0.02em] text-foreground">{label}</span>
-                    <span className="ml-auto text-xs font-medium tabular-nums text-muted-foreground">
-                      {section.groups.length} {section.groups.length === 1 ? "Sprite" : "Sprites"}
+                    <span className="text-xs font-medium tabular-nums text-muted-foreground">
+                      {section.groups.length}
                     </span>
+
+                    {/* The scrubber. Every section's header carries a stop
+                        for every rarity, with its own lit — and since only
+                        the header of the section on screen is pinned, the
+                        lit gem always marks where you are. Tapping another
+                        glides the list to that section. One row: where you
+                        are, where else there is, and the way there. */}
+                    <nav aria-label="Jump to rarity" className="-mr-2 ml-auto flex items-center">
+                      {sections.map((other) => {
+                        const otherLabel = other.rarity
+                          ? other.rarity.charAt(0).toUpperCase() + other.rarity.slice(1)
+                          : "Unknown";
+                        const here = other.rarity === section.rarity;
+                        return (
+                          <button
+                            key={other.rarity ?? "unknown"}
+                            type="button"
+                            aria-label={`Jump to ${otherLabel}`}
+                            aria-current={here ? "location" : undefined}
+                            onClick={() =>
+                              document
+                                .getElementById(sectionId(other.rarity))
+                                ?.scrollIntoView({
+                                  behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                                    ? "auto"
+                                    : "smooth",
+                                  block: "start",
+                                })
+                            }
+                            className="group/gem flex size-8 items-center justify-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/30 max-md:size-11"
+                          >
+                            <span className="flex transition-transform duration-200 group-hover/gem:scale-125">
+                              <RarityGem color={rarityAccent(other.rarity).solid} dim={!here} />
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </nav>
                   </div>
                   {section.groups.map((group) => renderCard(group))}
                 </section>

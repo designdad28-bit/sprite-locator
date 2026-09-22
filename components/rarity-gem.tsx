@@ -3,15 +3,22 @@
  * catalog's section headers and the detail panel, so rarity is one object
  * wherever it appears.
  */
-export function RarityGem({ color }: { color: string }) {
+export function RarityGem({ color, dim = false }: { color: string; dim?: boolean }) {
+  // Dim: the same diamond unlit — a small outline in the rarity colour with no
+  // fill or glow, so the scrubber's other stops read as "somewhere else" while
+  // keeping their colour, and the lit one reads as "here" by contrast alone.
   return (
     <span
       aria-hidden
-      className="size-2.5 shrink-0 rotate-45 rounded-[2px]"
-      style={{
-        backgroundColor: color,
-        boxShadow: `0 0 0 1.5px color-mix(in oklch, white 35%, transparent), 0 0 10px ${color}`,
-      }}
+      className="size-2.5 shrink-0 rotate-45 rounded-[2px] transition-[background-color,box-shadow] duration-300"
+      style={
+        dim
+          ? { boxShadow: `inset 0 0 0 1.5px color-mix(in oklch, ${color} 70%, transparent)` }
+          : {
+              backgroundColor: color,
+              boxShadow: `0 0 0 1.5px color-mix(in oklch, white 35%, transparent), 0 0 10px ${color}`,
+            }
+      }
     />
   );
 }
