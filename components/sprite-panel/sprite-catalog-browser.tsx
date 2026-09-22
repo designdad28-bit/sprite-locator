@@ -13,6 +13,7 @@ import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
 import { RarityGem } from "@/components/rarity-gem";
 import { Input } from "@/components/ui/input";
+import { BorderBeam } from "border-beam";
 import { MasterySummary } from "./mastery-summary";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,52 @@ const RARITY_PILLS = ["Rare", "Epic", "Legendary", "Mythic"];
 /** Flip to true to bring the rarity filter row back. */
 const SHOW_RARITY_TABS = false;
 const RARITY_ORDER = ["common", "uncommon", "rare", "epic", "legendary", "mythic", "special"];
+
+function prefersReducedMotion() {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/**
+ * A light that runs around a tile's edge while it's hovered. The full
+ * spectrum rather than each variant's own hue: a green beam on the green
+ * cheat tile (or gold on gold) vanished into the fill it was meant to trace. Driven by `active` rather than always-on and
+ * hidden, so only the tile under the pointer animates — 101 beams running at
+ * once would cost real frames. Off entirely under reduced motion, where the
+ * tile's outline hover state still marks it.
+ */
+function HoverBeam({ children }: { children: React.ReactNode }) {
+  const [on, setOn] = useState(false);
+  const activate = () => !prefersReducedMotion() && setOn(true);
+  return (
+    <BorderBeam
+      size="md"
+      colorVariant="colorful"
+      theme="dark"
+      strength={1}
+      // The beam is a 1px ring plus glow tuned for card-sized surfaces; on an
+      // 80px tile at default settings it read as a faint corner smudge. More
+      // light and a wider halo make the travelling highlight legible here.
+      brightness={2.2}
+      glowSize={1.6}
+      // The library multiplies its fixed layer opacities (stroke 0.26, inner
+      // 0.42, bloom 0.24) by these hooks; tripling them makes the travelling
+      // edge clearly visible against the saturated tile fills.
+      style={
+        {
+          "--beam-stroke-opacity": 3,
+          "--beam-inner-opacity": 1.8,
+          "--beam-bloom-opacity": 3,
+        } as CSSProperties
+      }
+      active={on}
+      className="w-full"
+      onPointerEnter={activate}
+      onPointerLeave={() => setOn(false)}
+    >
+      {children}
+    </BorderBeam>
+  );
+}
 
 /** DOM id of a rarity's section, for the header scrubber to scroll to. */
 function sectionId(rarity: string | null) {
@@ -561,12 +608,13 @@ export function SpriteCatalogBrowser({
                           >
                             {label}
                           </span>
+                          <HoverBeam>
                           <span
                             className={cn(
                               // outline, not border: outlines paint outside the box and
                               // take no layout space, so thickening one on hover can't
                               // nudge the tile's contents (the crown especially).
-                              "relative aspect-square w-full overflow-clip rounded-sm outline -outline-offset-1 transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:shadow-[0_10px_18px_-8px_rgb(0_0_0/0.7)] motion-reduce:group-hover:translate-y-0",
+                              "relative block aspect-square w-full overflow-clip rounded-sm outline -outline-offset-1 transition-all duration-200 ease-out",
                               // No outline change on hover — hover is conveyed by the
                               // image coming to full color and scaling up. The gold
                               // outline is reserved for mastered, so it reads as the
@@ -647,6 +695,7 @@ export function SpriteCatalogBrowser({
                               />
                             )}
                           </span>
+                          </HoverBeam>
                         </button>
                       );
                     })}
