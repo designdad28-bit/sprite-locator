@@ -23,6 +23,7 @@ import { displayName } from "@/lib/sprite-name";
 import { AddFindingDialog, type AddFindingValues } from "@/components/add-finding-dialog";
 import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
 import { buildDemoFindings } from "@/lib/demo-findings";
+import { ADD_FINDING_STYLE, ADD_FINDING_ICON_STROKE } from "@/lib/cta";
 import { cn } from "@/lib/utils";
 
 // The open sidebar's width. The map lives in its own container to the right of
@@ -129,22 +130,6 @@ const MOBILE_CTA_HEIGHT = 68;
  * --sprite-gold is also the mastery colour (crowns, the mastered tile ring,
  * the mastery bar), so it now marks two things rather than one.
  */
-/**
- * Add finding's fill and weight, shared by the desktop and phone buttons.
- *
- * Back on Button's own font-medium (500) rather than the 400 it briefly
- * carried to match the search field numerically. Equal weight does not read as
- * equal here: dark text on the yellow lays down measurably LESS ink than light
- * text on the panel, because antialiased edge pixels composite in non-linear
- * sRGB and a half-covered pixel blending toward dark lands lighter than
- * half-way. Rasterising the same string both ways, 400 on yellow came out 13.5%
- * lighter than the search field; 500 lands within 0.4% of it.
- *
- * So 500 is both the optical match AND the component's default — the earlier
- * override was fighting the theme to achieve a mismatch.
- */
-const ADD_FINDING_STYLE =
-  "bg-sprite-gold text-card hover:bg-sprite-gold/90 focus-visible:ring-sprite-gold/40";
 
 function clampSidebarWidth(width: number) {
   const ceiling = Math.min(SIDEBAR_MAX_WIDTH, Math.round(window.innerWidth / 2));
@@ -285,7 +270,6 @@ export default function Home() {
   // any remembered width is applied just after, in the effect below.
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_WIDTH);
 
-
   useEffect(() => {
     const saved = Number(window.localStorage.getItem(SIDEBAR_WIDTH_KEY));
     if (!Number.isFinite(saved) || saved <= 0) return;
@@ -351,7 +335,6 @@ export default function Home() {
     });
   }
   const [lastAdded, setLastAdded] = useState<string | null>(null);
-
 
   /**
    * The filter's rows: one per variant slot, each carrying a real icon of that
@@ -609,11 +592,10 @@ export default function Home() {
             }}
             className={cn("pointer-events-auto h-11 gap-2 px-6 shadow-lg", ADD_FINDING_STYLE)}
           >
-            <MapPin className="size-4" strokeWidth={2.2} />
+            <MapPin className="size-4" strokeWidth={ADD_FINDING_ICON_STROKE} />
             Add Sprite Location
           </Button>
         </div>
-
 
       </div>
       )}
@@ -647,7 +629,7 @@ export default function Home() {
                 primary action, a baseline-weight icon reads thin. Both the
                 label and the icon sit one step above the app baseline because
                 this is the one thing the page asks you to do. */}
-            <MapPin className="size-4" strokeWidth={2.2} />
+            <MapPin className="size-4" strokeWidth={ADD_FINDING_ICON_STROKE} />
             Add Sprite Location
           </Button>
         </div>

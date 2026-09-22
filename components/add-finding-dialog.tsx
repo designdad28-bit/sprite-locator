@@ -7,6 +7,8 @@ import { displayName } from "@/lib/sprite-name";
 import { titleCase } from "@/lib/title-case";
 import { SpriteThumb } from "@/components/sprite-catalog/sprite-thumb";
 import { LOOT_SOURCES, lootSourceById } from "@/lib/loot-sources";
+import { ADD_FINDING_STYLE } from "@/lib/cta";
+import { cn } from "@/lib/utils";
 import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
 import { Button } from "@/components/ui/button";
 import {
@@ -167,11 +169,15 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
             </Select>
           </div>
 
+          {/* Absent until a Sprite is chosen, rather than present and
+              disabled. Which variants exist depends entirely on that choice,
+              so before it there is nothing for this control to offer — and a
+              disabled field reading "Choose a sprite first" spent a row
+              restating the row above it. */}
+          {spriteId && (
           <div className="grid gap-2">
             <Label htmlFor="finding-variant">Variant</Label>
-            {/* Disabled until a Sprite is chosen: which four variants exist,
-                and what they look like, depends entirely on that choice. */}
-            <Select value={variant} onValueChange={(value) => setVariant(value as string | null)} disabled={!spriteId}>
+            <Select value={variant} onValueChange={(value) => setVariant(value as string | null)}>
               <SelectTrigger id="finding-variant" className="w-full">
                 <SelectValue>
                   {(value: string | null) => {
@@ -181,10 +187,8 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
                         <SpriteThumb id={spriteId ?? ""} icon={chosen.icon} />
                         {chosen.label}
                       </span>
-                    ) : spriteId ? (
-                      "Choose a variant"
                     ) : (
-                      "Choose a sprite first"
+                      "Choose a variant"
                     );
                   }}
                 </SelectValue>
@@ -203,6 +207,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
               </SelectContent>
             </Select>
           </div>
+          )}
 
           <div className="grid gap-2">
             <Label htmlFor="finding-location">Location</Label>
@@ -261,7 +266,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
         {/* Full-bleed divider above a full-width confirm, as in the reference. */}
         <DialogFooter className="-mx-6 -mb-6 border-t border-border px-6 py-5">
           <Button
-            className="w-full"
+            className={cn("w-full", ADD_FINDING_STYLE)}
             disabled={!canConfirm}
             onClick={() => {
               if (poiId && spriteId && variant && source) {
