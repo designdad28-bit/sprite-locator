@@ -609,7 +609,13 @@ export default function Home() {
           without this there would be no way to log a finding at all. */}
       {isMobile && (
         <div
-          className="fixed inset-x-0 bottom-0 z-[650] border-t-2 border-border bg-card px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
+          // --muted, the same fill as the header strip at the top of the
+          // catalog — not --card, which is what the content itself uses.
+          // HIG's materials guidance puts controls and navigation on a layer
+          // that is visibly distinct from the content layer; painting this bar
+          // in the content's own colour left it reading as part of the list
+          // rather than as a bar floating above it.
+          className="fixed inset-x-0 bottom-0 z-[650] border-t-2 border-border bg-muted px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
           style={{ minHeight: MOBILE_CTA_HEIGHT }}
         >
           <Button

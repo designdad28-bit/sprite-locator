@@ -148,7 +148,7 @@ export function SpriteCatalogBrowser({
       <div className="shrink-0 bg-muted">
         {/* px-3 matches the search and sprite cards, so everything in the
             sidebar shares one left edge. */}
-        <div className="flex items-center gap-2 px-3 pt-4 pb-3">
+        <div className="flex items-center gap-2 px-3 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {/* Pulled 2px left of the 12px everything else sits on, so the mark
               looks level rather than measuring level. Two reasons it read as
@@ -161,7 +161,9 @@ export function SpriteCatalogBrowser({
           <img
             src="/brand/logo-lockup.svg"
             alt="SpriteRadar"
-            className="-ml-[2px] h-[18px] w-auto object-contain"
+            // Scaled up on a phone with the rest of the layout. The optical
+            // pullback scales with it: -2px at 18px tall, -3px at 24px.
+            className="-ml-[2px] h-[18px] w-auto object-contain max-md:-ml-[3px] max-md:h-6"
           />
           {/* ml-auto pins it to the row's right edge, opposite the logo. */}
           <Button

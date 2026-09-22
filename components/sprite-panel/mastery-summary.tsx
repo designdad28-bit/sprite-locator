@@ -41,15 +41,15 @@ export function MasterySummary() {
         // The track is bg-card, not the component's default bg-muted: the header
         // strip behind it is itself --muted, so the default left the empty part
         // of the bar invisible.
-        className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-track]]:h-1 [&_[data-slot=progress-track]]:bg-card"
+        className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-track]]:h-1 [&_[data-slot=progress-track]]:bg-card max-md:[&_[data-slot=progress-track]]:h-1.5"
       >
-        <ProgressLabel className="flex items-center gap-1 leading-none text-sprite-gold">
+        <ProgressLabel className="flex items-center gap-1 text-base leading-none text-sprite-gold md:text-sm">
           <Crown
             aria-hidden
             // Inherits the label's gold via currentColor. Nudged down 1px:
             // hiding the base bar leaves the remaining shape sitting high in
             // the 24-unit box, so box-centering alone reads as too high.
-            className="size-4 shrink-0 translate-y-px [&>path:last-child]:hidden"
+            className="size-4 shrink-0 translate-y-px [&>path:last-child]:hidden max-md:size-5"
             strokeWidth={1.5}
             fill="currentColor"
           />
@@ -59,7 +59,7 @@ export function MasterySummary() {
             but the count is what belongs here. */}
         {/* Only the count you've earned is gold (matching the bar and the tile
             crowns); the total stays muted so it reads as the denominator. */}
-        <ProgressValue className="font-medium leading-none text-muted-foreground">
+        <ProgressValue className="text-base font-medium leading-none text-muted-foreground md:text-sm">
           {() => (
             <>
               <span className="text-sprite-gold">{mastered}</span> / {total}
