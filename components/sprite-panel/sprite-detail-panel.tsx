@@ -12,6 +12,7 @@ import { VARIANT_SLOTS, variantColor, variantKey, variantLabel } from "@/lib/var
 import { cn } from "@/lib/utils";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 /**
  * The Sprite detail panel.
@@ -54,7 +55,7 @@ const AVAILABILITY_LABEL: Record<string, string> = {
 /** The one section heading treatment. Same size and weight as the catalog's variant captions. */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{children}</h3>
+    <h3 className="text-2xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{children}</h3>
   );
 }
 
@@ -96,14 +97,14 @@ function Row({
   return (
     <div className="flex items-baseline justify-between gap-3 py-1">
       <span
-        className={cn("text-[11px] font-medium", !labelColor && "text-foreground")}
+        className={cn("text-xs font-medium", !labelColor && "text-foreground")}
         style={labelColor ? { color: labelColor } : undefined}
       >
         {label}
       </span>
       <span
         className={cn(
-          "shrink-0 text-[11px] tabular-nums",
+          "shrink-0 text-xs tabular-nums",
           muted ? "text-muted-foreground" : "font-medium text-foreground"
         )}
       >
@@ -115,7 +116,7 @@ function Row({
 
 /** One empty-state treatment, so "nothing here" reads the same everywhere. */
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="text-[11px] text-muted-foreground">{children}</p>;
+  return <p className="text-xs text-muted-foreground">{children}</p>;
 }
 
 export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPanelProps) {
@@ -125,13 +126,10 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
   if (!sprite) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 px-3 text-center">
-        <p className="text-[13px] text-muted-foreground">Sprite not found in the catalog.</p>
-        <button
-          onClick={onBack}
-          className="rounded-full border border-input px-3 py-1.5 text-[11px] font-medium text-foreground transition-colors hover:border-ring hover:bg-input/30"
-        >
+        <p className="text-sm text-muted-foreground">Sprite not found in the catalog.</p>
+        <Button variant="outline" size="sm" onClick={onBack}>
           Close
-        </button>
+        </Button>
       </div>
     );
   }
@@ -160,13 +158,15 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           so the two panels' headers read as one system. Full-bleed — the
           panel's own overflow-hidden clips it to its corners. */}
       <div data-slot="detail-header" className="relative shrink-0 bg-muted p-3">
-        <button
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={onBack}
-          className="absolute top-2 right-2 z-10 flex items-center rounded-full p-1 text-muted-foreground transition-colors hover:bg-card hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
           aria-label="Close"
+          className="absolute top-2 right-2 z-10 rounded-full text-muted-foreground hover:bg-card"
         >
-          <X className="size-4" strokeWidth={1.5} />
-        </button>
+          <X strokeWidth={1.5} />
+        </Button>
 
         {/* No frame, fill or glow: the art sits straight on the header grey.
             A square that tracks the panel's width rather than a fixed 240px,
@@ -190,7 +190,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
               style={{ transform: `scale(${spriteIconScale(sprite.id)})` }}
             />
           ) : (
-            <span className="font-heading text-[22px] text-muted-foreground">?</span>
+            <span className="font-heading text-xl text-muted-foreground">?</span>
           )}
         </motion.div>
       </div>
@@ -200,29 +200,30 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
       {/* Identity sits outside Section: it is the panel's subject, not one of
           its facts, so it carries the name at hero size and no heading. */}
       <div className="px-3 pt-4 pb-4">
-        <h2 className="font-heading text-[22px] font-medium leading-[1.15] text-white">
+        <h2 className="font-heading text-xl font-medium leading-[1.15] text-foreground">
           {displayName(sprite.name)}
         </h2>
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          {/* Identical to the catalog cards': solid rarity fill, white text. */}
+          {/* Identical to the catalog cards': the Badge at its own size, with
+              only the rarity fill overridden. */}
           <Badge
             data-slot="rarity-badge"
-            className="h-auto rounded-[4px] px-1 py-0.5 text-[10px] leading-none"
-            style={{ backgroundColor: accent.solid, borderColor: accent.solid, color: "#fff" }}
+            className="text-white"
+            style={{ backgroundColor: accent.solid, borderColor: accent.solid }}
           >
             {sprite.rarity ? sprite.rarity.charAt(0).toUpperCase() + sprite.rarity.slice(1) : "Unknown"}
           </Badge>
 
           {!sprite.currentlyLive && (
-            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            <span className="text-2xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               {AVAILABILITY_LABEL[sprite.availability] ?? "Unavailable"}
             </span>
           )}
         </div>
 
         {ability && (
-          <p data-slot="detail-ability" className="mt-3 text-[13px] leading-relaxed text-foreground">
+          <p data-slot="detail-ability" className="mt-3 text-sm leading-relaxed text-foreground">
             {ability}
           </p>
         )}
@@ -259,7 +260,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           <Empty>Not documented</Empty>
         )}
         {sprite.acquisitionHint && (
-          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">{sprite.acquisitionHint}</p>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{sprite.acquisitionHint}</p>
         )}
       </Section>
 
@@ -288,7 +289,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
         <Section title="Boons">
           <ul className="space-y-1.5">
             {sprite.boons.map((boon) => (
-              <li key={boon.id} className="text-[13px] leading-relaxed text-foreground">
+              <li key={boon.id} className="text-sm leading-relaxed text-foreground">
                 {boon.description}
               </li>
             ))}

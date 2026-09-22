@@ -19,6 +19,7 @@ import {
 import { Finding } from "@/lib/findings";
 import { Poi } from "@/lib/map/pois";
 import { ISLAND_OUTLINE, isOnIsland } from "@/lib/map/island-outline";
+import { Button } from "@/components/ui/button";
 import { variantColor } from "@/lib/variant-colors";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 
@@ -926,32 +927,40 @@ export default function IslandMap({
       </MapContainer>
 
       <div className="absolute right-2 bottom-2 z-[500] flex flex-col items-center gap-2">
-        <button
-          type="button"
+        {/* The Button component rather than hand-rolled elements. These three
+            previously re-implemented its sizing, hover and focus ring by hand
+            — and disagreed with it: a 2px ring at ring/50 where Button uses a
+            3px ring at ring/30 plus a border, so map controls focused
+            differently from every other control in the app. */}
+        <Button
+          variant="outline"
+          size="icon"
           onClick={resetView}
           aria-label="Reset view"
-          className="flex size-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-lg transition-colors outline-none select-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+          className="rounded-full bg-card text-muted-foreground shadow-lg dark:bg-card"
         >
-          <RotateCcw className="size-4" strokeWidth={1.5} />
-        </button>
+          <RotateCcw strokeWidth={1.5} />
+        </Button>
         <div className="flex flex-col overflow-hidden rounded-full border border-border bg-card shadow-lg">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => map?.zoomIn()}
             aria-label="Zoom in"
-            className="flex size-9 items-center justify-center text-muted-foreground transition-colors outline-none select-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
+            className="rounded-none text-muted-foreground focus-visible:ring-inset"
           >
-            <Plus className="size-4" strokeWidth={1.5} />
-          </button>
+            <Plus strokeWidth={1.5} />
+          </Button>
           <div className="h-px w-full bg-border" />
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => map?.zoomOut()}
             aria-label="Zoom out"
-            className="flex size-9 items-center justify-center text-muted-foreground transition-colors outline-none select-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
+            className="rounded-none text-muted-foreground focus-visible:ring-inset"
           >
-            <Minus className="size-4" strokeWidth={1.5} />
-          </button>
+            <Minus strokeWidth={1.5} />
+          </Button>
         </div>
       </div>
     </div>

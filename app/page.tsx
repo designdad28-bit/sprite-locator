@@ -549,20 +549,18 @@ export default function Home() {
               entered — but it never looks the same in both states. Lit and
               labelled while on, because the map is then showing data nobody
               logged and that must not be a quiet state. */}
-          <button
-            type="button"
+          <Button
+            variant="outline"
             onClick={toggleDemoMode}
             aria-pressed={demoMode}
             className={cn(
-              "pointer-events-auto flex h-9 shrink-0 items-center gap-2 rounded-md border bg-card px-4 text-sm font-medium whitespace-nowrap shadow-lg transition-colors outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50",
-              demoMode
-                ? "border-sprite-gold/60 text-sprite-gold"
-                : "border-border text-muted-foreground hover:text-foreground"
+              "pointer-events-auto rounded-md bg-card shadow-lg dark:bg-card",
+              demoMode ? "border-sprite-gold/60 text-sprite-gold" : "text-muted-foreground"
             )}
           >
-            <FlaskConical className="size-4" strokeWidth={1.5} />
+            <FlaskConical strokeWidth={1.5} />
             {demoMode ? "Demo data — on" : "Demo data"}
-          </button>
+          </Button>
           </div>
         </div>
 
@@ -577,7 +575,7 @@ export default function Home() {
               setAddKey((k) => k + 1);
               setAddOpen(true);
             }}
-            className={cn("pointer-events-auto h-11 gap-2 px-6 text-[15px] font-medium shadow-lg", ADD_FINDING_STYLE)}
+            className={cn("pointer-events-auto h-11 gap-2 px-6 font-medium shadow-lg", ADD_FINDING_STYLE)}
           >
             <MapPin className="size-4" strokeWidth={1.5} />
             Add finding
@@ -601,7 +599,7 @@ export default function Home() {
               setAddKey((k) => k + 1);
               setAddOpen(true);
             }}
-            className={cn("h-11 w-full gap-2 text-[15px] font-medium", ADD_FINDING_STYLE)}
+            className={cn("h-11 w-full gap-2 font-medium", ADD_FINDING_STYLE)}
           >
             <MapPin className="size-4" strokeWidth={1.5} />
             Add finding

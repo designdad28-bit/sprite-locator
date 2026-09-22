@@ -125,16 +125,17 @@ export function SpriteCatalogBrowser({
       // p-4 puts the icon 16px from the top, the same as in the open header
       // (pt-4), so collapsing only moves it sideways, never up.
       <div className="bg-muted p-4">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon-sm"
           data-slot="sidebar-toggle"
           onClick={onToggleCollapsed}
           aria-label="Open sidebar"
           aria-expanded={false}
-          className="flex rounded-sm text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+          className="text-muted-foreground"
         >
           <PanelLeftOpen className="size-5" strokeWidth={1.5} />
-        </button>
+        </Button>
       </div>
     );
   }
@@ -163,18 +164,23 @@ export function SpriteCatalogBrowser({
             className="-ml-[2px] h-[18px] w-auto object-contain"
           />
           {/* ml-auto pins it to the row's right edge, opposite the logo. */}
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon-sm"
             data-slot="sidebar-toggle"
             onClick={onToggleCollapsed}
             aria-label="Collapse sidebar"
             aria-expanded={true}
+            // -mr-1.5 pulls the button's own padding back so the GLYPH still
+            // lands on the 12px gutter, rather than the button box landing on
+            // it and the icon sitting inset from the edge.
+            //
             // Hidden on a phone: collapsing the catalog there would reveal
             // nothing behind it, because the catalog is the whole screen.
-            className="ml-auto flex shrink-0 rounded-sm text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 max-md:hidden"
+            className="-mr-1.5 ml-auto text-muted-foreground max-md:hidden"
           >
             <PanelLeftClose className="size-5" strokeWidth={1.5} />
-          </button>
+          </Button>
         </div>
 
         <div className="px-3 pb-3">
@@ -282,14 +288,9 @@ export function SpriteCatalogBrowser({
         <div className="flex flex-1 flex-col gap-3 px-5 text-sm">
           <p className="text-foreground">Sprite catalog unavailable.</p>
           <p className="text-xs leading-relaxed text-muted-foreground">{error}</p>
-          <button
-            type="button"
-            data-slot="retry"
-            onClick={reload}
-            className="self-start rounded-full border border-input px-3 py-1.5 text-xs font-medium text-foreground transition-colors outline-none select-none hover:border-ring hover:bg-input/30 focus-visible:ring-2 focus-visible:ring-ring/50"
-          >
+          <Button variant="outline" size="sm" data-slot="retry" onClick={reload} className="self-start">
             Retry
-          </button>
+          </Button>
         </div>
       )}
 
@@ -331,7 +332,7 @@ export function SpriteCatalogBrowser({
                       )}
                       <span className="flex min-w-0 flex-col items-start justify-center gap-0.5">
                         <span className="flex min-w-0 items-center gap-1.5">
-                          <span className="truncate font-heading text-[18px] font-medium leading-[1.15] text-white">
+                          <span className="truncate font-heading text-lg font-medium leading-[1.15] text-foreground">
                             {group.family}
                           </span>
                           {/* Sized down from the Radar's 20px and moved off the
@@ -339,32 +340,37 @@ export function SpriteCatalogBrowser({
                               it opens that Sprite's detail panel, so it reads
                               as part of the title rather than as a second map
                               control beside the Radar. */}
-                          <button
-                            type="button"
+                          {/* icon-xs, not a bare icon: at 14px the glyph alone
+                              was a 14px target, under the 24px minimum for a
+                              control. The box is 24px and the glyph stays
+                              14px, so it looks the same and can be hit. */}
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
                             data-slot="sprite-details"
                             onClick={() => onSelect(baseVariant.id)}
                             aria-label={`${group.family} details`}
-                            className="shrink-0 rounded-sm text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
+                            className="text-muted-foreground"
                           >
-                            <Info className="size-3.5" strokeWidth={1.75} />
-                          </button>
+                            <Info className="size-3.5" strokeWidth={1.5} />
+                          </Button>
                         </span>
                         <span className="flex items-center gap-3">
-                        {/* Atlassian lozenge colors (see rarityAccent). Inline rather
-                            than classes because the values come from their token set,
-                            not Tailwind's palette. h-auto + leading-none so the pill
-                            hugs the text: badgeVariants fixes h-5, and text-[10px]
-                            sets only a font-size, dropping text-xs's line-height. */}
+                        {/* The Badge component at its own size and shape — the
+                            h-auto / rounded-[4px] / px-1 / text-2xs overrides
+                            this used to carry had left almost nothing of it.
+                            Only the fill is ours: Atlassian lozenge colours
+                            (see rarityAccent), inline because they come from
+                            their token set rather than Tailwind's palette. */}
                         <Badge
                           data-slot="rarity-badge"
-                          className="h-auto rounded-[4px] px-1 py-0.5 text-[10px] leading-none"
+                          className="text-white"
                           style={{
                             // Solid bright fill with white text. The border takes the
                             // fill color so no outline shows; badgeVariants reserves a
                             // 1px border either way, so the badge's size is unchanged.
                             backgroundColor: rarityAccent(group.rarity).solid,
                             borderColor: rarityAccent(group.rarity).solid,
-                            color: "#fff",
                           }}
                         >
                           {group.rarity ? group.rarity.charAt(0).toUpperCase() + group.rarity.slice(1) : "Unknown"}
@@ -410,8 +416,12 @@ export function SpriteCatalogBrowser({
                       </span>
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
-                      <button
-                        type="button"
+                      {/* Same reasoning as Info above: a 20px glyph was a 20px
+                          target. -mr-1.5 keeps the glyph on the 12px gutter
+                          now that the button carries padding of its own. */}
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
                         data-slot="toggle-findings"
                         onClick={() => onSetVisibility(group.variants.map((v) => v.id), !isShown)}
                         aria-pressed={isShown}
@@ -420,15 +430,10 @@ export function SpriteCatalogBrowser({
                             ? `Hide ${group.family} findings on the map`
                             : `Show ${group.family} findings on the map`
                         }
-                        className={cn(
-                          "rounded-sm transition-colors outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-                          isShown
-                            ? "text-sprite-radar-active"
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
+                        className={cn("-mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
                       >
                         <Radar className="size-5" strokeWidth={1.5} />
-                      </button>
+                      </Button>
                     </span>
                   </div>
 
@@ -458,24 +463,33 @@ export function SpriteCatalogBrowser({
                                 dashed border and Ban icon below already say
                                 the variant doesn't exist. */}
                             <span
-                              className="text-[10px] font-medium leading-5"
+                              className="text-2xs font-medium leading-5"
                               style={{ color: variantLabelColor(slot === "normal" ? null : slot) ?? undefined }}
                             >
                               {variantLabel(slot)}
                             </span>
                             <span
-                              className="relative flex aspect-square w-full items-center justify-center rounded-[6px] border-[0.5px] border-dashed border-border bg-muted/40"
+                              className="relative flex aspect-square w-full items-center justify-center rounded-sm border-[0.5px] border-dashed border-border bg-muted/40"
                               aria-label={`${group.family} has no ${variantLabel(slot).toLowerCase()} variant`}
                             >
-                              {/* Solid colour, not muted-foreground/50. The Ban
-                                  glyph is one path whose slash crosses its own
+                              {/* Opaque, not muted-foreground/50. The Ban glyph
+                                  is one path whose slash crosses its own
                                   circle, and at partial opacity that overlap
                                   blends against itself — the crossing showed
-                                  as a brighter seam, so you could see the line
-                                  continue through the ring. This is the exact
-                                  colour that 50% resolved to over this tile
-                                  (#5E5E65), so it looks the same with no seam. */}
-                              <Ban className="size-5" strokeWidth={1.5} style={{ color: "#506988" }} />
+                                  as a brighter seam, so the line appeared to
+                                  continue through the ring.
+                                  color-mix resolves what 50% WOULD have looked
+                                  like over this tile, but as one opaque colour
+                                  and out of the theme's own tokens. It was a
+                                  hard-coded #506988 before, which no longer
+                                  tracked the palette. */}
+                              <Ban
+                                className="size-5"
+                                strokeWidth={1.5}
+                                style={{
+                                  color: "color-mix(in oklch, var(--muted-foreground), var(--card) 50%)",
+                                }}
+                              />
                             </span>
                           </div>
                         );
@@ -492,7 +506,7 @@ export function SpriteCatalogBrowser({
                           data-status={status}
                           onClick={() => cycleStatus(v.id)}
                           aria-label={`${displayName(v.name)}: ${status}, click to change`}
-                          className="group flex w-[72px] shrink-0 flex-col items-center gap-1 rounded-[6px] outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                          className="group flex w-[72px] shrink-0 flex-col items-center gap-1 rounded-sm outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/30"
                         >
                           {/* Caption carries its variant's colour whether or
                               not the sprite is collected, so the row reads as
@@ -501,7 +515,7 @@ export function SpriteCatalogBrowser({
                               slots above stay dimmed — a family with no such
                               variant has no fill to match. */}
                           <span
-                            className="text-[10px] font-medium leading-5"
+                            className="text-2xs font-medium leading-5"
                             style={{ color: variantLabelColor(v.variant) ?? undefined }}
                           >
                             {label}
@@ -511,7 +525,7 @@ export function SpriteCatalogBrowser({
                               // outline, not border: outlines paint outside the box and
                               // take no layout space, so thickening one on hover can't
                               // nudge the tile's contents (the crown especially).
-                              "relative aspect-square w-full overflow-clip rounded-[6px] outline -outline-offset-1 transition-all duration-150",
+                              "relative aspect-square w-full overflow-clip rounded-sm outline -outline-offset-1 transition-all duration-150",
                               // No outline change on hover — hover is conveyed by the
                               // image coming to full color and scaling up. The gold
                               // outline is reserved for mastered, so it reads as the

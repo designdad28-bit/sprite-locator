@@ -5,6 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* One step below Tailwind's text-xs (12px), for the uppercase captions and
+     section labels the panels are built on. A theme token rather than a
+     text-[10px] repeated at seven call sites: it belongs to the type scale, so
+     it lives in the scale. */
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 1rem;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -229,12 +236,12 @@
 /* --- Sprite Finder map + marker theming --- */
 
 .leaflet-container {
-  background: var(--map-background, #020618);
+  background: var(--map-background, var(--card));
   font-family: var(--font-sans);
 }
 
 .leaflet-tile-pane {
-  background: var(--map-background, #020618);
+  background: var(--map-background, var(--card));
 }
 
 .leaflet-tile {
@@ -251,25 +258,30 @@
   scale: 1.003;
 }
 
+/* Leaflet's own chrome, dressed in the theme's tokens.
+   These rules used to carry hard-coded hexes (#14181d, #e4e4e7, #71808f,
+   #9fd6e8) left over from the Zinc palette the app started on, so Leaflet's
+   attribution and popups were still wearing a theme that had been replaced
+   three times. Tokens instead, so they follow the palette from now on. */
 .leaflet-control-attribution {
-  background: rgba(46, 49, 55, 0.7) !important;
-  color: #71808f !important;
-  border-radius: 6px 0 0 0 !important;
+  background: color-mix(in oklch, var(--card), transparent 30%) !important;
+  color: var(--muted-foreground) !important;
+  border-radius: var(--radius-sm) 0 0 0 !important;
 }
 
 .leaflet-control-attribution a {
-  color: #9fd6e8 !important;
+  color: var(--primary) !important;
 }
 
 .leaflet-popup-content-wrapper {
-  background: #14181d;
-  color: #e4e4e7;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }
 
 .leaflet-popup-tip {
-  background: #14181d;
+  background: var(--card);
 }
 
 .poi-label-wrapper {
@@ -283,12 +295,13 @@
   transform: translate(-50%, -50%);
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 13px;
+  /* On the type scale rather than a 13px one-off. */
+  font-size: var(--text-sm);
   /* Uppercase needs air that lowercase doesn't: caps have no ascenders or
      descenders to separate them, so at 0.02em the words read as one block. */
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #f5f5f0;
+  color: var(--foreground);
   /* A real stroke, not four offset copies of the text.
      The previous rule faked an outline with shadows at the four diagonals,
      which is why the labels looked hand-cut: that outline is double-weight at
