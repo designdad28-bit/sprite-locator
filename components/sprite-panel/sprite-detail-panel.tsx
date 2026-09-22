@@ -1,16 +1,41 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { X, MapPin, Sparkles, PackageSearch } from "lucide-react";
+import { X } from "lucide-react";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { Finding } from "@/lib/findings";
 import { rarityAccent } from "@/lib/rarity";
 import { displayName } from "@/lib/sprite-name";
+import { titleCase } from "@/lib/title-case";
 import { SPRITE_ABILITIES } from "@/lib/sprite-abilities";
 import { VARIANT_SLOTS, variantColor, variantKey, variantLabel } from "@/lib/variant-colors";
 import { cn } from "@/lib/utils";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Badge } from "@/components/ui/badge";
+
+/**
+ * The Sprite detail panel.
+ *
+ * ONE type scale, shared with the catalog sidebar opposite so the two panels
+ * read as one product rather than two screens:
+ *
+ *   name     font-heading 22px medium   — one step up from a catalog card's 18px
+ *   value    13px medium                — anything the reader is here to find out
+ *   body     13px regular, relaxed      — sentences
+ *   label    10px semibold uppercase    — section headings and variant captions
+ *   meta     11px                       — asides and empty states
+ *
+ * Nothing else. The previous version used seven sizes, three weights and two
+ * different muted greys, and rendered the same role — a section's one value —
+ * at 18px semibold in one place, 14px muted in another and 11px chips in a
+ * third, which is what made it read as unfinished.
+ *
+ * Spacing is just as deliberate: a 12px gutter, matching the catalog sidebar's
+ * px-3 exactly so content in both panels starts on the same line, and every
+ * section built by the same Section component below rather than by hand. The
+ * old file set six different top margins (mt-1, 1.5, 2, 2.5, 3) between a
+ * heading and its content; here there is one, because there is one component.
+ */
 
 export interface SpriteDetailPanelProps {
   spriteId: string;
@@ -26,17 +51,84 @@ const AVAILABILITY_LABEL: Record<string, string> = {
   unknown: "Availability unknown",
 };
 
+/** The one section heading treatment. Same size and weight as the catalog's variant captions. */
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{children}</h3>
+  );
+}
+
+/**
+ * A section: heading, then content, separated from its neighbour by a rule.
+ *
+ * Every section on the panel goes through here, so none of them can drift
+ * apart in padding or heading style — the drift was the actual defect.
+ */
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="border-t border-border/60 px-3 py-4 first:border-t-0">
+      <SectionLabel>{title}</SectionLabel>
+      <div className="mt-2">{children}</div>
+    </section>
+  );
+}
+
+/**
+ * A label/value line. Label left, value hard right on tabular figures so
+ * numbers down a column line up.
+ *
+ * Loot sources and summon costs were previously two unrelated shapes — pills
+ * with right-aligned text, and wrapping outlined chips. They are the same kind
+ * of information, so they are now the same row.
+ */
+function Row({
+  label,
+  labelColor,
+  value,
+  muted,
+}: {
+  label: string;
+  labelColor?: string;
+  value: string;
+  /** For a value the catalog doesn't have, so "unknown" never looks like data. */
+  muted?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 py-1">
+      <span
+        className={cn("text-[11px] font-medium", !labelColor && "text-foreground")}
+        style={labelColor ? { color: labelColor } : undefined}
+      >
+        {label}
+      </span>
+      <span
+        className={cn(
+          "shrink-0 text-[11px] tabular-nums",
+          muted ? "text-muted-foreground" : "font-medium text-foreground"
+        )}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+/** One empty-state treatment, so "nothing here" reads the same everywhere. */
+function Empty({ children }: { children: React.ReactNode }) {
+  return <p className="text-[11px] text-muted-foreground">{children}</p>;
+}
+
 export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPanelProps) {
   const { getSprite, sprites } = useSpriteCatalog();
   const sprite = getSprite(spriteId);
 
   if (!sprite) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-        <p className="text-sm text-muted-foreground">Sprite not found in the catalog.</p>
+      <div className="flex h-full flex-col items-center justify-center gap-3 px-3 text-center">
+        <p className="text-[13px] text-muted-foreground">Sprite not found in the catalog.</p>
         <button
           onClick={onBack}
-          className="rounded-full border border-input px-3 py-1.5 text-xs font-medium text-foreground hover:border-ring hover:bg-input/30"
+          className="rounded-full border border-input px-3 py-1.5 text-[11px] font-medium text-foreground transition-colors hover:border-ring hover:bg-input/30"
         >
           Close
         </button>
@@ -64,172 +156,145 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className="no-scrollbar flex h-full flex-col overflow-y-auto"
     >
-      {/* Top section: the same grey as the left sidebar's header strip (logo +
-          mastery), so the two panels' headers read as one system. Full-bleed —
-          the panel's own overflow-hidden clips it to its corners. */}
-      <div data-slot="detail-header" className="relative shrink-0 bg-muted px-5 pt-5 pb-5">
+      {/* The same grey as the catalog sidebar's header strip (logo + mastery),
+          so the two panels' headers read as one system. Full-bleed — the
+          panel's own overflow-hidden clips it to its corners. */}
+      <div data-slot="detail-header" className="relative shrink-0 bg-muted p-3">
         <button
           onClick={onBack}
-          className="absolute top-3 right-3 flex items-center rounded-full p-1 text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
+          className="absolute top-2 right-2 z-10 flex items-center rounded-full p-1 text-muted-foreground transition-colors hover:bg-card hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
           aria-label="Close"
         >
           <X className="size-4" strokeWidth={1.5} />
         </button>
 
-        {/* The top section holds only the art. */}
-        <div className="flex justify-center">
-          {/* No frame, fill or glow: the art sits straight on the header grey.
-              Scaled per sprite like the catalog headings, because each icon's
-              art fills a different share of its 512px canvas. */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            // size-60 = 240px, the full content width (280px panel minus the
-            // header's 20px side padding), so the art is as large as it can be
-            // without touching the panel's edges.
-            className="flex size-60 items-center justify-center"
-          >
-            {sprite.icon ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                data-slot="detail-image"
-                src={sprite.icon}
-                alt={displayName(sprite.name)}
-                className="size-full object-contain"
-                style={{ transform: `scale(${spriteIconScale(sprite.id)})` }}
-              />
-            ) : (
-              <span className="text-5xl text-muted-foreground">?</span>
-            )}
-          </motion.div>
-        </div>
+        {/* No frame, fill or glow: the art sits straight on the header grey.
+            A square that tracks the panel's width rather than a fixed 240px,
+            since the sidebar is draggable — at 418px the old fixed size left a
+            band of empty grey either side of it. Scaled per sprite like the
+            catalog headings, because each icon's art fills a different share
+            of its 512px canvas. */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto flex aspect-square w-full items-center justify-center"
+        >
+          {sprite.icon ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              data-slot="detail-image"
+              src={sprite.icon}
+              alt={displayName(sprite.name)}
+              className="size-full object-contain"
+              style={{ transform: `scale(${spriteIconScale(sprite.id)})` }}
+            />
+          ) : (
+            <span className="font-heading text-[22px] text-muted-foreground">?</span>
+          )}
+        </motion.div>
       </div>
 
-      {/* The dividing line: everything above sits on the header grey. */}
       <div className="h-[0.5px] w-full shrink-0 bg-border" />
 
-      <div className="space-y-5 px-5 py-5">
-        {/* Identity first: name, rarity, then what the sprite does. Left-aligned
-            to the same edge as the section headings below. */}
-        <div className="flex flex-col items-start text-left">
-          <h2 className="font-heading text-2xl font-medium leading-tight text-foreground">{displayName(sprite.name)}</h2>
+      {/* Identity sits outside Section: it is the panel's subject, not one of
+          its facts, so it carries the name at hero size and no heading. */}
+      <div className="px-3 pt-4 pb-4">
+        <h2 className="font-heading text-[22px] font-medium leading-[1.15] text-white">
+          {displayName(sprite.name)}
+        </h2>
 
-          {/* Same badge as the catalog cards: solid rarity fill, white text. */}
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {/* Identical to the catalog cards': solid rarity fill, white text. */}
           <Badge
             data-slot="rarity-badge"
-            className="mt-1.5 h-auto rounded-[4px] px-1 py-0.5 text-[10px] leading-none"
+            className="h-auto rounded-[4px] px-1 py-0.5 text-[10px] leading-none"
             style={{ backgroundColor: accent.solid, borderColor: accent.solid, color: "#fff" }}
           >
             {sprite.rarity ? sprite.rarity.charAt(0).toUpperCase() + sprite.rarity.slice(1) : "Unknown"}
           </Badge>
 
           {!sprite.currentlyLive && (
-            <span className="mt-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               {AVAILABILITY_LABEL[sprite.availability] ?? "Unavailable"}
             </span>
           )}
-
-          {ability && (
-            <p data-slot="detail-ability" className="mt-3 text-sm leading-relaxed text-foreground">
-              {ability}
-            </p>
-          )}
         </div>
 
-        <section>
-          <h3 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5" />
-            Found Locations
-          </h3>
-          <p className="mt-1.5 font-heading text-lg font-semibold text-foreground">
-            {sightingCount} {sightingCount === 1 ? "sighting" : "sightings"}
+        {ability && (
+          <p data-slot="detail-ability" className="mt-3 text-[13px] leading-relaxed text-foreground">
+            {ability}
           </p>
-        </section>
-
-        <section>
-          <h3 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5" />
-            Most Likely Areas
-          </h3>
-          <p className="mt-1.5 text-sm text-muted-foreground/70">Coming soon</p>
-        </section>
-
-        <section>
-          <h3 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
-            <PackageSearch className="h-3.5 w-3.5" />
-            Loot Sources
-          </h3>
-          {dropRateEntries.length > 0 ? (
-            <div className="mt-2 space-y-1">
-              {dropRateEntries.map(([source, pct]) => (
-                <div key={source} className="flex items-center justify-between text-[11px]">
-                  <span className="rounded-full border border-border bg-input/30 px-2.5 py-1 font-medium text-foreground">
-                    {source}
-                  </span>
-                  <span className="text-muted-foreground">{pct != null ? `${pct}%` : "rate not yet published"}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-1.5 text-sm text-muted-foreground/70">Not documented</p>
-          )}
-          {sprite.acquisitionHint && (
-            <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground">{sprite.acquisitionHint}</p>
-          )}
-        </section>
-
-        <section>
-          <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
-            Summon Cost (Sprite Dust)
-          </h3>
-          {/* One chip per variant, outlined and labelled in that variant's color
-              (the same colors as the catalog tiles). Base has no hue of its own
-              (its tile color is a see-through white), so it uses the neutral
-              border and muted label. A cost the catalog doesn't have shows "—";
-              nothing is estimated or filled in. */}
-          <div data-slot="summon-costs" className="mt-2 flex flex-wrap gap-1.5">
-            {familyVariants.map((v) => {
-              const accent = variantKey(v.variant) === "normal" ? null : variantColor(v.variant);
-              return (
-                <span
-                  key={v.id}
-                  data-slot="summon-cost"
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-[4px] border px-2 py-1 text-[11px] leading-none",
-                    !accent && "border-border"
-                  )}
-                  style={accent ? { borderColor: accent } : undefined}
-                >
-                  <span
-                    className={cn("font-bold uppercase tracking-wide", !accent && "text-muted-foreground")}
-                    style={accent ? { color: accent } : undefined}
-                  >
-                    {variantLabel(v.variant)}
-                  </span>
-                  <span className="font-medium tabular-nums text-foreground">
-                    {v.summonCostSpriteDust != null ? v.summonCostSpriteDust.toLocaleString() : "—"}
-                  </span>
-                </span>
-              );
-            })}
-          </div>
-          {noCostsPublished && <p className="mt-2 text-xs text-muted-foreground/70">Not yet published</p>}
-        </section>
-
-        {sprite.boons.length > 0 && (
-          <section>
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Boons</h3>
-            <ul className="mt-1.5 space-y-1">
-              {sprite.boons.map((boon) => (
-                <li key={boon.id} className="text-sm text-foreground">
-                  {boon.description}
-                </li>
-              ))}
-            </ul>
-          </section>
         )}
       </div>
+
+      {/* Sightings and likely areas were two sections asking the same question
+          from opposite ends, one of them a heading over the words "Coming
+          soon". Folded into one, so a placeholder costs a row rather than a
+          whole section. */}
+      <Section title="Locations">
+        <Row
+          label={sightingCount === 1 ? "Sighting logged" : "Sightings logged"}
+          value={String(sightingCount)}
+          muted={sightingCount === 0}
+        />
+        <Row label="Most likely areas" value="Coming soon" muted />
+      </Section>
+
+      <Section title="Loot sources">
+        {dropRateEntries.length > 0 ? (
+          dropRateEntries.map(([source, pct]) => (
+            <Row
+              key={source}
+              // The catalog stores these shouting ("SPRITE CHEST"), which is
+              // how the source published them, not how they should read in a
+              // sentence-cased panel. Same treatment the Add finding form
+              // gives location names.
+              label={titleCase(source)}
+              value={pct != null ? `${pct}%` : "Not published"}
+              muted={pct == null}
+            />
+          ))
+        ) : (
+          <Empty>Not documented</Empty>
+        )}
+        {sprite.acquisitionHint && (
+          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">{sprite.acquisitionHint}</p>
+        )}
+      </Section>
+
+      <Section title="Summon cost — Sprite Dust">
+        {/* One row per variant in the catalog's slot order, its label in that
+            variant's own colour so the column matches the tiles opposite. Base
+            has no hue of its own, so it takes the default. A cost the catalog
+            doesn't have shows as unpublished; nothing is estimated. */}
+        <div data-slot="summon-costs">
+          {familyVariants.map((v) => (
+            <Row
+              key={v.id}
+              label={variantLabel(v.variant)}
+              labelColor={variantKey(v.variant) === "normal" ? undefined : (variantColor(v.variant) ?? undefined)}
+              value={
+                v.summonCostSpriteDust != null ? v.summonCostSpriteDust.toLocaleString() : "Not published"
+              }
+              muted={v.summonCostSpriteDust == null}
+            />
+          ))}
+        </div>
+        {noCostsPublished && <Empty>Epic hasn&rsquo;t published costs for this Sprite yet.</Empty>}
+      </Section>
+
+      {sprite.boons.length > 0 && (
+        <Section title="Boons">
+          <ul className="space-y-1.5">
+            {sprite.boons.map((boon) => (
+              <li key={boon.id} className="text-[13px] leading-relaxed text-foreground">
+                {boon.description}
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
     </motion.div>
   );
 }
