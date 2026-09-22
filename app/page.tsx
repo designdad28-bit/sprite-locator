@@ -109,6 +109,18 @@ function useIsMobile() {
 /** Height the mobile Add finding bar occupies, which the catalog pads clear of. */
 const MOBILE_CTA_HEIGHT = 68;
 
+/**
+ * Add finding's fill, shared by the desktop and phone buttons so the two
+ * cannot drift apart.
+ *
+ * Yellow on the app's darkest blue — the highest-contrast pair the palette
+ * holds, which is what the one action on the screen should be. Worth knowing:
+ * --sprite-gold is also the mastery colour (crowns, the mastered tile ring,
+ * the mastery bar), so it now marks two things rather than one.
+ */
+const ADD_FINDING_STYLE =
+  "bg-sprite-gold text-card hover:bg-sprite-gold/90 focus-visible:ring-sprite-gold/40";
+
 function clampSidebarWidth(width: number) {
   const ceiling = Math.min(SIDEBAR_MAX_WIDTH, Math.round(window.innerWidth / 2));
   return Math.max(SIDEBAR_MIN_WIDTH, Math.min(ceiling, Math.round(width)));
@@ -552,16 +564,20 @@ export default function Home() {
             {demoMode ? "Demo data — on" : "Demo data"}
           </button>
           </div>
+        </div>
 
+        {/* Centred along the bottom of the map rather than tucked in the top
+            corner with the filters: it is the one thing the page asks you to
+            do, so it reads as the page's action instead of a third control in
+            a row of them. Clear of the zoom cluster in the bottom-right and of
+            the confirmation toast, which now sits above it. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-[500] flex justify-center px-2">
           <Button
-            variant="outline"
             onClick={() => {
               setAddKey((k) => k + 1);
               setAddOpen(true);
             }}
-            // dark:bg-card is required: the outline variant sets
-            // dark:bg-transparent, which an unprefixed background would lose to.
-            className="pointer-events-auto gap-2 bg-card text-foreground shadow-lg dark:bg-card"
+            className={cn("pointer-events-auto h-11 gap-2 px-6 text-[15px] font-medium shadow-lg", ADD_FINDING_STYLE)}
           >
             <MapPin className="size-4" strokeWidth={1.5} />
             Add finding
@@ -585,7 +601,7 @@ export default function Home() {
               setAddKey((k) => k + 1);
               setAddOpen(true);
             }}
-            className="h-11 w-full gap-2 text-[15px] font-medium"
+            className={cn("h-11 w-full gap-2 text-[15px] font-medium", ADD_FINDING_STYLE)}
           >
             <MapPin className="size-4" strokeWidth={1.5} />
             Add finding
@@ -608,7 +624,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="pointer-events-none absolute bottom-6 left-1/2 z-[500] -translate-x-1/2 rounded-full border border-border bg-card/95 px-4 py-2 text-xs font-semibold text-foreground shadow-xl"
+              // Above the Add finding button below it, which now occupies the
+              // bottom-centre this used to have to itself.
+              className="pointer-events-none absolute bottom-20 left-1/2 z-[500] -translate-x-1/2 rounded-full border border-border bg-card/95 px-4 py-2 text-xs font-semibold text-foreground shadow-xl"
             >
               Finding added — {displayName(getSprite(lastAdded)?.name)}
             </motion.div>
