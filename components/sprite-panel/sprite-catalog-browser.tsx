@@ -297,7 +297,8 @@ export function SpriteCatalogBrowser({
 
       {!loading && !error && (
         <motion.div variants={container} initial="hidden" animate="show">
-          {filtered.map((group, index) => {
+          {(() => {
+            const renderCard = (group: SpriteFamilyGroup) => {
             const baseVariant = group.variants.find((v) => v.variant === null) ?? group.variants[0];
             // One Radar per Sprite, covering every variant it has: findings are
             // stored against the variant that was actually found, so "show
@@ -309,56 +310,11 @@ export function SpriteCatalogBrowser({
             // Mega Man ships only its base one, so it reads (0/1).
             const masteredInSet = group.variants.filter((v) => getStatus(v.id) === "mastered").length;
 
-            // A header opens each rarity's run of cards, not each card: since
-            // `filtered` is already rarity-sorted (see `groups` above) and
-            // filtering never reorders it, the same rarity's cards are always
-            // adjacent, so "does this group's rarity differ from the one
-            // before it" is enough to find where each run starts — no
-            // separate grouping pass needed.
-            // index === 0 is always a new group, even if its rarity happens to
-            // be null (unknown) and so is index -1's non-existent rarity —
-            // `null !== null` is false, which would otherwise skip the very
-            // first header on a catalog with an unrated family in front.
-            const startsNewRarityGroup = index === 0 || group.rarity !== filtered[index - 1].rarity;
-            const accent = rarityAccent(group.rarity);
-            const rarityLabel = group.rarity ? group.rarity.charAt(0).toUpperCase() + group.rarity.slice(1) : "Unknown";
-
             return (
               <motion.div key={group.family} variants={item}>
-                {startsNewRarityGroup && (
-                  // Colour is the only thing that still says a card's rarity
-                  // now that the per-card badge is gone — it has to be the
-                  // same accent.solid the badge used to carry, or a card
-                  // would visually disagree with the section it sits in.
-                  //
-                  // mt-4 unconditionally (not mt-0 on the first one): the
-                  // first header used to sit right under the search field's
-                  // own trailing padding at 6px, against every other
-                  // group-to-group gap's 16px — the search-to-"Rare" gap read
-                  // as tighter than the rest for no reason tied to what it
-                  // actually separates.
-                  // A full-width band rather than a label and rule: 32px
-                  // tall, -mx-4 to cancel the pane's gutter so it runs edge
-                  // to edge, filled with the rarity colour, the label
-                  // centred in white. All four rarity solids clear 4.5:1
-                  // against white, so the 12px label stays legible.
-                  <div
-                    data-slot="rarity-header"
-                    className="-mx-4 mt-4 mb-2 flex h-8 items-center justify-center"
-                    style={{ backgroundColor: accent.solid }}
-                  >
-                    <span className="text-xs font-semibold tracking-[0.08em] text-white uppercase">
-                      {rarityLabel}
-                    </span>
-                  </div>
-                )}
-                {/* The first card drops its own leading padding (its 2px plus the
-                    header's 4px) so nothing sits between it and the search field.
-                    Only when it has no header of its own above it — a header
-                    already carries that same separation via its own margin. */}
-                <div className={cn("rounded-lg py-0.5", index === 0 && !startsNewRarityGroup && "pt-0")}>
+                <div className="rounded-lg py-0.5">
                   {/* Header: purely informational — not clickable/hoverable, per design. Only the Radar/Info icons act. */}
-                  <div className={cn("flex items-center justify-between py-1", index === 0 && "pt-0")}>
+                  <div className="flex items-center justify-between py-1">
                     <span className="flex min-w-0 items-center">
                       {group.icon ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -650,7 +606,70 @@ export function SpriteCatalogBrowser({
                 </div>
               </motion.div>
             );
-          })}
+            };
+
+            // One section per rarity run. `filtered` is already rarity-sorted
+            // and filtering never reorders it, so adjacent runs are the
+            // sections. Each is its own element so its header can be sticky
+            // for exactly as long as that rarity is on screen — a sticky
+            // element only sticks within its parent.
+            const sections: { rarity: string | null; groups: SpriteFamilyGroup[] }[] = [];
+            filtered.forEach((group) => {
+              const last = sections[sections.length - 1];
+              if (last && last.rarity === group.rarity) last.groups.push(group);
+              else sections.push({ rarity: group.rarity, groups: [group] });
+            });
+
+            return sections.map((section) => {
+              const accent = rarityAccent(section.rarity);
+              const label = section.rarity
+                ? section.rarity.charAt(0).toUpperCase() + section.rarity.slice(1)
+                : "Unknown";
+              return (
+                <section key={section.rarity ?? "unknown"} aria-label={`${label} Sprites`}>
+                  {/* An iOS-style sticky section header, in the app's own
+                      material: the list's surface frosted behind it, tinted
+                      from the rarity's colour at the leading edge and fading
+                      out across the row, so the colour reads as light cast
+                      on the header rather than paint on a bar.
+
+                      -mx-4 px-4 runs it edge to edge while the label keeps
+                      the list's 16px line. top-[-16px] cancels the pane's
+                      own pt-4 so it pins flush to the pane's top edge.
+
+                      The rarity's colour lives in three places, each doing
+                      one job: the gem (identity), the wash (which section
+                      you are in, even at a glance while scrolling), and a
+                      hairline along the bottom (where the header ends and
+                      the list begins). The label itself stays foreground —
+                      colour carries the category, type carries the name. */}
+                  <div
+                    data-slot="rarity-header"
+                    className="sticky top-[-16px] z-10 -mx-4 mt-4 mb-2 flex h-11 items-center gap-2.5 px-4 backdrop-blur-xl backdrop-saturate-150"
+                    style={{
+                      backgroundImage: `linear-gradient(90deg, color-mix(in oklch, ${accent.solid} 38%, transparent), color-mix(in oklch, ${accent.solid} 10%, transparent) 55%, transparent)`,
+                      backgroundColor: "color-mix(in oklch, var(--card) 78%, transparent)",
+                      boxShadow: `inset 0 -1px 0 color-mix(in oklch, ${accent.solid} 55%, transparent)`,
+                    }}
+                  >
+                    <span
+                      aria-hidden
+                      className="size-2.5 rotate-45 rounded-[2px]"
+                      style={{
+                        backgroundColor: accent.solid,
+                        boxShadow: `0 0 0 1.5px color-mix(in oklch, white 35%, transparent), 0 0 10px ${accent.solid}`,
+                      }}
+                    />
+                    <span className="text-sm font-semibold tracking-[0.02em] text-foreground">{label}</span>
+                    <span className="ml-auto text-xs font-medium tabular-nums text-muted-foreground">
+                      {section.groups.length} {section.groups.length === 1 ? "Sprite" : "Sprites"}
+                    </span>
+                  </div>
+                  {section.groups.map((group) => renderCard(group))}
+                </section>
+              );
+            });
+          })()}
           {filtered.length === 0 && (
             <p className="px-4 py-8 text-center text-sm text-muted-foreground">No sprites match.</p>
           )}
