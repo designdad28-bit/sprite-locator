@@ -619,7 +619,13 @@ export default function Home() {
               setAddKey((k) => k + 1);
               setAddOpen(true);
             }}
-            className={cn("h-11 w-full gap-2", ADD_FINDING_STYLE)}
+            // text-base: this Button's own default is text-sm (14px), same
+            // as the desktop map CTA — but there is nothing on a phone
+            // screen for it to visually match at that size, and 14px reads
+            // as noticeably smaller than the sheet it opens once that sheet
+            // is also fixed. One step up, same as everything else scaled
+            // for a phone this session.
+            className={cn("h-11 w-full gap-2 text-base", ADD_FINDING_STYLE)}
           >
             {/* 2.2, where every other 16px icon in the app runs 1.875. The
                 app's rule is one ink weight everywhere; this is the one
