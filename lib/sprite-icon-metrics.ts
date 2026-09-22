@@ -4,39 +4,39 @@
 // visual size. Every source icon is a 512x512 square, but the artwork
 // inside fills a different share of that canvas, so identical <img>
 // boxes still produce visibly different sprite sizes. Each factor below
-// is measured from the real icon's pixels as an OPTICAL size: the
-// geometric mean of the art's height and the square root of its opaque
-// area, both as fractions of the canvas. Height alone (the previous
-// metric) let narrow, tall Sprites — Jackrabbit, Crash Bandicoot — shrink
-// to match on height and then read small because they carry less mass.
-// Area alone would let those same Sprites tower. The blend weighs both.
-// Normalized to the smallest optical size (Jonesy) so nothing scales up
-// past its box. Measured 2026-09-22.
+// is measured from the real icon's pixels as VISUAL MASS: the square
+// root of its opaque pixel area, as a fraction of the canvas. Height-based
+// metrics (tried twice) left narrow, tall Sprites — Crash Bandicoot,
+// Crown — reading clearly smaller than wide ones like Blinky and X-Ray,
+// because the eye judges size by how much ink there is, not how tall it
+// stands. Normalized to the least-massive icon (Jackrabbit) so nothing
+// scales past its box; every scaled art height still fits (max 91.8%).
+// Measured 2026-09-22.
 //
 // Unknown ids fall back to 1 — a new Sprite renders unscaled rather than
 // wrong, until this is regenerated.
 const ICON_SCALE: Record<string, number> = {
-  "klombo-sprite": 0.8262,
-  "birthday-sprite": 0.8447,
-  "mega-man-sprite": 0.8702,
-  "morgana-sprite": 0.8736,
-  "pond-sprite": 0.8762,
-  "crown-sprite": 0.8821,
-  "crash-bandicoot-sprite": 0.888,
-  "overshield-sprite": 0.8897,
-  "tails-sprite": 0.8929,
-  "jackrabbit-sprite": 0.8943,
-  "shadow-sprite": 0.9044,
-  "sonic-sprite": 0.9109,
-  "adventure-sprite": 0.9129,
-  "storm-scout-sprite": 0.9344,
-  "blinky-sprite": 0.9346,
-  "killswitch-sprite": 0.9579,
-  "bush-sprite": 0.9663,
-  "x-ray-sprite": 0.9744,
-  "8-bit-sprite": 0.9821,
-  "onigiri-sprite": 0.9892,
-  "jonesy-sprite": 1.0,
+  "klombo-sprite": 0.8062,
+  "mega-man-sprite": 0.8681,
+  "birthday-sprite": 0.8864,
+  "morgana-sprite": 0.8893,
+  "adventure-sprite": 0.9,
+  "tails-sprite": 0.9014,
+  "overshield-sprite": 0.9076,
+  "blinky-sprite": 0.9085,
+  "sonic-sprite": 0.9138,
+  "shadow-sprite": 0.9161,
+  "pond-sprite": 0.9292,
+  "killswitch-sprite": 0.9373,
+  "storm-scout-sprite": 0.9383,
+  "crown-sprite": 0.9417,
+  "x-ray-sprite": 0.9447,
+  "bush-sprite": 0.9563,
+  "jonesy-sprite": 0.9629,
+  "8-bit-sprite": 0.9698,
+  "onigiri-sprite": 0.9708,
+  "crash-bandicoot-sprite": 0.9859,
+  "jackrabbit-sprite": 1.0,
 };
 
 /** 1 for anything unmeasured, so an unknown Sprite renders unscaled rather than wrong. */
