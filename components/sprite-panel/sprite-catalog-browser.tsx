@@ -393,29 +393,27 @@ export function SpriteCatalogBrowser({
                               the family name's rendered line-height at each
                               breakpoint (measured, not guessed) rather than
                               the icon-sm/44px hit target the app's other icon
-                              buttons use — by request, so it reads as part of
-                              the name's text row instead of a taller control
-                              laid over it. This is BELOW
+                              buttons use — by request. This is BELOW
                               foundations/accessibility.md's stated minimums
-                              (28x28pt macOS, 44x44pt iOS); the -my/-ml
-                              pullback only ever affected layout spacing, so
-                              with no larger box left to pull back FROM, the
-                              clickable region is now exactly this size too —
-                              a real tradeoff, made because it was asked for
-                              explicitly, not a default.
+                              (28x28pt macOS, 44x44pt iOS): a real tradeoff,
+                              made because it was asked for explicitly, not a
+                              default.
 
-                              The negative margins are what keep the glyph next
-                              to the name rather than floating away from it:
-                              the button's own padding insets it, which would
-                              otherwise add to the row's 6px gap. -my keeps the
-                              row itself from growing to the button's height. */}
+                              No negative margins. Those existed to pull a
+                              PADDED 32px/44px button back into a compact row
+                              without growing it — with size="icon-xs" there is
+                              no padding left to pull back from, so the same
+                              offsets just dragged the glyph onto the name's own
+                              text instead. The row's existing gap-1.5 (6px) is
+                              now the only spacing between them, matching every
+                              other icon-next-to-text pairing in the app. */}
                           <Button
                             variant="ghost"
                             size="icon-xs"
                             data-slot="sprite-details"
                             onClick={() => onSelect(baseVariant.id)}
                             aria-label={`${group.family} details`}
-                            className="-my-1.5 -ml-2.5 h-[21px] w-[21px] text-muted-foreground max-md:-my-3 max-md:-ml-3.5 max-md:h-[23px] max-md:w-[23px]"
+                            className="h-[21px] w-[21px] text-muted-foreground max-md:h-[23px] max-md:w-[23px]"
                           >
                             <Info className="size-3" strokeWidth={2.5} />
                           </Button>
