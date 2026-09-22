@@ -603,7 +603,27 @@ export function SpriteCatalogBrowser({
                                 // Same visual-mass scale as the heading art, so tiles
                                 // match each other across families too. Composes with
                                 // the hover's `scale` property rather than replacing it.
-                                style={{ transform: `scale(${spriteIconScale(v.id)})` }}
+                                //
+                                // Collected tiles stand the Sprite on a glossy floor:
+                                // the art lifts 12% and shrinks to 80% to make room,
+                                // and -webkit-box-reflect mirrors it beneath, fading
+                                // from 40% opacity at the feet to nothing. -13px pulls
+                                // the reflection up over the icon's own transparent
+                                // bottom margin so it meets the feet rather than
+                                // floating below them. The tile's overflow-clip keeps
+                                // it inside the container. The reflection belongs to
+                                // the image, so it follows the hover zoom too.
+                                // Browsers without box-reflect (Firefox) simply show
+                                // the lifted Sprite with no reflection.
+                                style={
+                                  isColored
+                                    ? ({
+                                        transform: `translateY(-12%) scale(${spriteIconScale(v.id) * 0.8})`,
+                                        WebkitBoxReflect:
+                                          "below -13px linear-gradient(transparent 52%, rgb(255 255 255 / 0.4))",
+                                      } as CSSProperties)
+                                    : { transform: `scale(${spriteIconScale(v.id)})` }
+                                }
                               />
                             ) : (
                               <span className="absolute inset-0 bg-input/30" />
