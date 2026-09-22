@@ -202,10 +202,22 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
       <div className="px-3 pt-4 pb-4">
         {/* Name and rarity share one row, the badge pinned to the right edge.
             items-start rather than centred so the badge stays on the FIRST
-            line when a long name wraps ("Bounty Hunter Body Slam" does at
-            narrow widths) instead of drifting to the middle of the block; the
-            mt-0.5 puts it on that line's optical centre. min-w-0 lets the name
-            wrap rather than push the badge past the gutter. */}
+            line if a long name wraps, instead of drifting to the middle of the
+            block. min-w-0 lets the name wrap rather than push the badge past
+            the gutter.
+
+            mt-px is an optical correction, measured not guessed. Centring the
+            badge in the heading's LINE BOX (23px, so a centre at 11.5) sits it
+            low, because the line box includes descender space the capitals
+            never use. The name's optical centre is the middle of its cap-height
+            band: cap height 12.86px on a baseline 17.5px down, so a centre at
+            11.07px. A 20px badge therefore wants its top at 1.07px — 1px, not
+            the 2px that line-box centring gives.
+
+            Baseline alignment is not the answer here either: the badge's own
+            vertical padding puts its text baseline 14.5px down its 20px box,
+            which would drop its top to 3px — further out than where it
+            started. */}
         <div className="flex items-start justify-between gap-3">
           <h2 className="min-w-0 font-heading text-xl font-medium leading-[1.15] text-foreground">
             {displayName(sprite.name)}
@@ -215,7 +227,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
               only the rarity fill overridden. */}
           <Badge
             data-slot="rarity-badge"
-            className="mt-0.5 shrink-0 text-white"
+            className="mt-px shrink-0 text-white"
             style={{ backgroundColor: accent.solid, borderColor: accent.solid }}
           >
             {sprite.rarity ? sprite.rarity.charAt(0).toUpperCase() + sprite.rarity.slice(1) : "Unknown"}
