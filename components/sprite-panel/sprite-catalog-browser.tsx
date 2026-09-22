@@ -35,9 +35,22 @@ function prefersReducedMotion() {
  * once would cost real frames. Off entirely under reduced motion, where the
  * tile's outline hover state still marks it.
  */
-function HoverBeam({ children }: { children: React.ReactNode }) {
-  const [on, setOn] = useState(false);
-  const activate = () => !prefersReducedMotion() && setOn(true);
+function HoverBeam({
+  children,
+  whileFocused = false,
+  className = "w-full",
+  overflowVisible = false,
+}: {
+  children: React.ReactNode;
+  /** Also light while something inside has focus — for fields you type in. */
+  whileFocused?: boolean;
+  className?: string;
+  /** Let a focus ring show outside the beam's box (the library clips it). */
+  overflowVisible?: boolean;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const on = !prefersReducedMotion() && (hovered || (whileFocused && focused));
   return (
     <BorderBeam
       size="md"
@@ -57,12 +70,16 @@ function HoverBeam({ children }: { children: React.ReactNode }) {
           "--beam-stroke-opacity": 3,
           "--beam-inner-opacity": 1.8,
           "--beam-bloom-opacity": 3,
+          ...(overflowVisible && { overflow: "visible" }),
         } as CSSProperties
       }
       active={on}
-      className="w-full"
-      onPointerEnter={activate}
-      onPointerLeave={() => setOn(false)}
+      className={className}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      // React's focus events bubble, so these catch the field inside.
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
     >
       {children}
     </BorderBeam>
@@ -254,10 +271,10 @@ export function SpriteCatalogBrowser({
             (py-0.5 here plus py-1 on its header), so 6px here lands the first
             sprite 12px below the field — matching the 12px above it. */}
         <div className="relative pb-1.5">
-          <Search
-            className="pointer-events-none absolute top-5 left-4 size-4 max-md:top-[22px] -translate-y-1/2 text-muted-foreground"
-            strokeWidth={1.875}
-          />
+          {/* Same beam as the tiles, and also lit while the field has focus.
+              overflowVisible: the beam's layers clip themselves to the pill,
+              and the field's focus ring has to show outside it. */}
+          <HoverBeam whileFocused overflowVisible className="w-full rounded-3xl">
           <Input
             type="search"
             value={query}
@@ -275,6 +292,12 @@ export function SpriteCatalogBrowser({
             // exactly the sidebar's own background, so with no border the
             // field would have no edge at all at rest.
             className="border-border bg-card pl-11 [&::-webkit-search-cancel-button]:appearance-none"
+          />
+          </HoverBeam>
+          {/* After the beam in the DOM so it paints above the beam's glow. */}
+          <Search
+            className="pointer-events-none absolute top-5 left-4 z-10 size-4 max-md:top-[22px] -translate-y-1/2 text-muted-foreground"
+            strokeWidth={1.875}
           />
         </div>
         {/* Also scrolls: the four hugging pills total ~293px, which no longer
