@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Radar, Info, Search, Ban, Crown, X, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
@@ -197,10 +197,7 @@ export function SpriteCatalogBrowser({
 
       {/* Only the logo and the mastery count stay pinned; the search scrolls
           away with the list below it. */}
-      {/* max-md:pb-28: the phone's glass action tray floats over the end
-          of this list, so the list pads itself clear of it rather than the
-          page stopping short of the tray. */}
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pt-4 pb-4 max-md:pb-28">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pt-4 pb-4">
         {/* pb-1.5, not pb-3: each sprite card carries 6px of its own leading padding
             (py-0.5 here plus py-1 on its header), so 6px here lands the first
             sprite 12px below the field — matching the 12px above it. */}
@@ -225,7 +222,7 @@ export function SpriteCatalogBrowser({
             // when the field is lighter than its surroundings; bg-card is
             // exactly the sidebar's own background, so with no border the
             // field would have no edge at all at rest.
-            className="material rounded-full pl-11 [&::-webkit-search-cancel-button]:appearance-none"
+            className="border-border bg-card pl-11 [&::-webkit-search-cancel-button]:appearance-none"
           />
         </div>
         {/* Also scrolls: the four hugging pills total ~293px, which no longer
@@ -289,7 +286,7 @@ export function SpriteCatalogBrowser({
         // when it lands. The status text stays for screen readers.
         <div className="flex-1 overflow-hidden px-4 pt-4" aria-busy="true">
           <span className="sr-only" role="status">Loading Sprite catalog…</span>
-          <div className="skeleton mt-4 mb-2 h-11 rounded-2xl" />
+          <div className="skeleton -mx-4 mt-4 mb-2 h-11" />
           {[0, 1, 2].map((i) => (
             <div key={i} className="py-2">
               <div className="flex items-center gap-3 py-1">
@@ -671,18 +668,30 @@ export function SpriteCatalogBrowser({
                 : "Unknown";
               return (
                 <section key={section.rarity ?? "unknown"} aria-label={`${label} Sprites`}>
-                  {/* An iOS-style sticky section header. The label stays
-                      foreground — colour carries the category (the gem and
-                      the glass's tint), type carries the name. */}
+                  {/* An iOS-style sticky section header, in the app's own
+                      material: the list's surface frosted behind it, tinted
+                      from the rarity's colour at the leading edge and fading
+                      out across the row, so the colour reads as light cast
+                      on the header rather than paint on a bar.
+
+                      -mx-4 px-4 runs it edge to edge while the label keeps
+                      the list's 16px line. top-[-16px] cancels the pane's
+                      own pt-4 so it pins flush to the pane's top edge.
+
+                      The rarity's colour lives in three places, each doing
+                      one job: the gem (identity), the wash (which section
+                      you are in, even at a glance while scrolling), and a
+                      hairline along the bottom (where the header ends and
+                      the list begins). The label itself stays foreground —
+                      colour carries the category, type carries the name. */}
                   <div
                     data-slot="rarity-header"
-                    // Liquid glass (see `material` in globals.css), tinted with
-                    // the rarity through --glass-tint: a capsule that floats
-                    // 8px below the pane's top edge as cards slide beneath it,
-                    // instead of a bar bolted across it. top-[-8px] is the
-                    // pane's own pt-4 minus that 8px float.
-                    className="material sticky top-[-8px] z-10 mt-4 mb-2 flex h-11 items-center gap-2.5 rounded-2xl px-3.5"
-                    style={{ "--glass-tint": accent.solid } as CSSProperties}
+                    className="sticky top-[-16px] z-10 -mx-4 mt-4 mb-2 flex h-11 items-center gap-2.5 px-4 backdrop-blur-xl backdrop-saturate-150"
+                    style={{
+                      backgroundImage: `linear-gradient(90deg, color-mix(in oklch, ${accent.solid} 38%, transparent), color-mix(in oklch, ${accent.solid} 10%, transparent) 55%, transparent)`,
+                      backgroundColor: "color-mix(in oklch, var(--card) 78%, transparent)",
+                      boxShadow: `inset 0 -1px 0 color-mix(in oklch, ${accent.solid} 55%, transparent)`,
+                    }}
                   >
                     <RarityGem color={accent.solid} />
                     <span className="text-sm font-semibold tracking-[0.02em] text-foreground">{label}</span>

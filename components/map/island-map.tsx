@@ -941,7 +941,7 @@ export default function IslandMap({
           size="icon-lg"
           onClick={resetView}
           aria-label="Reset view"
-          className="material rounded-full text-muted-foreground hover:text-foreground hover:brightness-125"
+          className="material rounded-full text-muted-foreground hover:bg-card hover:text-foreground dark:bg-transparent"
         >
           <RotateCcw className="size-5" strokeWidth={1.5} />
         </Button>
@@ -951,7 +951,7 @@ export default function IslandMap({
             size="icon-lg"
             onClick={() => map?.zoomIn()}
             aria-label="Zoom in"
-            className="rounded-none text-muted-foreground hover:bg-white/10 hover:text-foreground focus-visible:ring-inset dark:hover:bg-white/10"
+            className="rounded-none text-muted-foreground hover:text-foreground focus-visible:ring-inset"
           >
             <Plus className="size-5" strokeWidth={1.5} />
           </Button>
@@ -961,7 +961,7 @@ export default function IslandMap({
             size="icon-lg"
             onClick={() => map?.zoomOut()}
             aria-label="Zoom out"
-            className="rounded-none text-muted-foreground hover:bg-white/10 hover:text-foreground focus-visible:ring-inset dark:hover:bg-white/10"
+            className="rounded-none text-muted-foreground hover:text-foreground focus-visible:ring-inset"
           >
             <Minus className="size-5" strokeWidth={1.5} />
           </Button>

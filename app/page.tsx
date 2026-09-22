@@ -443,6 +443,7 @@ export default function Home() {
         // isn't fighting an inline width.
         style={{
           width: isMobile ? undefined : sidebarOpen ? sidebarWidth : undefined,
+          paddingBottom: isMobile ? MOBILE_CTA_HEIGHT : undefined,
         }}
       >
         <SpriteCatalogBrowser
@@ -517,7 +518,7 @@ export default function Home() {
           >
             <SelectTrigger
               aria-label="Filter the map by variant"
-              className="material pointer-events-auto h-11 gap-2 rounded-xl px-4 py-2 text-sm font-medium text-foreground hover:brightness-125"
+              className="material pointer-events-auto h-11 gap-2 rounded-xl px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-card dark:bg-transparent"
             >
               <SelectValue>
                 {(value: string) => {
@@ -567,7 +568,7 @@ export default function Home() {
             onClick={toggleDemoMode}
             aria-pressed={demoMode}
             className={cn(
-              "material pointer-events-auto h-11 rounded-xl hover:brightness-125",
+              "material pointer-events-auto h-11 rounded-xl hover:bg-card dark:bg-transparent",
               demoMode ? "border-sprite-gold/60 text-sprite-gold" : "text-muted-foreground"
             )}
           >
@@ -604,13 +605,13 @@ export default function Home() {
           without this there would be no way to log a finding at all. */}
       {isMobile && (
         <div
-          // A liquid-glass tray: the list scrolls on under it (the catalog
-          // pads its own end clear, so the last card is still reachable),
-          // blurred through the glass, which is what separates this layer
-          // from the content — HIG's materials guidance — rather than a
-          // different flat fill. Rounded on top only; its bottom edge is the
-          // screen's.
-          className="material fixed inset-x-0 bottom-0 z-[650] rounded-t-3xl border-b-0 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
+          // --muted, the same fill as the header strip at the top of the
+          // catalog — not --card, which is what the content itself uses.
+          // HIG's materials guidance puts controls and navigation on a layer
+          // that is visibly distinct from the content layer; painting this bar
+          // in the content's own colour left it reading as part of the list
+          // rather than as a bar floating above it.
+          className="fixed inset-x-0 bottom-0 z-[650] border-t-2 border-border bg-muted px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
           style={{ minHeight: MOBILE_CTA_HEIGHT }}
         >
           <Button
