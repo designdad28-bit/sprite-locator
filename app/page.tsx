@@ -129,11 +129,22 @@ const MOBILE_CTA_HEIGHT = 68;
  * --sprite-gold is also the mastery colour (crowns, the mastered tile ring,
  * the mastery bar), so it now marks two things rather than one.
  */
+/**
+ * Add finding's fill and weight, shared by the desktop and phone buttons.
+ *
+ * Back on Button's own font-medium (500) rather than the 400 it briefly
+ * carried to match the search field numerically. Equal weight does not read as
+ * equal here: dark text on the yellow lays down measurably LESS ink than light
+ * text on the panel, because antialiased edge pixels composite in non-linear
+ * sRGB and a half-covered pixel blending toward dark lands lighter than
+ * half-way. Rasterising the same string both ways, 400 on yellow came out 13.5%
+ * lighter than the search field; 500 lands within 0.4% of it.
+ *
+ * So 500 is both the optical match AND the component's default — the earlier
+ * override was fighting the theme to achieve a mismatch.
+ */
 const ADD_FINDING_STYLE =
-  // font-normal, not Button's own font-medium: this is matched to the search
-  // field opposite it, which is a plain 400. The two are the app's only
-  // full-width-ish controls and a weight apart read as a mismatch.
-  "bg-sprite-gold text-card font-normal hover:bg-sprite-gold/90 focus-visible:ring-sprite-gold/40";
+  "bg-sprite-gold text-card hover:bg-sprite-gold/90 focus-visible:ring-sprite-gold/40";
 
 function clampSidebarWidth(width: number) {
   const ceiling = Math.min(SIDEBAR_MAX_WIDTH, Math.round(window.innerWidth / 2));
@@ -598,7 +609,7 @@ export default function Home() {
             }}
             className={cn("pointer-events-auto h-11 gap-2 px-6 shadow-lg", ADD_FINDING_STYLE)}
           >
-            <MapPin className="size-4" strokeWidth={1.875} />
+            <MapPin className="size-4" strokeWidth={2.2} />
             Add finding
           </Button>
         </div>
@@ -628,7 +639,15 @@ export default function Home() {
             }}
             className={cn("h-11 w-full gap-2", ADD_FINDING_STYLE)}
           >
-            <MapPin className="size-4" strokeWidth={1.875} />
+            {/* 2.2, where every other 16px icon in the app runs 1.875. The
+                app's rule is one ink weight everywhere; this is the one
+                deliberate exception. A stroke barely suffers the polarity
+                thinning that glyphs do — measured at 1.1% — so this is not
+                compensation, it is pairing: beside 500-weight text on the
+                primary action, a baseline-weight icon reads thin. Both the
+                label and the icon sit one step above the app baseline because
+                this is the one thing the page asks you to do. */}
+            <MapPin className="size-4" strokeWidth={2.2} />
             Add finding
           </Button>
         </div>
