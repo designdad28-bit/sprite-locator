@@ -306,14 +306,18 @@ export default function Home() {
   // A Sprite's Radar covers every variant it has, so `ids` is that Sprite's
   // whole set of ids.
   function setSpriteVisibility(ids: string[], visible: boolean) {
-    setVisibleSpriteIds((prev) => {
-      const next = new Set(prev);
-      for (const id of ids) {
-        if (visible) next.add(id);
-        else next.delete(id);
-      }
-      return next;
-    });
+    const next = new Set(visibleSpriteIds);
+    for (const id of ids) {
+      if (visible) next.add(id);
+      else next.delete(id);
+    }
+    setVisibleSpriteIds(next);
+    // Turning off the last Radar takes the variant filter off screen with it
+    // (it has nothing left to narrow), so the filter resets too. A control the
+    // user can no longer see must not keep narrowing the map from behind it —
+    // otherwise the next Radar they switch on comes back to a map still
+    // filtered to one variant, with no visible cause.
+    if (next.size === 0) setVariantFilter(null);
   }
 
   async function confirmFinding({ poiId, spriteId, variant, lootSource }: AddFindingValues) {
@@ -402,9 +406,15 @@ export default function Home() {
 
         <div className="pointer-events-none absolute inset-x-0 top-2 z-[500] flex items-center justify-between gap-2 px-2">
           <div className="flex min-w-0 items-center gap-2">
-          {/* Styled to match Add finding opposite it — same height, radius,
+          {/* Only present once something is pinned. With every Radar off the
+              map has no findings on it, so narrowing them to one variant is a
+              control over nothing — and one that would otherwise sit there
+              inviting a click that changes nothing visible.
+
+              Styled to match Add finding opposite it — same height, radius,
               card fill and shadow — so the two read as one layer of map
               controls rather than a control and a form field. */}
+          {visibleSpriteIds.size > 0 && (
           <Select
             value={variantFilter ?? ALL_VARIANTS}
             onValueChange={(value) =>
@@ -450,6 +460,7 @@ export default function Home() {
               </SelectGroup>
             </SelectContent>
           </Select>
+          )}
 
           {/* Always present, so the mode can be left as easily as it is
               entered — but it never looks the same in both states. Lit and
