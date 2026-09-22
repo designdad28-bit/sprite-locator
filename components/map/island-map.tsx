@@ -18,7 +18,7 @@ import {
 } from "./map-provider";
 import { Finding } from "@/lib/findings";
 import { Poi } from "@/lib/map/pois";
-import { ISLAND_OUTLINE } from "@/lib/map/island-outline";
+import { ISLAND_OUTLINE, isOnIsland } from "@/lib/map/island-outline";
 import { variantColor } from "@/lib/variant-colors";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 
@@ -174,6 +174,53 @@ function seedFrom(id: string): [number, number] {
 /** How many times the separation pass sweeps a cluster before giving up. */
 const RELAX_PASSES = 32;
 
+/** Steps walked back toward a location when a pin lands off the coastline. */
+const LAND_PULL_STEPS = 16;
+
+/**
+ * Keeps a pin on the island.
+ *
+ * The scatter works in screen pixels and knows nothing about what it is
+ * scattering over, so a roomy fence — or a crowded location whose cluster had
+ * to grow to fit — can put a pin out to sea. That is most obvious in demo mode,
+ * where every Sprite gets a finding and the busier locations push hardest, but
+ * it is not specific to it.
+ *
+ * Fixed by walking the offset back toward the location it belongs to, which is
+ * on land by definition, and stopping at the first step that is inside the
+ * coastline. Stepped rather than solved: the coastline is a 285-point polygon
+ * and an inlet can be any shape, so walking in finds a real inside position
+ * where projecting onto an edge would not. A pin with nowhere valid to go ends
+ * up on the location itself.
+ *
+ * Only the outer coastline is known (see isOnIsland), so this cannot keep pins
+ * out of the island's own rivers and lakes — that would need the land mask
+ * behind fortnite.gg's tiles, which our origin cannot read.
+ */
+function pullOntoLand(
+  dx: number,
+  dy: number,
+  origin: { x: number; y: number },
+  pxPerFraction: number
+): [number, number] {
+  if (pxPerFraction <= 0) return [dx, dy];
+  const onLand = (t: number) =>
+    isOnIsland(origin.x + (dx * t) / pxPerFraction, origin.y + (dy * t) / pxPerFraction);
+  for (let step = 0; step <= LAND_PULL_STEPS; step++) {
+    const t = 1 - step / LAND_PULL_STEPS;
+    if (!onLand(t)) continue;
+    // One step further in than the first position that qualifies. Stopping at
+    // the first would leave every pulled pin hugging the coastline — and since
+    // the outline is biased seaward to keep the coastal glow, "just inside it"
+    // can still be surf. Only taken if that step is on land too, so a narrow
+    // spit doesn't push the pin out the far side.
+    const inset = Math.max(0, t - 1 / LAND_PULL_STEPS);
+    const settled = onLand(inset) ? inset : t;
+    return [dx * settled, dy * settled];
+  }
+  return [0, 0];
+}
+
 /**
  * Where each pin of a cluster sits relative to its POI, in screen pixels.
  *
@@ -199,7 +246,11 @@ function scatterOffsets(
   ids: string[],
   size: number,
   fencePx: number,
-  clearsLabel: boolean
+  clearsLabel: boolean,
+  /** The location's own position in normalized [0,1] map space. */
+  origin: { x: number; y: number },
+  /** Screen pixels per unit of normalized map space, for the land test below. */
+  pxPerFraction: number
 ): Map<string, [number, number]> {
   // Sorted so the relaxation below — which is order-sensitive — is fed the
   // same sequence on every render regardless of fetch order.
@@ -267,7 +318,7 @@ function scatterOffsets(
 
   const out = new Map<string, [number, number]>();
   order.forEach((id, i) => {
-    const dx = pts[i][0] - cx;
+    let dx = pts[i][0] - cx;
     let dy = pts[i][1] - cy;
     if (clearsLabel) {
       // The label is one horizontal line centered on the POI. Push any pin that
@@ -276,6 +327,7 @@ function scatterOffsets(
       const bandY = POI_LABEL_CLEARANCE + size / 2;
       if (Math.abs(dy) < bandY) dy = dy >= 0 ? bandY : -bandY;
     }
+    [dx, dy] = pullOntoLand(dx, dy, origin, pxPerFraction);
     out.set(id, [dx, dy]);
   });
   return out;
@@ -765,7 +817,9 @@ export default function IslandMap({
         group.map((g) => g.finding.id),
         size,
         fencePx,
-        clearsLabel
+        clearsLabel,
+        { x: first.x, y: first.y },
+        pxPerFraction
       );
       for (const [id, offset] of placed) all.set(id, offset);
     }

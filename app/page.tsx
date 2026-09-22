@@ -172,12 +172,19 @@ export default function Home() {
   const seededVisibility = useRef(false);
   useEffect(() => {
     if (seededVisibility.current || findings.length === 0) return;
-    seededVisibility.current = true;
     // Next frame rather than straight from the effect body, like the sidebar
     // width below (react-hooks/set-state-in-effect).
-    const frame = requestAnimationFrame(() =>
-      setVisibleSpriteIds(new Set(findings.map((f) => f.spriteId)))
-    );
+    //
+    // The guard is claimed INSIDE the callback, not before scheduling it. Set
+    // beforehand, a `findings` change arriving in the same frame would cancel
+    // the pending seed through this effect's cleanup while the guard already
+    // said the seeding had happened — so nothing was ever pinned. Demo mode
+    // made that collision routine, because switching it on changes `findings`
+    // immediately after they first load.
+    const frame = requestAnimationFrame(() => {
+      seededVisibility.current = true;
+      setVisibleSpriteIds(new Set(findings.map((f) => f.spriteId)));
+    });
     return () => cancelAnimationFrame(frame);
   }, [findings]);
 

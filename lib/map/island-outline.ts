@@ -315,3 +315,26 @@ export const ISLAND_OUTLINE: ReadonlyArray<readonly [number, number]> = [
   [0.167, 0.083],
   [0.1826, 0.0771],
 ];
+
+/**
+ * Whether a normalized [0,1] point falls inside the coastline.
+ *
+ * Standard ray-casting: count how many polygon edges a ray from the point
+ * crosses, odd means inside. The outline is one closed ring, so there are no
+ * holes to account for.
+ *
+ * Two honest limits. The polygon is the OUTER coastline, so it says nothing
+ * about the island's own rivers and lakes — that would need the land mask
+ * itself, and fortnite.gg's tiles can't be read from our origin (see the note
+ * above). And the outline is deliberately biased slightly seaward to keep the
+ * coastal glow, so "inside" can include a few pixels of surf.
+ */
+export function isOnIsland(x: number, y: number): boolean {
+  let inside = false;
+  for (let i = 0, j = ISLAND_OUTLINE.length - 1; i < ISLAND_OUTLINE.length; j = i++) {
+    const [xi, yi] = ISLAND_OUTLINE[i];
+    const [xj, yj] = ISLAND_OUTLINE[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
