@@ -200,27 +200,36 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
       {/* Identity sits outside Section: it is the panel's subject, not one of
           its facts, so it carries the name at hero size and no heading. */}
       <div className="px-3 pt-4 pb-4">
-        <h2 className="font-heading text-xl font-medium leading-[1.15] text-foreground">
-          {displayName(sprite.name)}
-        </h2>
+        {/* Name and rarity share one row, the badge pinned to the right edge.
+            items-start rather than centred so the badge stays on the FIRST
+            line when a long name wraps ("Bounty Hunter Body Slam" does at
+            narrow widths) instead of drifting to the middle of the block; the
+            mt-0.5 puts it on that line's optical centre. min-w-0 lets the name
+            wrap rather than push the badge past the gutter. */}
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="min-w-0 font-heading text-xl font-medium leading-[1.15] text-foreground">
+            {displayName(sprite.name)}
+          </h2>
 
-        <div className="mt-2 flex flex-wrap items-center gap-2">
           {/* Identical to the catalog cards': the Badge at its own size, with
               only the rarity fill overridden. */}
           <Badge
             data-slot="rarity-badge"
-            className="text-white"
+            className="mt-0.5 shrink-0 text-white"
             style={{ backgroundColor: accent.solid, borderColor: accent.solid }}
           >
             {sprite.rarity ? sprite.rarity.charAt(0).toUpperCase() + sprite.rarity.slice(1) : "Unknown"}
           </Badge>
-
-          {!sprite.currentlyLive && (
-            <span className="text-2xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              {AVAILABILITY_LABEL[sprite.availability] ?? "Unavailable"}
-            </span>
-          )}
         </div>
+
+        {/* Its own line below, not beside the badge: it only appears for a
+            Sprite this season doesn't offer, and that is a sentence about
+            availability rather than a second label on the name row. */}
+        {!sprite.currentlyLive && (
+          <p className="mt-2 text-2xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            {AVAILABILITY_LABEL[sprite.availability] ?? "Unavailable"}
+          </p>
+        )}
 
         {ability && (
           <p data-slot="detail-ability" className="mt-3 text-sm leading-relaxed text-foreground">
