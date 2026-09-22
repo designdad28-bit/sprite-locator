@@ -610,7 +610,7 @@ export default function Home() {
             className={cn("pointer-events-auto h-11 gap-2 px-6 shadow-lg", ADD_FINDING_STYLE)}
           >
             <MapPin className="size-4" strokeWidth={2.2} />
-            Add finding
+            Add Sprite Location
           </Button>
         </div>
 
@@ -648,7 +648,7 @@ export default function Home() {
                 label and the icon sit one step above the app baseline because
                 this is the one thing the page asks you to do. */}
             <MapPin className="size-4" strokeWidth={2.2} />
-            Add finding
+            Add Sprite Location
           </Button>
         </div>
       )}
@@ -672,7 +672,7 @@ export default function Home() {
               // bottom-centre this used to have to itself.
               className="pointer-events-none absolute bottom-20 left-1/2 z-[500] -translate-x-1/2 rounded-full border border-border bg-card/95 px-4 py-2 text-xs font-semibold text-foreground shadow-xl"
             >
-              Finding added — {displayName(getSprite(lastAdded)?.name)}
+              Sprite location added — {displayName(getSprite(lastAdded)?.name)}
             </motion.div>
           )}
         </AnimatePresence>

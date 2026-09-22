@@ -121,7 +121,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
     <Dialog open={open} onOpenChange={(next) => onOpenChange(next)}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add finding</DialogTitle>
+          <DialogTitle>Add Sprite Location</DialogTitle>
           <DialogDescription>Log where you found a sprite and what it dropped from.</DialogDescription>
         </DialogHeader>
 
@@ -269,7 +269,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
               }
             }}
           >
-            Add finding
+            Add Sprite Location
           </Button>
         </DialogFooter>
       </DialogContent>

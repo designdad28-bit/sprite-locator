@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage() {
 
       <h3 className="mt-6 text-base font-semibold">Findings you log</h3>
       <p className="mt-2 leading-relaxed text-muted-foreground">
-        When you use &ldquo;Add finding&rdquo; to record where a Sprite dropped, we store the location, the
+        When you use &ldquo;Add Sprite Location&rdquo; to record where a Sprite dropped, we store the location, the
         Sprite, its variant, and how it was obtained. These entries are not tied to your identity unless you
         sign in (see below) — they exist to build a shared, crowdsourced map of drop locations.
       </p>
