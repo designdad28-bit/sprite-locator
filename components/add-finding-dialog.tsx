@@ -127,26 +127,6 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
 
         <div className="grid gap-5">
           <div className="grid gap-2">
-            <Label htmlFor="finding-location">Location</Label>
-            <Select value={poiId} onValueChange={(value) => setPoiId(value as string | null)}>
-              <SelectTrigger id="finding-location" className="w-full">
-                <SelectValue>{(value: string | null) => (value ? poiName(value) : "Choose a location")}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {/* SelectGroup carries this style's inset padding (p-1.5); items
-                    placed straight in SelectContent run flush to the popup edge. */}
-                <SelectGroup>
-                  {sortedPois.map((poi) => (
-                    <SelectItem key={poi.id} value={poi.id}>
-                      {titleCase(poi.name)}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-2">
             <Label htmlFor="finding-sprite">Sprite</Label>
             <Select
               value={spriteId}
@@ -217,6 +197,26 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
                         <SpriteThumb id={spriteId ?? ""} icon={v.icon} />
                         {v.label}
                       </span>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="finding-location">Location</Label>
+            <Select value={poiId} onValueChange={(value) => setPoiId(value as string | null)}>
+              <SelectTrigger id="finding-location" className="w-full">
+                <SelectValue>{(value: string | null) => (value ? poiName(value) : "Choose a location")}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {/* SelectGroup carries this style's inset padding (p-1.5); items
+                    placed straight in SelectContent run flush to the popup edge. */}
+                <SelectGroup>
+                  {sortedPois.map((poi) => (
+                    <SelectItem key={poi.id} value={poi.id}>
+                      {titleCase(poi.name)}
                     </SelectItem>
                   ))}
                 </SelectGroup>

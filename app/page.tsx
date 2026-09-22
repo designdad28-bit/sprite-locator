@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Layers, FlaskConical } from "lucide-react";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
@@ -67,6 +67,48 @@ const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
 /** Remembers whether demo findings are switched on. */
 const DEMO_MODE_KEY = "sprite-radar:demo-mode";
 
+/** Below Tailwind's `md`, so JS and the `max-md:` classes agree on the breakpoint. */
+const MOBILE_QUERY = "(max-width: 767px)";
+
+function subscribeToWidth(onChange: () => void) {
+  const query = window.matchMedia(MOBILE_QUERY);
+  query.addEventListener("change", onChange);
+  // Belt and braces: a viewport that changes without firing the media query's
+  // own change event — a device-emulating preview, say — still lands here.
+  window.addEventListener("resize", onChange);
+  return () => {
+    query.removeEventListener("change", onChange);
+    window.removeEventListener("resize", onChange);
+  };
+}
+
+function isMobileWidth() {
+  return window.matchMedia(MOBILE_QUERY).matches;
+}
+
+/**
+ * Phone width, where the app is the Sprite catalog and nothing else.
+ *
+ * A media query rather than CSS classes because the map is not hidden on a
+ * phone, it is never mounted: Leaflet would otherwise initialise, fit itself
+ * and start pulling 256px tiles for a view no one can see. The detail panel
+ * needs it too — it animates its own width open on desktop, and an inline
+ * width from Framer Motion cannot be overridden by a `max-md:` class.
+ *
+ * useSyncExternalStore rather than state plus an effect, which is what this
+ * was first written as. A deferred read cannot be trusted for layout: it
+ * happens after the first paint, so it races anything that sets the viewport
+ * around load time, and a phone-width load came up desktop because of it.
+ * Subscribing reads the real width during render instead, and the server's
+ * snapshot is false so hydration still has something stable to match.
+ */
+function useIsMobile() {
+  return useSyncExternalStore(subscribeToWidth, isMobileWidth, () => false);
+}
+
+/** Height the mobile Add finding bar occupies, which the catalog pads clear of. */
+const MOBILE_CTA_HEIGHT = 68;
+
 function clampSidebarWidth(width: number) {
   const ceiling = Math.min(SIDEBAR_MAX_WIDTH, Math.round(window.innerWidth / 2));
   return Math.max(SIDEBAR_MIN_WIDTH, Math.min(ceiling, Math.round(width)));
@@ -103,7 +145,12 @@ export default function Home() {
   // Which Sprites' findings are pinned on the map. Driven only by the Radar
   // toggle — deliberately separate from `selectedSpriteId`, which is just
   // "what the detail panel is showing".
-  const [visibleSpriteIds, setVisibleSpriteIds] = useState<Set<string>>(new Set());
+  /**
+   * Which Sprites' findings are pinned, as an override the Radar toggles own
+   * once the user has touched one. Null until then, meaning "whatever has been
+   * found" — see visibleSpriteIds below.
+   */
+  const [pinnedOverride, setPinnedOverride] = useState<Set<string> | null>(null);
   // The Add finding modal. Bumping the key remounts it, so every open starts
   // from a blank form (pre-picked with the sprite whose panel is open).
   const [addOpen, setAddOpen] = useState(false);
@@ -125,14 +172,19 @@ export default function Home() {
    * Starts false so the server's render and the first client one agree; the
    * stored value is applied just after, in the effect.
    */
+  const isMobile = useIsMobile();
   const [demoMode, setDemoMode] = useState(false);
   useEffect(() => {
-    // Next frame rather than straight from the effect body, like the sidebar
-    // width below (react-hooks/set-state-in-effect).
-    const frame = requestAnimationFrame(() =>
-      setDemoMode(window.localStorage.getItem(DEMO_MODE_KEY) === "1")
-    );
-    return () => cancelAnimationFrame(frame);
+    // Read synchronously, NOT deferred to requestAnimationFrame.
+    //
+    // Deferring was the original shape here, purely to satisfy
+    // react-hooks/set-state-in-effect — and it quietly breaks in a background
+    // tab, because rAF callbacks do not run while a page is hidden. The app
+    // then boots with demo mode off however the setting was left, and only
+    // catches up when the tab is focused. The extra render pass the rule warns
+    // about is the cheaper problem.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDemoMode(window.localStorage.getItem(DEMO_MODE_KEY) === "1");
   }, []);
 
   function toggleDemoMode() {
@@ -145,7 +197,10 @@ export default function Home() {
     // its Radar off — and most Sprites have no real sighting, which is the
     // whole point of demo mode. Without this the map would answer a toggle
     // with a handful of new pins instead of a full island.
-    setVisibleSpriteIds((prev) => {
+    // Only when the user has taken over the pinning. Before that the visible
+    // set is derived from the findings themselves, so demo's arrive pinned.
+    setPinnedOverride((prev) => {
+      if (prev === null) return null;
       const ids = new Set(prev);
       for (const finding of buildDemoFindings(sprites, pois)) ids.add(finding.spriteId);
       return ids;
@@ -158,44 +213,46 @@ export default function Home() {
     () => (demoMode ? [...savedFindings, ...buildDemoFindings(sprites, pois)] : savedFindings),
     [demoMode, savedFindings, sprites, pois]
   );
+  /**
+   * What is pinned before the user has touched a Radar: nothing, so the island
+   * opens clean and every pin on it is there because someone asked for it.
+   *
+   * Demo mode is the exception, and the only one. Its whole purpose is to show
+   * the map populated, so switching it on with no Radars set pins what it
+   * adds — otherwise the toggle would appear to do nothing at all.
+   *
+   * Derived, not seeded into state by an effect. Seeding was the first
+   * approach and it was quietly unreliable: the effect had to wait for
+   * findings to load, defer a frame to keep out of the render pass, and guard
+   * itself against re-seeding over a Radar the user had switched off — and any
+   * change to `findings` landing in that same frame cancelled the pending seed
+   * through the effect's own cleanup. It usually won that race and sometimes
+   * did not, which is the worst kind of bug to own.
+   *
+   * There is nothing to race here. With no override the answer is computed
+   * from whatever findings currently exist, so it is right on the first render
+   * and right again the moment more arrive. The first Radar click installs an
+   * override and the toggles own it from then on.
+   */
+  const autoVisibleSpriteIds = useMemo(
+    () => (demoMode ? new Set(findings.map((f) => f.spriteId)) : new Set<string>()),
+    [demoMode, findings]
+  );
+  const visibleSpriteIds = pinnedOverride ?? autoVisibleSpriteIds;
+
   // Starts at the default so the server and the first client render agree;
   // any remembered width is applied just after, in the effect below.
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_WIDTH);
 
-  // Everything already found is pinned on arrival: the map's job when it opens
-  // is to show what is known, not an empty island waiting to be switched on.
-  //
-  // Seeded once, the first time findings arrive, rather than tracked — after
-  // that the Radar toggles own this state, and re-seeding on every refetch
-  // would switch back on whatever the user had deliberately switched off (a
-  // refetch happens on every added finding).
-  const seededVisibility = useRef(false);
-  useEffect(() => {
-    if (seededVisibility.current || findings.length === 0) return;
-    // Next frame rather than straight from the effect body, like the sidebar
-    // width below (react-hooks/set-state-in-effect).
-    //
-    // The guard is claimed INSIDE the callback, not before scheduling it. Set
-    // beforehand, a `findings` change arriving in the same frame would cancel
-    // the pending seed through this effect's cleanup while the guard already
-    // said the seeding had happened — so nothing was ever pinned. Demo mode
-    // made that collision routine, because switching it on changes `findings`
-    // immediately after they first load.
-    const frame = requestAnimationFrame(() => {
-      seededVisibility.current = true;
-      setVisibleSpriteIds(new Set(findings.map((f) => f.spriteId)));
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [findings]);
 
   useEffect(() => {
     const saved = Number(window.localStorage.getItem(SIDEBAR_WIDTH_KEY));
     if (!Number.isFinite(saved) || saved <= 0) return;
-    // Applied on the next frame rather than straight from the effect body: a
-    // synchronous setState here costs an extra render pass before paint
-    // (react-hooks/set-state-in-effect).
-    const frame = requestAnimationFrame(() => setSidebarWidth(clampSidebarWidth(saved)));
-    return () => cancelAnimationFrame(frame);
+    // Synchronous for the same reason as demo mode above: a frame-deferred
+    // read never happens in a hidden tab, which left the sidebar at its
+    // default width instead of the remembered one.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSidebarWidth(clampSidebarWidth(saved));
   }, []);
 
   /**
@@ -311,7 +368,7 @@ export default function Home() {
       if (visible) next.add(id);
       else next.delete(id);
     }
-    setVisibleSpriteIds(next);
+    setPinnedOverride(next);
     // Turning off the last Radar takes the variant filter off screen with it
     // (it has nothing left to narrow), so the filter resets too. A control the
     // user can no longer see must not keep narrowing the map from behind it —
@@ -327,7 +384,9 @@ export default function Home() {
     const saved = await addFinding({ poiId, spriteId, variant, lootSource });
     if (!saved) return;
     // Log a finding and you should see it, even if this Sprite's Radar was off.
-    setVisibleSpriteIds((prev) => new Set(prev).add(spriteId));
+    // Same reasoning as demo mode: with no override the new finding is already
+    // pinned by derivation.
+    setPinnedOverride((prev) => (prev === null ? null : new Set(prev).add(spriteId)));
     setLastAdded(spriteId);
     window.setTimeout(() => setLastAdded(null), 1800);
   }
@@ -345,15 +404,23 @@ export default function Home() {
           // Flush to the window: no margin, no radius. The border only runs
           // along edges that face the map — on the window's own edges it
           // would just draw a line around the screen.
-          "panel-wash absolute top-0 left-0 z-[600] flex flex-col overflow-hidden border-border border-r-2 bg-card",
+          "panel-wash absolute top-0 left-0 z-[600] flex flex-col overflow-hidden border-border bg-card",
           // Open: the full-height 280px panel. Collapsed: no width or height of
           // its own, so it hugs its open button in the corner; it then needs
           // a bottom edge too, since the map sits below it.
-          sidebarOpen ? "bottom-0" : "w-auto border-b-2"
+          sidebarOpen ? "bottom-0" : "w-auto border-b-2",
+          // On a phone the catalog IS the app: full width, and no right border
+          // because there is no map beside it for one to divide. The padding
+          // keeps the last card clear of the Add finding bar below.
+          isMobile ? "w-full" : "border-r-2"
         )}
         // From the same state the map container reserves, so the two can't
-        // drift apart.
-        style={{ width: sidebarOpen ? sidebarWidth : undefined }}
+        // drift apart. Left off entirely on a phone, so the w-full class above
+        // isn't fighting an inline width.
+        style={{
+          width: isMobile ? undefined : sidebarOpen ? sidebarWidth : undefined,
+          paddingBottom: isMobile ? MOBILE_CTA_HEIGHT : undefined,
+        }}
       >
         <SpriteCatalogBrowser
           selectedSpriteId={selectedSpriteId}
@@ -368,7 +435,7 @@ export default function Home() {
             band is grabbable so it doesn't fight the sidebar's scrollbar
             gutter, and it widens on hover rather than being visible at rest —
             the border it sits on is the affordance. */}
-        {sidebarOpen && (
+        {sidebarOpen && !isMobile && (
           <div
             role="separator"
             aria-orientation="vertical"
@@ -389,6 +456,10 @@ export default function Home() {
           hints overlaid on it — are sized and centered in the visible space.
           When the sidebar collapses to its corner button, the container spans
           the full width. Leaflet re-fits the island whenever this box resizes. */}
+      {/* The map is not merely hidden on a phone, it is never mounted:
+          Leaflet would otherwise initialise, fit itself and start pulling
+          256px tiles for a view nobody can see. */}
+      {!isMobile && (
       <div
         data-slot="map-container"
         className="relative min-w-0 flex-1"
@@ -497,6 +568,31 @@ export default function Home() {
           </Button>
         </div>
 
+
+      </div>
+      )}
+
+      {/* The phone's one action, where a thumb reaches. The map's own
+          Add finding button lives in the controls overlaid on the map, so
+          without this there would be no way to log a finding at all. */}
+      {isMobile && (
+        <div
+          className="fixed inset-x-0 bottom-0 z-[650] border-t-2 border-border bg-card px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
+          style={{ minHeight: MOBILE_CTA_HEIGHT }}
+        >
+          <Button
+            onClick={() => {
+              setAddKey((k) => k + 1);
+              setAddOpen(true);
+            }}
+            className="h-11 w-full gap-2 text-[15px] font-medium"
+          >
+            <MapPin className="size-4" strokeWidth={1.5} />
+            Add finding
+          </Button>
+        </div>
+      )}
+
         <AddFindingDialog
           key={addKey}
           open={addOpen}
@@ -518,27 +614,37 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
 
       <AnimatePresence>
         {selectedSpriteId && (
           <motion.aside
             key={selectedSpriteId}
-            initial={{ width: 0, opacity: 0 }}
+            // On a phone it covers the catalog rather than sitting beside it —
+            // there is no room for two panels — so it slides in over the top
+            // and is dismissed by its own close button. Width is not animated
+            // there: it is already the whole screen, and Framer writes the
+            // animated width inline where a class could not override it.
+            initial={isMobile ? { x: "100%", opacity: 1 } : { width: 0, opacity: 0 }}
             // Same width as the left sidebar, from the same constant.
-            animate={{ width: sidebarWidth, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
+            animate={isMobile ? { x: 0, opacity: 1 } : { width: sidebarWidth, opacity: 1 }}
+            exit={isMobile ? { x: "100%", opacity: 1 } : { width: 0, opacity: 0 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             // Flush to the window like the left sidebar: no margin, no radius,
             // and a border only on the edge that faces the map.
-            className="panel-wash flex shrink-0 flex-col overflow-hidden border-border border-l-2 bg-card"
+            className={cn(
+              "panel-wash flex flex-col overflow-hidden border-border bg-card",
+              isMobile ? "fixed inset-0 z-[700] w-full" : "shrink-0 border-l-2"
+            )}
           >
             {/* Fixed width, so the panel's contents don't reflow while the
                 aside animates its own width open or shut — but minus the 2px
                 border, which the aside's width includes and this div's does
                 not. Without that it overhung by exactly 2px at every sidebar
                 width, giving the panel a hairline horizontal scroll. */}
-            <div className="h-full" style={{ width: sidebarWidth - PANEL_BORDER }}>
+            <div
+              className={cn("h-full", isMobile && "w-full")}
+              style={{ width: isMobile ? undefined : sidebarWidth - PANEL_BORDER }}
+            >
               <SpriteDetailPanel
                 spriteId={selectedSpriteId}
                 findings={findings}

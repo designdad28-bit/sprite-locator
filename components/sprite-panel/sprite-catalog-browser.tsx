@@ -169,7 +169,9 @@ export function SpriteCatalogBrowser({
             onClick={onToggleCollapsed}
             aria-label="Collapse sidebar"
             aria-expanded={true}
-            className="ml-auto flex shrink-0 rounded-sm text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+            // Hidden on a phone: collapsing the catalog there would reveal
+            // nothing behind it, because the catalog is the whole screen.
+            className="ml-auto flex shrink-0 rounded-sm text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 max-md:hidden"
           >
             <PanelLeftClose className="size-5" strokeWidth={1.5} />
           </button>
