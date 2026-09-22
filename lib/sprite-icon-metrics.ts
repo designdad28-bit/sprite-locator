@@ -4,33 +4,38 @@
 // visual size. Every source icon is a 512x512 square, but the artwork
 // inside fills a different share of that canvas, so identical <img>
 // boxes still produce visibly different sprite sizes. Each factor below
-// is measured from the real icon's non-transparent bounds, normalized to
-// the least-filled icon (70.7% of canvas height) so nothing
-// overflows its container.
+// is measured from the real icon's pixels as an OPTICAL size: the
+// geometric mean of the art's height and the square root of its opaque
+// area, both as fractions of the canvas. Height alone (the previous
+// metric) let narrow, tall Sprites — Jackrabbit, Crash Bandicoot — shrink
+// to match on height and then read small because they carry less mass.
+// Area alone would let those same Sprites tower. The blend weighs both.
+// Normalized to the smallest optical size (Jonesy) so nothing scales up
+// past its box. Measured 2026-09-22.
 //
 // Unknown ids fall back to 1 — a new Sprite renders unscaled rather than
 // wrong, until this is regenerated.
 const ICON_SCALE: Record<string, number> = {
-  "jackrabbit-sprite": 0.7702,
-  "crash-bandicoot-sprite": 0.7702,
-  "birthday-sprite": 0.7751,
-  "crown-sprite": 0.7955,
-  "pond-sprite": 0.7955,
-  "klombo-sprite": 0.8153,
-  "morgana-sprite": 0.8264,
-  "mega-man-sprite": 0.8399,
-  "overshield-sprite": 0.8399,
-  "tails-sprite": 0.8517,
-  "shadow-sprite": 0.8598,
-  "sonic-sprite": 0.8744,
-  "adventure-sprite": 0.8916,
-  "storm-scout-sprite": 0.896,
-  "blinky-sprite": 0.9258,
-  "bush-sprite": 0.9402,
-  "killswitch-sprite": 0.9427,
-  "8-bit-sprite": 0.9576,
-  "x-ray-sprite": 0.9678,
-  "onigiri-sprite": 0.9705,
+  "klombo-sprite": 0.8262,
+  "birthday-sprite": 0.8447,
+  "mega-man-sprite": 0.8702,
+  "morgana-sprite": 0.8736,
+  "pond-sprite": 0.8762,
+  "crown-sprite": 0.8821,
+  "crash-bandicoot-sprite": 0.888,
+  "overshield-sprite": 0.8897,
+  "tails-sprite": 0.8929,
+  "jackrabbit-sprite": 0.8943,
+  "shadow-sprite": 0.9044,
+  "sonic-sprite": 0.9109,
+  "adventure-sprite": 0.9129,
+  "storm-scout-sprite": 0.9344,
+  "blinky-sprite": 0.9346,
+  "killswitch-sprite": 0.9579,
+  "bush-sprite": 0.9663,
+  "x-ray-sprite": 0.9744,
+  "8-bit-sprite": 0.9821,
+  "onigiri-sprite": 0.9892,
   "jonesy-sprite": 1.0,
 };
 

@@ -8,7 +8,7 @@ import { rarityAccent } from "@/lib/rarity";
 import { displayName } from "@/lib/sprite-name";
 import { titleCase } from "@/lib/title-case";
 import { SPRITE_ABILITIES } from "@/lib/sprite-abilities";
-import { VARIANT_SLOTS, variantColor, variantKey, variantLabel } from "@/lib/variant-colors";
+import { VARIANT_SLOTS, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { cn } from "@/lib/utils";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Badge } from "@/components/ui/badge";
@@ -297,7 +297,11 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
             <Row
               key={v.id}
               label={variantLabel(v.variant)}
-              labelColor={variantKey(v.variant) === "normal" ? undefined : (variantColor(v.variant) ?? undefined)}
+              // variantLabelColor, not variantColor: the fill colours are
+              // tuned for tiles, and as 14px text on --card the hacker
+              // indigo measured 2.19:1. The label colours are the same
+              // hues lifted for legibility — the catalog captions use them.
+              labelColor={variantKey(v.variant) === "normal" ? undefined : (variantLabelColor(v.variant) ?? undefined)}
               value={
                 v.summonCostSpriteDust != null ? v.summonCostSpriteDust.toLocaleString() : "Not published"
               }

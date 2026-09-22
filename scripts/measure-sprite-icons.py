@@ -39,10 +39,13 @@ OUT = ROOT / "lib" / "sprite-icon-metrics.ts"
 # browser does. On https://fortnite.gg/sprites, for each
 # `.sprite-card[data-variant="base"]` of the current season, load its
 # `src || data-src` into a canvas (same-origin there, so the pixels are
-# readable), scan for the first and last row with alpha > 8, and take
-# (last - first + 1) / height as the fill ratio. Then normalize DOWN to the
-# least-filled icon, exactly as _normalize below does, and write the result
-# into lib/sprite-icon-metrics.ts.
+# readable). Over pixels with alpha > 8 take h = bbox height / canvas height
+# and a = opaque pixel count / canvas area, and the optical size
+# sqrt(sqrt(a) * h). Scale = smallest optical size / this one's. Write the
+# result into lib/sprite-icon-metrics.ts.
+#
+# NOTE: the Pillow path below still uses the older height-only metric; update
+# it to the optical-size formula above if direct fetching ever works again.
 #
 # The UA below is left in place for if/when direct fetching works again.
 UA = (
