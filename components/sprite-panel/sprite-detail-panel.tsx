@@ -55,7 +55,7 @@ const AVAILABILITY_LABEL: Record<string, string> = {
 /** The one section heading treatment. Same size and weight as the catalog's variant captions. */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-2xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{children}</h3>
+    <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground md:text-2xs">{children}</h3>
   );
 }
 
@@ -97,14 +97,14 @@ function Row({
   return (
     <div className="flex items-baseline justify-between gap-3 py-1">
       <span
-        className={cn("text-xs font-medium", !labelColor && "text-foreground")}
+        className={cn("text-sm font-medium md:text-xs", !labelColor && "text-foreground")}
         style={labelColor ? { color: labelColor } : undefined}
       >
         {label}
       </span>
       <span
         className={cn(
-          "shrink-0 text-xs tabular-nums",
+          "shrink-0 text-sm tabular-nums md:text-xs",
           muted ? "text-muted-foreground" : "font-medium text-foreground"
         )}
       >
@@ -116,7 +116,7 @@ function Row({
 
 /** One empty-state treatment, so "nothing here" reads the same everywhere. */
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs text-muted-foreground">{children}</p>;
+  return <p className="text-sm text-muted-foreground md:text-xs">{children}</p>;
 }
 
 export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPanelProps) {
@@ -126,7 +126,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
   if (!sprite) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 px-3 text-center">
-        <p className="text-sm text-muted-foreground">Sprite not found in the catalog.</p>
+        <p className="text-base text-muted-foreground md:text-sm">Sprite not found in the catalog.</p>
         <Button variant="outline" size="sm" onClick={onBack}>
           Close
         </Button>
@@ -163,7 +163,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           size="icon-sm"
           onClick={onBack}
           aria-label="Close"
-          className="absolute top-2 right-2 z-10 rounded-full text-muted-foreground hover:bg-card"
+          className="absolute top-2 right-2 z-10 rounded-full text-muted-foreground hover:bg-card max-md:size-11"
         >
           <X strokeWidth={1.5} />
         </Button>
@@ -219,7 +219,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
             which would drop its top to 3px — further out than where it
             started. */}
         <div className="flex items-start justify-between gap-3">
-          <h2 className="min-w-0 font-heading text-xl font-medium leading-[1.15] text-foreground">
+          <h2 className="min-w-0 font-heading text-2xl font-medium leading-[1.15] text-foreground md:text-xl">
             {displayName(sprite.name)}
           </h2>
 
@@ -238,13 +238,13 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
             Sprite this season doesn't offer, and that is a sentence about
             availability rather than a second label on the name row. */}
         {!sprite.currentlyLive && (
-          <p className="mt-2 text-2xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground md:text-2xs">
             {AVAILABILITY_LABEL[sprite.availability] ?? "Unavailable"}
           </p>
         )}
 
         {ability && (
-          <p data-slot="detail-ability" className="mt-3 text-sm leading-relaxed text-foreground">
+          <p data-slot="detail-ability" className="mt-3 text-base leading-relaxed text-foreground md:text-sm">
             {ability}
           </p>
         )}
@@ -281,7 +281,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           <Empty>Not documented</Empty>
         )}
         {sprite.acquisitionHint && (
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{sprite.acquisitionHint}</p>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-xs">{sprite.acquisitionHint}</p>
         )}
       </Section>
 
@@ -310,7 +310,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
         <Section title="Boons">
           <ul className="space-y-1.5">
             {sprite.boons.map((boon) => (
-              <li key={boon.id} className="text-sm leading-relaxed text-foreground">
+              <li key={boon.id} className="text-base leading-relaxed text-foreground md:text-sm">
                 {boon.description}
               </li>
             ))}

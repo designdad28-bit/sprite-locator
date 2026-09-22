@@ -332,7 +332,7 @@ export function SpriteCatalogBrowser({
                       )}
                       <span className="flex min-w-0 flex-col items-start justify-center gap-0.5">
                         <span className="flex min-w-0 items-center gap-1.5">
-                          <span className="truncate font-heading text-lg font-medium leading-[1.15] text-foreground">
+                          <span className="truncate font-heading text-xl font-medium leading-[1.15] text-foreground md:text-lg">
                             {group.family}
                           </span>
                           {/* Sized down from the Radar's 20px and moved off the
@@ -350,7 +350,7 @@ export function SpriteCatalogBrowser({
                             data-slot="sprite-details"
                             onClick={() => onSelect(baseVariant.id)}
                             aria-label={`${group.family} details`}
-                            className="text-muted-foreground"
+                            className="max-md:-my-2.5 max-md:size-11 text-muted-foreground"
                           >
                             <Info className="size-3.5" strokeWidth={1.5} />
                           </Button>
@@ -430,7 +430,7 @@ export function SpriteCatalogBrowser({
                             ? `Hide ${group.family} findings on the map`
                             : `Show ${group.family} findings on the map`
                         }
-                        className={cn("-mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
+                        className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
                       >
                         <Radar className="size-5" strokeWidth={1.5} />
                       </Button>
@@ -447,11 +447,13 @@ export function SpriteCatalogBrowser({
                       art in. The -mx-3/px-3 pair makes the row full-bleed so it
                       clips at the panel edge rather than 12px short of it.
 
-                      On a phone the catalog has the whole screen, so the row
-                      drops its padding to reach both edges and the tiles flex
-                      to fill it: five tiles and four 8px gaps across the full
-                      width, no scrolling and nothing cut off. */}
-                  <div className="no-scrollbar -mx-3 flex items-center gap-2 overflow-x-auto px-3 py-2 max-md:overflow-x-visible max-md:px-0">
+                      On a phone the catalog has the whole screen, so the tiles
+                      flex to fill the row instead of scrolling — but inside the
+                      same 12px gutter everything else sits on. Full width means
+                      the full CONTENT width; running the tiles to the screen
+                      edge would leave them the only thing in the app not
+                      aligned with the column above them. */}
+                  <div className="no-scrollbar -mx-3 flex items-center gap-2 overflow-x-auto px-3 py-2 max-md:overflow-x-visible">
                     {VARIANT_SLOTS.map((slot) => {
                       const v = group.variants.find((x) => variantKey(x.variant) === slot);
                       // Not every family ships all five variants (Mega Man has only
@@ -472,7 +474,7 @@ export function SpriteCatalogBrowser({
                                 dashed border and Ban icon below already say
                                 the variant doesn't exist. */}
                             <span
-                              className="text-2xs font-medium leading-5"
+                              className="text-xs font-medium leading-5 md:text-2xs"
                               style={{ color: variantLabelColor(slot === "normal" ? null : slot) ?? undefined }}
                             >
                               {variantLabel(slot)}
@@ -524,7 +526,7 @@ export function SpriteCatalogBrowser({
                               slots above stay dimmed — a family with no such
                               variant has no fill to match. */}
                           <span
-                            className="text-2xs font-medium leading-5"
+                            className="text-xs font-medium leading-5 md:text-2xs"
                             style={{ color: variantLabelColor(v.variant) ?? undefined }}
                           >
                             {label}
