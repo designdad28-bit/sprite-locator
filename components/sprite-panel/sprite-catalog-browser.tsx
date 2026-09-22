@@ -10,7 +10,6 @@ import { rarityAccent } from "@/lib/rarity";
 import { displayName } from "@/lib/sprite-name";
 import { VARIANT_SLOTS, variantGradient, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MasterySummary } from "./mastery-summary";
@@ -20,7 +19,7 @@ const RARITY_PILLS = ["Rare", "Epic", "Legendary", "Mythic"];
 
 /** Flip to true to bring the rarity filter row back. */
 const SHOW_RARITY_TABS = false;
-const RARITY_ORDER = ["rare", "epic", "legendary", "mythic"];
+const RARITY_ORDER = ["common", "uncommon", "rare", "epic", "legendary", "mythic", "special"];
 
 const container = {
   hidden: {},
@@ -310,11 +309,54 @@ export function SpriteCatalogBrowser({
             // Mega Man ships only its base one, so it reads (0/1).
             const masteredInSet = group.variants.filter((v) => getStatus(v.id) === "mastered").length;
 
+            // A header opens each rarity's run of cards, not each card: since
+            // `filtered` is already rarity-sorted (see `groups` above) and
+            // filtering never reorders it, the same rarity's cards are always
+            // adjacent, so "does this group's rarity differ from the one
+            // before it" is enough to find where each run starts — no
+            // separate grouping pass needed.
+            // index === 0 is always a new group, even if its rarity happens to
+            // be null (unknown) and so is index -1's non-existent rarity —
+            // `null !== null` is false, which would otherwise skip the very
+            // first header on a catalog with an unrated family in front.
+            const startsNewRarityGroup = index === 0 || group.rarity !== filtered[index - 1].rarity;
+            const accent = rarityAccent(group.rarity);
+            const rarityLabel = group.rarity ? group.rarity.charAt(0).toUpperCase() + group.rarity.slice(1) : "Unknown";
+
             return (
               <motion.div key={group.family} variants={item}>
+                {startsNewRarityGroup && (
+                  // Colour is the only thing that still says a card's rarity
+                  // now that the per-card badge is gone — it has to be the
+                  // same accent.solid the badge used to carry, or a card
+                  // would visually disagree with the section it sits in.
+                  //
+                  // mt-4 unconditionally (not mt-0 on the first one): the
+                  // first header used to sit right under the search field's
+                  // own trailing padding at 6px, against every other
+                  // group-to-group gap's 16px — the search-to-"Rare" gap read
+                  // as tighter than the rest for no reason tied to what it
+                  // actually separates.
+                  <div className="mt-4 mb-1.5 flex items-center gap-2">
+                    <span
+                      className="text-xs font-semibold tracking-[0.08em] uppercase"
+                      style={{ color: accent.solid }}
+                    >
+                      {rarityLabel}
+                    </span>
+                    {/* 8px, square-cornered, at the same full-opacity colour
+                        as the label to its left — no longer a softened rule
+                        beside the text but a second block of the same colour,
+                        so the two read as one accent rather than a label with
+                        a decoration next to it. */}
+                    <span className="h-2 flex-1" style={{ backgroundColor: accent.solid }} />
+                  </div>
+                )}
                 {/* The first card drops its own leading padding (its 2px plus the
-                    header's 4px) so nothing sits between it and the search field. */}
-                <div className={cn("rounded-lg py-0.5", index === 0 && "pt-0")}>
+                    header's 4px) so nothing sits between it and the search field.
+                    Only when it has no header of its own above it — a header
+                    already carries that same separation via its own margin. */}
+                <div className={cn("rounded-lg py-0.5", index === 0 && !startsNewRarityGroup && "pt-0")}>
                   {/* Header: purely informational — not clickable/hoverable, per design. Only the Radar/Info icons act. */}
                   <div className={cn("flex items-center justify-between py-1", index === 0 && "pt-0")}>
                     <span className="flex min-w-0 items-center">
@@ -337,71 +379,63 @@ export function SpriteCatalogBrowser({
                           <span className="truncate font-heading text-xl font-medium leading-[1.15] text-foreground md:text-lg">
                             {group.family}
                           </span>
-                          {/* Sized down from the Radar's 20px and moved off the
-                              right edge to sit with the name it describes —
-                              it opens that Sprite's detail panel, so it reads
-                              as part of the title rather than as a second map
-                              control beside the Radar. */}
-                          {/* 12px glyph. Stroke 2.5 rather than the 1.5 a
-                              20px icon takes, so it still lands on the app's
-                              one ink weight: 2.5 x 12/24 = 1.25px, the same
-                              as every other icon.
+                          {/* Sits right next to the name it describes — it
+                              opens that Sprite's detail panel, so it reads as
+                              part of the title rather than a second map
+                              control beside the Radar.
 
-                              Targets: 32px on desktop, clearing the 28x28pt
-                              macOS recommendation, and 44px on a phone for
-                              iOS's 44x44pt. Both come from padding, so the
-                              glyph is unchanged.
+                              12px glyph, stroke 2.5 rather than the 1.5 a 20px
+                              icon takes, so it still lands on the app's one
+                              ink weight: 2.5 x 12/24 = 1.25px, same as every
+                              other icon.
 
-                              The negative margins are what keep it NEXT TO the
-                              name rather than floating away from it: the
-                              button's own padding insets the glyph 6px
-                              (desktop) and 12px (phone), which would otherwise
-                              add to the row's 6px gap and read as 12px / 18px
-                              of space. Pulled back, the ink sits 6px and 8px
-                              from the name. -my keeps the row from growing. */}
+                              h-[21px]/[23px]: the button's own box, matched to
+                              the family name's rendered line-height at each
+                              breakpoint (measured, not guessed) rather than
+                              the icon-sm/44px hit target the app's other icon
+                              buttons use — by request, so it reads as part of
+                              the name's text row instead of a taller control
+                              laid over it. This is BELOW
+                              foundations/accessibility.md's stated minimums
+                              (28x28pt macOS, 44x44pt iOS); the -my/-ml
+                              pullback only ever affected layout spacing, so
+                              with no larger box left to pull back FROM, the
+                              clickable region is now exactly this size too —
+                              a real tradeoff, made because it was asked for
+                              explicitly, not a default.
+
+                              The negative margins are what keep the glyph next
+                              to the name rather than floating away from it:
+                              the button's own padding insets it, which would
+                              otherwise add to the row's 6px gap. -my keeps the
+                              row itself from growing to the button's height. */}
                           <Button
                             variant="ghost"
-                            size="icon-sm"
+                            size="icon-xs"
                             data-slot="sprite-details"
                             onClick={() => onSelect(baseVariant.id)}
                             aria-label={`${group.family} details`}
-                            className="-my-1.5 -ml-2.5 text-muted-foreground max-md:-my-3 max-md:-ml-3.5 max-md:size-11"
+                            className="-my-1.5 -ml-2.5 h-[21px] w-[21px] text-muted-foreground max-md:-my-3 max-md:-ml-3.5 max-md:h-[23px] max-md:w-[23px]"
                           >
                             <Info className="size-3" strokeWidth={2.5} />
                           </Button>
                         </span>
-                        <span className="flex items-center gap-3">
-                        {/* The Badge component at its own size and shape — the
-                            h-auto / rounded-[4px] / px-1 / text-2xs overrides
-                            this used to carry had left almost nothing of it.
-                            Only the fill is ours: Atlassian lozenge colours
-                            (see rarityAccent), inline because they come from
-                            their token set rather than Tailwind's palette. */}
-                        <Badge
-                          data-slot="rarity-badge"
-                          className="text-white"
-                          style={{
-                            // Solid bright fill with white text. The border takes the
-                            // fill color so no outline shows; badgeVariants reserves a
-                            // 1px border either way, so the badge's size is unchanged.
-                            backgroundColor: rarityAccent(group.rarity).solid,
-                            borderColor: rarityAccent(group.rarity).solid,
-                          }}
-                        >
-                          {group.rarity ? group.rarity.charAt(0).toUpperCase() + group.rarity.slice(1) : "Unknown"}
-                        </Badge>
-                        {/* One dot per variant SLOT, in VARIANT_SLOTS order, so a
-                            dot's position tells you which variant it stands for:
-                            the second dot is always gold, the fifth always bounty
-                            hunter. That is why all five are always drawn, even for
-                            a family that doesn't have all five — dropping the
-                            missing ones would shift every dot after them onto the
-                            wrong variant. Slots the family has no variant for are
-                            dimmed instead, the same thing the dashed tile and its
-                            Ban icon say further down the card.
-                            h-4 caps the box at the badge's 16px (10px text + 2px
-                            padding + 1px border, each side) so the row stays one
-                            badge tall. */}
+                        {/* The rarity badge that lived here is gone — rarity is
+                            now said once per group, by the coloured header
+                            above it, rather than repeated on every card. That
+                            leaves the dots as the row's only content, so they
+                            sit flush under the name instead of trailing a
+                            badge.
+                            One dot per variant SLOT, in VARIANT_SLOTS order, so
+                            a dot's position tells you which variant it stands
+                            for: the second dot is always gold, the fifth
+                            always bounty hunter. That is why all five are
+                            always drawn, even for a family that doesn't have
+                            all five — dropping the missing ones would shift
+                            every dot after them onto the wrong variant. Slots
+                            the family has no variant for are dimmed instead,
+                            the same thing the dashed tile and its Ban icon say
+                            further down the card. */}
                         <span
                           className="flex h-4 items-center gap-1"
                           role="img"
@@ -426,7 +460,6 @@ export function SpriteCatalogBrowser({
                               />
                             );
                           })}
-                        </span>
                         </span>
                       </span>
                     </span>
