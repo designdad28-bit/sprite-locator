@@ -11,6 +11,7 @@ import { displayName } from "@/lib/sprite-name";
 import { VARIANT_SLOTS, variantGradient, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
+import { RarityGem } from "@/components/rarity-gem";
 import { Input } from "@/components/ui/input";
 import { MasterySummary } from "./mastery-summary";
 import { cn } from "@/lib/utils";
@@ -280,14 +281,34 @@ export function SpriteCatalogBrowser({
         )}
 
       {loading && (
-        <div className="flex flex-1 items-center justify-center px-4">
-          <span className="text-sm text-muted-foreground">Loading Sprite catalog…</span>
+        // The real layout, drawn before the data arrives: a section header,
+        // then cards in the catalog's exact proportions, so nothing jumps
+        // when it lands. The status text stays for screen readers.
+        <div className="flex-1 overflow-hidden px-4 pt-4" aria-busy="true">
+          <span className="sr-only" role="status">Loading Sprite catalog…</span>
+          <div className="skeleton -mx-4 mt-4 mb-2 h-11" />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="py-2">
+              <div className="flex items-center gap-3 py-1">
+                <div className="skeleton size-14 rounded-2xl md:size-16" />
+                <div className="flex flex-col gap-2">
+                  <div className="skeleton h-5 w-28 rounded-md" />
+                  <div className="skeleton h-2 w-16 rounded-full" />
+                </div>
+              </div>
+              <div className="mt-3 flex gap-2">
+                {[0, 1, 2, 3, 4].map((j) => (
+                  <div key={j} className="skeleton aspect-square w-20 shrink-0 rounded-sm max-md:w-auto max-md:flex-1" />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
       {!loading && error && (
         <div className="flex flex-1 flex-col gap-3 px-4 pt-4 text-base">
-          <p className="text-foreground">Sprite catalog unavailable.</p>
+          <p className="font-heading text-xl font-medium text-foreground">Sprite catalog unavailable</p>
           <p className="text-sm leading-relaxed text-muted-foreground">{error}</p>
           <Button variant="outline" size="sm" data-slot="retry" onClick={reload} className="self-start">
             Retry
@@ -521,7 +542,7 @@ export function SpriteCatalogBrowser({
                           data-status={status}
                           onClick={() => cycleStatus(v.id)}
                           aria-label={`${displayName(v.name)}: ${status}, click to change`}
-                          className="group flex w-20 shrink-0 flex-col items-center gap-1 rounded-sm outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/30 max-md:w-auto max-md:flex-1 max-md:shrink"
+                          className="group flex w-20 shrink-0 flex-col items-center gap-1 rounded-sm outline-none transition-transform duration-200 ease-out select-none focus-visible:ring-3 focus-visible:ring-ring/30 active:scale-[0.96] max-md:w-auto max-md:flex-1 max-md:shrink motion-reduce:transition-none"
                         >
                           {/* Caption carries its variant's colour whether or
                               not the sprite is collected, so the row reads as
@@ -540,7 +561,7 @@ export function SpriteCatalogBrowser({
                               // outline, not border: outlines paint outside the box and
                               // take no layout space, so thickening one on hover can't
                               // nudge the tile's contents (the crown especially).
-                              "relative aspect-square w-full overflow-clip rounded-sm outline -outline-offset-1 transition-all duration-150",
+                              "relative aspect-square w-full overflow-clip rounded-sm outline -outline-offset-1 transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:shadow-[0_10px_18px_-8px_rgb(0_0_0/0.7)] motion-reduce:group-hover:translate-y-0",
                               // No outline change on hover — hover is conveyed by the
                               // image coming to full color and scaling up. The gold
                               // outline is reserved for mastered, so it reads as the
@@ -652,14 +673,7 @@ export function SpriteCatalogBrowser({
                       boxShadow: `inset 0 -1px 0 color-mix(in oklch, ${accent.solid} 55%, transparent)`,
                     }}
                   >
-                    <span
-                      aria-hidden
-                      className="size-2.5 rotate-45 rounded-[2px]"
-                      style={{
-                        backgroundColor: accent.solid,
-                        boxShadow: `0 0 0 1.5px color-mix(in oklch, white 35%, transparent), 0 0 10px ${accent.solid}`,
-                      }}
-                    />
+                    <RarityGem color={accent.solid} />
                     <span className="text-sm font-semibold tracking-[0.02em] text-foreground">{label}</span>
                     <span className="ml-auto text-xs font-medium tabular-nums text-muted-foreground">
                       {section.groups.length} {section.groups.length === 1 ? "Sprite" : "Sprites"}
@@ -671,7 +685,11 @@ export function SpriteCatalogBrowser({
             });
           })()}
           {filtered.length === 0 && (
-            <p className="px-4 py-8 text-center text-sm text-muted-foreground">No sprites match.</p>
+            <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
+              <Search className="size-8 text-muted-foreground/60" strokeWidth={1} />
+              <p className="font-heading text-xl font-medium text-foreground">No Sprites match</p>
+              <p className="text-sm text-muted-foreground">Try a family name, like &ldquo;Jonesy&rdquo;.</p>
+            </div>
           )}
         </motion.div>
       )}

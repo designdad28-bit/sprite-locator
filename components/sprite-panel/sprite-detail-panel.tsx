@@ -11,8 +11,8 @@ import { SPRITE_ABILITIES } from "@/lib/sprite-abilities";
 import { VARIANT_SLOTS, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { cn } from "@/lib/utils";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RarityGem } from "@/components/rarity-gem";
 
 /**
  * The Sprite detail panel.
@@ -159,13 +159,24 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
       {/* The same grey as the catalog sidebar's header strip (logo + mastery),
           so the two panels' headers read as one system. Full-bleed — the
           panel's own overflow-hidden clips it to its corners. */}
-      <div data-slot="detail-header" className="relative shrink-0 bg-muted p-4">
+      <div data-slot="detail-header" className="relative shrink-0 overflow-hidden bg-muted p-4">
+        {/* The rarity as light: a soft pool of its colour behind the art,
+            brightest where the Sprite stands and gone before the edges, like
+            a spotlight on a stage floor. Same colour the list's section
+            header casts, so opening a card carries its section with it. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: `radial-gradient(75% 62% at 50% 56%, color-mix(in oklch, ${accent.solid} 80%, transparent), color-mix(in oklch, ${accent.solid} 20%, transparent) 55%, transparent 78%)`,
+          }}
+        />
         <Button
           variant="ghost"
           size="icon-sm"
           onClick={onBack}
           aria-label="Close"
-          className="absolute top-3 right-3 z-10 rounded-full bg-card/60 text-muted-foreground hover:bg-card hover:text-foreground max-md:size-11"
+          className="material absolute top-3 right-3 z-10 rounded-full text-muted-foreground hover:bg-card hover:text-foreground max-md:size-11 dark:bg-transparent"
         >
           <X strokeWidth={1.5} />
         </Button>
@@ -180,7 +191,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="mx-auto flex aspect-square w-full items-center justify-center"
+          className="relative mx-auto flex aspect-square w-full items-center justify-center"
         >
           {sprite.icon ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -188,7 +199,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
               data-slot="detail-image"
               src={sprite.icon}
               alt={displayName(sprite.name)}
-              className="size-full object-contain"
+              className="size-full object-contain drop-shadow-[0_18px_24px_rgb(0_0_0/0.45)]"
               style={{ transform: `scale(${spriteIconScale(sprite.id)})` }}
             />
           ) : (
@@ -225,15 +236,15 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
             {displayName(sprite.name)}
           </h2>
 
-          {/* Identical to the catalog cards': the Badge at its own size, with
-              only the rarity fill overridden. */}
-          <Badge
-            data-slot="rarity-badge"
-            className="mt-px shrink-0 text-white"
-            style={{ backgroundColor: accent.solid, borderColor: accent.solid }}
-          >
-            {sprite.rarity ? sprite.rarity.charAt(0).toUpperCase() + sprite.rarity.slice(1) : "Unknown"}
-          </Badge>
+          {/* The same gem as the list's section headers — the rarity reads
+              as the same object in both places rather than as a pill here
+              and a header there. */}
+          <span data-slot="rarity-badge" className="mt-1.5 flex shrink-0 items-center gap-2">
+            <RarityGem color={accent.solid} />
+            <span className="text-sm font-semibold text-foreground">
+              {sprite.rarity ? sprite.rarity.charAt(0).toUpperCase() + sprite.rarity.slice(1) : "Unknown"}
+            </span>
+          </span>
         </div>
 
         {/* Its own line below, not beside the badge: it only appears for a

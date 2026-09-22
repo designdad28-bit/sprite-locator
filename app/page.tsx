@@ -518,7 +518,7 @@ export default function Home() {
           >
             <SelectTrigger
               aria-label="Filter the map by variant"
-              className="pointer-events-auto h-11 gap-2 rounded-xl border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-lg dark:bg-card"
+              className="material pointer-events-auto h-11 gap-2 rounded-xl px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-card dark:bg-transparent"
             >
               <SelectValue>
                 {(value: string) => {
@@ -568,7 +568,7 @@ export default function Home() {
             onClick={toggleDemoMode}
             aria-pressed={demoMode}
             className={cn(
-              "pointer-events-auto h-11 rounded-xl bg-card shadow-lg dark:bg-card",
+              "material pointer-events-auto h-11 rounded-xl hover:bg-card dark:bg-transparent",
               demoMode ? "border-sprite-gold/60 text-sprite-gold" : "text-muted-foreground"
             )}
           >
@@ -658,7 +658,7 @@ export default function Home() {
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               // Above the Add finding button below it, which now occupies the
               // bottom-centre this used to have to itself.
-              className="pointer-events-none absolute bottom-24 left-1/2 z-[500] -translate-x-1/2 rounded-full border border-border bg-card/95 px-5 py-2.5 text-sm font-semibold text-foreground shadow-xl"
+              className="pointer-events-none absolute bottom-24 left-1/2 z-[500] -translate-x-1/2 material rounded-full px-5 py-2.5 text-sm font-semibold text-foreground"
             >
               Sprite location added — {displayName(getSprite(lastAdded)?.name)}
             </motion.div>

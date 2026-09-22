@@ -41,7 +41,7 @@ export function MasterySummary() {
         // The track is bg-card, not the component's default bg-muted: the header
         // strip behind it is itself --muted, so the default left the empty part
         // of the bar invisible.
-        className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-track]]:h-1 [&_[data-slot=progress-track]]:bg-card max-md:[&_[data-slot=progress-track]]:h-1.5"
+        className="gap-1.5 [&_[data-slot=progress-indicator]]:gold-light [&_[data-slot=progress-indicator]]:rounded-full [&_[data-slot=progress-indicator]]:shadow-[0_0_10px_var(--sprite-gold)] [&_[data-slot=progress-track]]:h-1.5 [&_[data-slot=progress-track]]:bg-card [&_[data-slot=progress-track]]:shadow-[inset_0_1px_2px_rgb(0_0_0/0.5)]"
       >
         <ProgressLabel className="flex items-center gap-1 text-base leading-none text-sprite-gold md:text-sm">
           <Crown
