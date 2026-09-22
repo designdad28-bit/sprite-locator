@@ -267,12 +267,10 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
         {/* Full-bleed divider above a full-width confirm, as in the reference. */}
         <DialogFooter className="-mx-6 -mb-6 border-t border-border px-6 py-5">
           <Button
-            // max-md:text-base + max-md:h-12: on the phone sheet this is the
-            // one thing the form asks you to do, so it takes the same
-            // one-step-up-for-phone treatment as every other primary action
-            // and every other field in this sheet. Desktop keeps the
-            // compact dialog size.
-            className={cn("w-full max-md:h-12 max-md:text-base", ADD_FINDING_STYLE)}
+            // h-12 / text-base at every size: the same as the primary
+            // action over the map and on the phone's bottom bar, so the
+            // one action the product asks for has one size everywhere.
+            className={cn("h-12 w-full text-base", ADD_FINDING_STYLE)}
             disabled={!canConfirm}
             onClick={() => {
               if (poiId && spriteId && variant && source) {

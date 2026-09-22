@@ -926,7 +926,11 @@ export default function IslandMap({
       })}
       </MapContainer>
 
-      <div className="absolute right-2 bottom-2 z-[500] flex flex-col items-center gap-2">
+      {/* 16px in from the edge and 24px up, the same insets as the other map
+          chrome, so the zoom stack's bottom lines up with Add Sprite Location's.
+          44px buttons with 20px glyphs (stroke 1.5 = the app's 1.25px ink): a
+          touch-sized target on a surface people use on tablets. */}
+      <div className="absolute right-4 bottom-6 z-[500] flex flex-col items-center gap-2">
         {/* The Button component rather than hand-rolled elements. These three
             previously re-implemented its sizing, hover and focus ring by hand
             — and disagreed with it: a 2px ring at ring/50 where Button uses a
@@ -934,32 +938,32 @@ export default function IslandMap({
             differently from every other control in the app. */}
         <Button
           variant="outline"
-          size="icon"
+          size="icon-lg"
           onClick={resetView}
           aria-label="Reset view"
           className="rounded-full bg-card text-muted-foreground shadow-lg dark:bg-card"
         >
-          <RotateCcw strokeWidth={1.875} />
+          <RotateCcw className="size-5" strokeWidth={1.5} />
         </Button>
         <div className="flex flex-col overflow-hidden rounded-full border border-border bg-card shadow-lg">
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-lg"
             onClick={() => map?.zoomIn()}
             aria-label="Zoom in"
             className="rounded-none text-muted-foreground focus-visible:ring-inset"
           >
-            <Plus strokeWidth={1.875} />
+            <Plus className="size-5" strokeWidth={1.5} />
           </Button>
           <div className="h-px w-full bg-border" />
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-lg"
             onClick={() => map?.zoomOut()}
             aria-label="Zoom out"
             className="rounded-none text-muted-foreground focus-visible:ring-inset"
           >
-            <Minus strokeWidth={1.875} />
+            <Minus className="size-5" strokeWidth={1.5} />
           </Button>
         </div>
       </div>

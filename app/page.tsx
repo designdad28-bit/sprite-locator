@@ -32,35 +32,35 @@ import { cn } from "@/lib/utils";
 //
 // Sized to cut the variant row mid-tile, so the row visibly continues past the
 // panel edge and invites the horizontal scroll rather than looking complete:
-// the row's 12px left pad + 3 tiles x 72px + 3 gaps x 8px + half of the
-// fourth tile = 288, plus the 2px border on the map-facing edge = 290.
+// the row's 16px left pad + 3 tiles x 80px + 3 gaps x 8px + half of the
+// fourth tile = 320, plus the 2px border on the map-facing edge = 322.
 //
-// Deliberately not 418, which is what all five tiles need to fit. A half-tile
+// Deliberately not 466, which is what all five tiles need to fit. A half-tile
 // is the cue; a whole one would read as the last one and hide that two more
 // follow. The row itself already scrolls (overflow-x-auto, scrollbar hidden)
 // — see the variant row in sprite-catalog-browser.tsx.
-const SIDEBAR_WIDTH = 290;
+const SIDEBAR_WIDTH = 322;
 
 /**
  * How far the sidebar can be dragged.
  *
- * The floor is 264, chosen so the third variant tile lands whole and the
- * fourth still peeks: the 12px left pad + 3 tiles x 72 + 2 gaps x 8 puts the
- * third tile's right edge at 244 and the fourth's left edge at 252, leaving a
+ * The floor is 292, chosen so the third variant tile lands whole and the
+ * fourth still peeks: the 16px left pad + 3 tiles x 80 + 2 gaps x 8 puts the
+ * third tile's right edge at 272 and the fourth's left edge at 280, leaving a
  * 12px sliver of it (10px of tile inside the 2px border). Narrower than this
  * and the third tile itself gets cut, which reads as a broken card rather
  * than as a row that scrolls.
  *
- * The ceiling is the width at which the row finally completes: the 12px left
- * pad + 5 tiles x 72 + 4 gaps x 8 + a matching 12px on the right = 416, plus
+ * The ceiling is the width at which the row finally completes: the 16px left
+ * pad + 5 tiles x 80 + 4 gaps x 8 + a matching 16px on the right = 464, plus
  * the 2px border on the map-facing edge. Dragging past that would only add
  * empty panel, since the row has nothing left to reveal.
  *
  * Still capped at half the window as well, so a drag can never squeeze the map
  * into a sliver on a narrow screen.
  */
-const SIDEBAR_MIN_WIDTH = 264;
-const SIDEBAR_MAX_WIDTH = 418;
+const SIDEBAR_MIN_WIDTH = 292;
+const SIDEBAR_MAX_WIDTH = 466;
 
 /** Remembers the dragged width between visits, like the collection state does. */
 const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
@@ -119,7 +119,7 @@ function useIsMobile() {
 }
 
 /** Height the mobile Add finding bar occupies, which the catalog pads clear of. */
-const MOBILE_CTA_HEIGHT = 68;
+const MOBILE_CTA_HEIGHT = 72;
 
 /**
  * Add finding's fill, shared by the desktop and phone buttons so the two
@@ -499,7 +499,7 @@ export default function Home() {
           onMapClick={() => {}}
         />
 
-        <div className="pointer-events-none absolute inset-x-0 top-2 z-[500] flex items-center justify-between gap-2 px-2">
+        <div className="pointer-events-none absolute inset-x-0 top-4 z-[500] flex items-center justify-between gap-2 px-4">
           <div className="flex min-w-0 items-center gap-2">
           {/* Only present once something is pinned. With every Radar off the
               map has no findings on it, so narrowing them to one variant is a
@@ -518,7 +518,7 @@ export default function Home() {
           >
             <SelectTrigger
               aria-label="Filter the map by variant"
-              className="pointer-events-auto h-9 gap-2 rounded-md border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-lg dark:bg-card"
+              className="pointer-events-auto h-11 gap-2 rounded-xl border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-lg dark:bg-card"
             >
               <SelectValue>
                 {(value: string) => {
@@ -568,7 +568,7 @@ export default function Home() {
             onClick={toggleDemoMode}
             aria-pressed={demoMode}
             className={cn(
-              "pointer-events-auto rounded-md bg-card shadow-lg dark:bg-card",
+              "pointer-events-auto h-11 rounded-xl bg-card shadow-lg dark:bg-card",
               demoMode ? "border-sprite-gold/60 text-sprite-gold" : "text-muted-foreground"
             )}
           >
@@ -584,13 +584,13 @@ export default function Home() {
             do, so it reads as the page's action instead of a third control in
             a row of them. Clear of the zoom cluster in the bottom-right and of
             the confirmation toast, which now sits above it. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-[500] flex justify-center px-2">
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-[500] flex justify-center px-4">
           <Button
             onClick={() => {
               setAddKey((k) => k + 1);
               setAddOpen(true);
             }}
-            className={cn("pointer-events-auto h-11 gap-2 px-6 shadow-lg", ADD_FINDING_STYLE)}
+            className={cn("pointer-events-auto h-12 gap-2 px-7 text-base shadow-lg", ADD_FINDING_STYLE)}
           >
             <MapPin className="size-4" strokeWidth={ADD_FINDING_ICON_STROKE} />
             Add Sprite Location
@@ -611,7 +611,7 @@ export default function Home() {
           // that is visibly distinct from the content layer; painting this bar
           // in the content's own colour left it reading as part of the list
           // rather than as a bar floating above it.
-          className="fixed inset-x-0 bottom-0 z-[650] border-t-2 border-border bg-muted px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
+          className="fixed inset-x-0 bottom-0 z-[650] border-t-2 border-border bg-muted px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
           style={{ minHeight: MOBILE_CTA_HEIGHT }}
         >
           <Button
@@ -625,7 +625,7 @@ export default function Home() {
             // as noticeably smaller than the sheet it opens once that sheet
             // is also fixed. One step up, same as everything else scaled
             // for a phone this session.
-            className={cn("h-11 w-full gap-2 text-base", ADD_FINDING_STYLE)}
+            className={cn("h-12 w-full gap-2 text-base", ADD_FINDING_STYLE)}
           >
             {/* 2.2, where every other 16px icon in the app runs 1.875. The
                 app's rule is one ink weight everywhere; this is the one
@@ -658,7 +658,7 @@ export default function Home() {
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               // Above the Add finding button below it, which now occupies the
               // bottom-centre this used to have to itself.
-              className="pointer-events-none absolute bottom-20 left-1/2 z-[500] -translate-x-1/2 rounded-full border border-border bg-card/95 px-4 py-2 text-xs font-semibold text-foreground shadow-xl"
+              className="pointer-events-none absolute bottom-24 left-1/2 z-[500] -translate-x-1/2 rounded-full border border-border bg-card/95 px-5 py-2.5 text-sm font-semibold text-foreground shadow-xl"
             >
               Sprite location added — {displayName(getSprite(lastAdded)?.name)}
             </motion.div>

@@ -145,9 +145,9 @@ export function SpriteCatalogBrowser({
           sprite tiles use) so it reads as its own section. Full-bleed — the
           sidebar's own overflow-hidden clips it to the rounded corners. */}
       <div className="shrink-0 bg-muted">
-        {/* px-3 matches the search and sprite cards, so everything in the
+        {/* px-4 matches the search and sprite cards, so everything in the
             sidebar shares one left edge. */}
-        <div className="flex items-center gap-2 px-3 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
+        <div className="flex items-center gap-2 px-4 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {/* Pulled 2px left of the 12px everything else sits on, so the mark
               looks level rather than measuring level. Two reasons it read as
@@ -184,7 +184,7 @@ export function SpriteCatalogBrowser({
           </Button>
         </div>
 
-        <div className="px-3 pb-3">
+        <div className="px-4 pb-4">
           <MasterySummary />
         </div>
       </div>
@@ -196,13 +196,13 @@ export function SpriteCatalogBrowser({
 
       {/* Only the logo and the mastery count stay pinned; the search scrolls
           away with the list below it. */}
-      <div className="no-scrollbar flex-1 overflow-y-auto px-3 pt-3 pb-2.5">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pt-4 pb-4">
         {/* pb-1.5, not pb-3: each sprite card carries 6px of its own leading padding
             (py-0.5 here plus py-1 on its header), so 6px here lands the first
             sprite 12px below the field — matching the 12px above it. */}
         <div className="relative pb-1.5">
           <Search
-            className="pointer-events-none absolute top-[18px] left-3 size-4 -translate-y-1/2 text-muted-foreground"
+            className="pointer-events-none absolute top-5 left-4 size-4 max-md:top-[22px] -translate-y-1/2 text-muted-foreground"
             strokeWidth={1.875}
           />
           <Input
@@ -221,16 +221,16 @@ export function SpriteCatalogBrowser({
             // when the field is lighter than its surroundings; bg-card is
             // exactly the sidebar's own background, so with no border the
             // field would have no edge at all at rest.
-            className="border-border bg-card pl-9 [&::-webkit-search-cancel-button]:appearance-none"
+            className="border-border bg-card pl-11 [&::-webkit-search-cancel-button]:appearance-none"
           />
         </div>
         {/* Also scrolls: the four hugging pills total ~293px, which no longer
             fits the 252px of content width at a 280px sidebar. */}
-        {/* -mx-3 px-3: full-bleed to the panel edge so the row clips there rather
+        {/* -mx-4 px-4: full-bleed to the panel edge so the row clips there rather
             than 12px short of it, while the first item still lines up with the
             sidebar gutter. */}
         {SHOW_RARITY_TABS && (
-        <div className="no-scrollbar -mx-3 flex items-center gap-1 overflow-x-auto px-3 pb-1">
+        <div className="no-scrollbar -mx-4 flex items-center gap-1 overflow-x-auto px-4 pb-1">
           {/* Only mounted while a filter is on, so with nothing selected the
               pills sit flush against the sidebar's left edge. */}
           <AnimatePresence initial={false}>
@@ -280,15 +280,15 @@ export function SpriteCatalogBrowser({
         )}
 
       {loading && (
-        <div className="flex flex-1 items-center justify-center px-5">
-          <span className="text-xs text-muted-foreground">Loading Sprite catalog…</span>
+        <div className="flex flex-1 items-center justify-center px-4">
+          <span className="text-sm text-muted-foreground">Loading Sprite catalog…</span>
         </div>
       )}
 
       {!loading && error && (
-        <div className="flex flex-1 flex-col gap-3 px-5 text-sm">
+        <div className="flex flex-1 flex-col gap-3 px-4 pt-4 text-base">
           <p className="text-foreground">Sprite catalog unavailable.</p>
-          <p className="text-xs leading-relaxed text-muted-foreground">{error}</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{error}</p>
           <Button variant="outline" size="sm" data-slot="retry" onClick={reload} className="self-start">
             Retry
           </Button>
@@ -365,18 +365,18 @@ export function SpriteCatalogBrowser({
                         <img
                           src={group.icon}
                           alt=""
-                          className="size-14 shrink-0 object-contain"
+                          className="size-14 md:size-16 shrink-0 object-contain"
                           // Every icon is a 512x512 square, but the artwork inside fills
                           // 71%-92% of it depending on the Sprite — so equal boxes alone
                           // still render visibly unequal sprites. See scripts/measure-sprite-icons.py.
                           style={{ transform: `scale(${spriteIconScale(baseVariant.id)})` }}
                         />
                       ) : (
-                        <span className="size-14 shrink-0 rounded-md bg-input/30" />
+                        <span className="size-14 md:size-16 shrink-0 rounded-md bg-input/30" />
                       )}
                       <span className="flex min-w-0 flex-col items-start justify-center gap-0.5">
                         <span className="flex min-w-0 items-center gap-1.5">
-                          <span className="truncate font-heading text-xl font-medium leading-[1.15] text-foreground md:text-lg">
+                          <span className="truncate font-heading text-xl font-medium leading-[1.15] text-foreground">
                             {group.family}
                           </span>
                           {/* Sits right next to the name it describes — it
@@ -389,15 +389,13 @@ export function SpriteCatalogBrowser({
                               ink weight: 2.5 x 12/24 = 1.25px, same as every
                               other icon.
 
-                              h-[21px]/[23px]: the button's own box, matched to
-                              the family name's rendered line-height at each
-                              breakpoint (measured, not guessed) rather than
-                              the icon-sm/44px hit target the app's other icon
-                              buttons use — by request. This is BELOW
-                              foundations/accessibility.md's stated minimums
-                              (28x28pt macOS, 44x44pt iOS): a real tradeoff,
-                              made because it was asked for explicitly, not a
-                              default.
+                              size-[23px]: the button's own box, matched to
+                              the family name's rendered line-height (20px x
+                              1.15), now the same at every breakpoint. Visually
+                              that is below foundations/accessibility.md's
+                              minimums (28x28pt macOS, 44x44pt iOS), so the hit
+                              area is extended past the visible box — see the
+                              ::after below.
 
                               No negative margins. Those existed to pull a
                               PADDED 32px/44px button back into a compact row
@@ -413,7 +411,11 @@ export function SpriteCatalogBrowser({
                             data-slot="sprite-details"
                             onClick={() => onSelect(baseVariant.id)}
                             aria-label={`${group.family} details`}
-                            className="h-[21px] w-[21px] text-muted-foreground max-md:h-[23px] max-md:w-[23px]"
+                            // The visible box stays at the name's line-height, but
+                            // the ::after extends the hit area 10px each way to
+                            // 43px — clearing the accessibility minimum the
+                            // visible box alone could not.
+                            className="relative size-[23px] text-muted-foreground after:absolute after:-inset-2.5 after:content-['']"
                           >
                             <Info className="size-3" strokeWidth={2.5} />
                           </Button>
@@ -488,9 +490,9 @@ export function SpriteCatalogBrowser({
                   {/* Two behaviours, because the two widths want opposite things.
 
                       Beside the map the panel is narrow and draggable, so tiles
-                      keep a fixed 72px and the row scrolls — squeezing five
+                      keep a fixed 80px and the row scrolls — squeezing five
                       tiles into 264px would leave them too small to read the
-                      art in. The -mx-3/px-3 pair makes the row full-bleed so it
+                      art in. The -mx-4/px-4 pair makes the row full-bleed so it
                       clips at the panel edge rather than 12px short of it.
 
                       On a phone the catalog has the whole screen, so the tiles
@@ -499,7 +501,7 @@ export function SpriteCatalogBrowser({
                       the full CONTENT width; running the tiles to the screen
                       edge would leave them the only thing in the app not
                       aligned with the column above them. */}
-                  <div className="no-scrollbar -mx-3 flex items-center gap-2 overflow-x-auto px-3 py-2 max-md:overflow-x-visible">
+                  <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 py-2 max-md:overflow-x-visible">
                     {VARIANT_SLOTS.map((slot) => {
                       const v = group.variants.find((x) => variantKey(x.variant) === slot);
                       // Not every family ships all five variants (Mega Man has only
@@ -510,7 +512,7 @@ export function SpriteCatalogBrowser({
                           <div
                             key={slot}
                             data-slot="variant-slot-empty"
-                            className="flex w-[72px] shrink-0 flex-col items-center gap-1 max-md:w-auto max-md:flex-1 max-md:shrink"
+                            className="flex w-20 shrink-0 flex-col items-center gap-1 max-md:w-auto max-md:flex-1 max-md:shrink"
                           >
                             {/* Colour-coded like a real tile's caption, so the
                                 five columns stay identifiable straight down
@@ -520,7 +522,7 @@ export function SpriteCatalogBrowser({
                                 dashed border and Ban icon below already say
                                 the variant doesn't exist. */}
                             <span
-                              className="text-xs font-medium leading-5 md:text-2xs"
+                              className="text-xs font-medium leading-5"
                               style={{ color: variantLabelColor(slot === "normal" ? null : slot) ?? undefined }}
                             >
                               {variantLabel(slot)}
@@ -563,7 +565,7 @@ export function SpriteCatalogBrowser({
                           data-status={status}
                           onClick={() => cycleStatus(v.id)}
                           aria-label={`${displayName(v.name)}: ${status}, click to change`}
-                          className="group flex w-[72px] shrink-0 flex-col items-center gap-1 rounded-sm outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/30 max-md:w-auto max-md:flex-1 max-md:shrink"
+                          className="group flex w-20 shrink-0 flex-col items-center gap-1 rounded-sm outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/30 max-md:w-auto max-md:flex-1 max-md:shrink"
                         >
                           {/* Caption carries its variant's colour whether or
                               not the sprite is collected, so the row reads as
@@ -572,7 +574,7 @@ export function SpriteCatalogBrowser({
                               slots above stay dimmed — a family with no such
                               variant has no fill to match. */}
                           <span
-                            className="text-xs font-medium leading-5 md:text-2xs"
+                            className="text-xs font-medium leading-5"
                             style={{ color: variantLabelColor(v.variant) ?? undefined }}
                           >
                             {label}
@@ -646,7 +648,7 @@ export function SpriteCatalogBrowser({
             );
           })}
           {filtered.length === 0 && (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">No sprites match.</p>
+            <p className="px-4 py-8 text-center text-sm text-muted-foreground">No sprites match.</p>
           )}
         </motion.div>
       )}

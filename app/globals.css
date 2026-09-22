@@ -5,11 +5,22 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* One step below Tailwind's text-xs (12px), for the uppercase captions and
-     section labels the panels are built on. A theme token rather than a
-     text-[10px] repeated at seven call sites: it belongs to the type scale, so
-     it lives in the scale. */
-  --text-2xs: 0.625rem;
+  /* THE TYPE SCALE. Every size in the app is one of these, at every
+     breakpoint — desktop no longer steps down a size from mobile:
+
+       display   font-heading 24px (text-2xl)   detail panel's Sprite name
+       title     font-heading 20px (text-xl)    catalog card names
+       body-lg   16px (text-base)               sentences, primary rows
+       body      14px (text-sm)                 values, controls, list rows
+       label     12px (text-xs) semibold caps   section headings, captions
+       micro     11px (text-2xs)                the floor; tile captions only
+
+     The floor used to be 10px, and desktop dropped every panel a full step
+     (14->12 values, 12->10 labels) to fit more in a 290px sidebar. That is
+     what made the product read undersized: density bought with legibility.
+     11px uppercase at 0.08em tracking is the smallest size that still reads
+     as type rather than texture on a dark ground. */
+  --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1rem;
 
   --color-background: var(--background);

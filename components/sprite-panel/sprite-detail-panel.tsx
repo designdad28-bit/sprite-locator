@@ -20,19 +20,21 @@ import { Button } from "@/components/ui/button";
  * ONE type scale, shared with the catalog sidebar opposite so the two panels
  * read as one product rather than two screens:
  *
- *   name     font-heading 22px medium   — one step up from a catalog card's 18px
- *   value    13px medium                — anything the reader is here to find out
- *   body     13px regular, relaxed      — sentences
- *   label    10px semibold uppercase    — section headings and variant captions
- *   meta     11px                       — asides and empty states
+ *   name     font-heading 24px medium   — one step up from a catalog card's 20px
+ *   value    14px medium                — anything the reader is here to find out
+ *   body     16px regular, relaxed      — sentences
+ *   label    12px semibold uppercase    — section headings
+ *   meta     14px muted                 — asides and empty states
+ *
+ * The same sizes on desktop and phone (see the scale in globals.css).
  *
  * Nothing else. The previous version used seven sizes, three weights and two
  * different muted greys, and rendered the same role — a section's one value —
  * at 18px semibold in one place, 14px muted in another and 11px chips in a
  * third, which is what made it read as unfinished.
  *
- * Spacing is just as deliberate: a 12px gutter, matching the catalog sidebar's
- * px-3 exactly so content in both panels starts on the same line, and every
+ * Spacing is just as deliberate: a 16px gutter, matching the catalog sidebar's
+ * px-4 exactly so content in both panels starts on the same line, and every
  * section built by the same Section component below rather than by hand. The
  * old file set six different top margins (mt-1, 1.5, 2, 2.5, 3) between a
  * heading and its content; here there is one, because there is one component.
@@ -55,7 +57,7 @@ const AVAILABILITY_LABEL: Record<string, string> = {
 /** The one section heading treatment. Same size and weight as the catalog's variant captions. */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground md:text-2xs">{children}</h3>
+    <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{children}</h3>
   );
 }
 
@@ -67,9 +69,9 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
  */
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border-t border-border/60 px-3 py-4 first:border-t-0">
+    <section className="border-t border-border/60 px-4 py-5 first:border-t-0">
       <SectionLabel>{title}</SectionLabel>
-      <div className="mt-2">{children}</div>
+      <div className="mt-3">{children}</div>
     </section>
   );
 }
@@ -95,16 +97,16 @@ function Row({
   muted?: boolean;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 py-1">
+    <div className="flex items-baseline justify-between gap-4 py-1.5">
       <span
-        className={cn("text-sm font-medium md:text-xs", !labelColor && "text-foreground")}
+        className={cn("text-sm font-medium", !labelColor && "text-foreground")}
         style={labelColor ? { color: labelColor } : undefined}
       >
         {label}
       </span>
       <span
         className={cn(
-          "shrink-0 text-sm tabular-nums md:text-xs",
+          "shrink-0 text-sm tabular-nums",
           muted ? "text-muted-foreground" : "font-medium text-foreground"
         )}
       >
@@ -116,7 +118,7 @@ function Row({
 
 /** One empty-state treatment, so "nothing here" reads the same everywhere. */
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm text-muted-foreground md:text-xs">{children}</p>;
+  return <p className="text-sm text-muted-foreground">{children}</p>;
 }
 
 export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPanelProps) {
@@ -125,8 +127,8 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
 
   if (!sprite) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 px-3 text-center">
-        <p className="text-base text-muted-foreground md:text-sm">Sprite not found in the catalog.</p>
+      <div className="flex h-full flex-col items-center justify-center gap-4 px-4 text-center">
+        <p className="text-base text-muted-foreground">Sprite not found in the catalog.</p>
         <Button variant="outline" size="sm" onClick={onBack}>
           Close
         </Button>
@@ -157,13 +159,13 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
       {/* The same grey as the catalog sidebar's header strip (logo + mastery),
           so the two panels' headers read as one system. Full-bleed — the
           panel's own overflow-hidden clips it to its corners. */}
-      <div data-slot="detail-header" className="relative shrink-0 bg-muted p-3">
+      <div data-slot="detail-header" className="relative shrink-0 bg-muted p-4">
         <Button
           variant="ghost"
           size="icon-sm"
           onClick={onBack}
           aria-label="Close"
-          className="absolute top-2 right-2 z-10 rounded-full text-muted-foreground hover:bg-card max-md:size-11"
+          className="absolute top-3 right-3 z-10 rounded-full bg-card/60 text-muted-foreground hover:bg-card hover:text-foreground max-md:size-11"
         >
           <X strokeWidth={1.5} />
         </Button>
@@ -199,7 +201,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
 
       {/* Identity sits outside Section: it is the panel's subject, not one of
           its facts, so it carries the name at hero size and no heading. */}
-      <div className="px-3 pt-4 pb-4">
+      <div className="px-4 pt-5 pb-5">
         {/* Name and rarity share one row, the badge pinned to the right edge.
             items-start rather than centred so the badge stays on the FIRST
             line if a long name wraps, instead of drifting to the middle of the
@@ -219,7 +221,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
             which would drop its top to 3px — further out than where it
             started. */}
         <div className="flex items-start justify-between gap-3">
-          <h2 className="min-w-0 font-heading text-2xl font-medium leading-[1.15] text-foreground md:text-xl">
+          <h2 className="min-w-0 font-heading text-2xl font-medium leading-[1.15] text-foreground">
             {displayName(sprite.name)}
           </h2>
 
@@ -238,13 +240,13 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
             Sprite this season doesn't offer, and that is a sentence about
             availability rather than a second label on the name row. */}
         {!sprite.currentlyLive && (
-          <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground md:text-2xs">
+          <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             {AVAILABILITY_LABEL[sprite.availability] ?? "Unavailable"}
           </p>
         )}
 
         {ability && (
-          <p data-slot="detail-ability" className="mt-3 text-base leading-relaxed text-foreground md:text-sm">
+          <p data-slot="detail-ability" className="mt-3 text-base leading-relaxed text-foreground">
             {ability}
           </p>
         )}
@@ -281,7 +283,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           <Empty>Not documented</Empty>
         )}
         {sprite.acquisitionHint && (
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-xs">{sprite.acquisitionHint}</p>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{sprite.acquisitionHint}</p>
         )}
       </Section>
 
@@ -308,9 +310,9 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
 
       {sprite.boons.length > 0 && (
         <Section title="Boons">
-          <ul className="space-y-1.5">
+          <ul className="space-y-2">
             {sprite.boons.map((boon) => (
-              <li key={boon.id} className="text-base leading-relaxed text-foreground md:text-sm">
+              <li key={boon.id} className="text-base leading-relaxed text-foreground">
                 {boon.description}
               </li>
             ))}
