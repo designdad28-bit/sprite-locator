@@ -337,19 +337,19 @@ export function SpriteCatalogBrowser({
                   // group-to-group gap's 16px — the search-to-"Rare" gap read
                   // as tighter than the rest for no reason tied to what it
                   // actually separates.
-                  <div className="mt-4 mb-1.5 flex items-center gap-2">
-                    <span
-                      className="text-xs font-semibold tracking-[0.08em] uppercase"
-                      style={{ color: accent.solid }}
-                    >
+                  // A full-width band rather than a label and rule: 32px
+                  // tall, -mx-4 to cancel the pane's gutter so it runs edge
+                  // to edge, filled with the rarity colour, the label
+                  // centred in white. All four rarity solids clear 4.5:1
+                  // against white, so the 12px label stays legible.
+                  <div
+                    data-slot="rarity-header"
+                    className="-mx-4 mt-4 mb-2 flex h-8 items-center justify-center"
+                    style={{ backgroundColor: accent.solid }}
+                  >
+                    <span className="text-xs font-semibold tracking-[0.08em] text-white uppercase">
                       {rarityLabel}
                     </span>
-                    {/* 8px, square-cornered, at the same full-opacity colour
-                        as the label to its left — no longer a softened rule
-                        beside the text but a second block of the same colour,
-                        so the two read as one accent rather than a label with
-                        a decoration next to it. */}
-                    <span className="h-2 flex-1" style={{ backgroundColor: accent.solid }} />
                   </div>
                 )}
                 {/* The first card drops its own leading padding (its 2px plus the
