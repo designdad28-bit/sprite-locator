@@ -202,7 +202,17 @@ export function SpriteCatalogBrowser({
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search sprites…"
             disabled={liveSprites.length === 0}
-            className="bg-input pl-9 [&::-webkit-search-cancel-button]:appearance-none"
+            // bg-card: the same fill as the mastery bar's track in the header
+            // above — the darkest of the panel's blues, where the default
+            // --input is white at 15% alpha and composites lighter than
+            // anything else in the sidebar.
+            //
+            // The border is not optional with this fill. Input defaults to
+            // `border-transparent` and only colours it on focus, which works
+            // when the field is lighter than its surroundings; bg-card is
+            // exactly the sidebar's own background, so with no border the
+            // field would have no edge at all at rest.
+            className="border-border bg-card pl-9 [&::-webkit-search-cancel-button]:appearance-none"
           />
         </div>
         {/* Also scrolls: the four hugging pills total ~293px, which no longer
