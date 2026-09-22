@@ -439,10 +439,19 @@ export function SpriteCatalogBrowser({
 
                   <div className="h-[0.5px] w-full bg-border" />
 
-                  {/* Horizontally scrollable: tiles keep a fixed size rather than
-                      shrinking to fit, so families with four variants overflow and
-                      scroll instead of squeezing down at narrow sidebar widths. */}
-                  <div className="no-scrollbar -mx-3 flex items-center gap-2 overflow-x-auto px-3 py-2">
+                  {/* Two behaviours, because the two widths want opposite things.
+
+                      Beside the map the panel is narrow and draggable, so tiles
+                      keep a fixed 72px and the row scrolls — squeezing five
+                      tiles into 264px would leave them too small to read the
+                      art in. The -mx-3/px-3 pair makes the row full-bleed so it
+                      clips at the panel edge rather than 12px short of it.
+
+                      On a phone the catalog has the whole screen, so the row
+                      drops its padding to reach both edges and the tiles flex
+                      to fill it: five tiles and four 8px gaps across the full
+                      width, no scrolling and nothing cut off. */}
+                  <div className="no-scrollbar -mx-3 flex items-center gap-2 overflow-x-auto px-3 py-2 max-md:overflow-x-visible max-md:px-0">
                     {VARIANT_SLOTS.map((slot) => {
                       const v = group.variants.find((x) => variantKey(x.variant) === slot);
                       // Not every family ships all five variants (Mega Man has only
@@ -453,7 +462,7 @@ export function SpriteCatalogBrowser({
                           <div
                             key={slot}
                             data-slot="variant-slot-empty"
-                            className="flex w-[72px] shrink-0 flex-col items-center gap-1"
+                            className="flex w-[72px] shrink-0 flex-col items-center gap-1 max-md:w-auto max-md:flex-1 max-md:shrink"
                           >
                             {/* Colour-coded like a real tile's caption, so the
                                 five columns stay identifiable straight down
@@ -506,7 +515,7 @@ export function SpriteCatalogBrowser({
                           data-status={status}
                           onClick={() => cycleStatus(v.id)}
                           aria-label={`${displayName(v.name)}: ${status}, click to change`}
-                          className="group flex w-[72px] shrink-0 flex-col items-center gap-1 rounded-sm outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/30"
+                          className="group flex w-[72px] shrink-0 flex-col items-center gap-1 rounded-sm outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/30 max-md:w-auto max-md:flex-1 max-md:shrink"
                         >
                           {/* Caption carries its variant's colour whether or
                               not the sprite is collected, so the row reads as
