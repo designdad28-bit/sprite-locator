@@ -130,7 +130,10 @@ const MOBILE_CTA_HEIGHT = 68;
  * the mastery bar), so it now marks two things rather than one.
  */
 const ADD_FINDING_STYLE =
-  "bg-sprite-gold text-card hover:bg-sprite-gold/90 focus-visible:ring-sprite-gold/40";
+  // font-normal, not Button's own font-medium: this is matched to the search
+  // field opposite it, which is a plain 400. The two are the app's only
+  // full-width-ish controls and a weight apart read as a mismatch.
+  "bg-sprite-gold text-card font-normal hover:bg-sprite-gold/90 focus-visible:ring-sprite-gold/40";
 
 function clampSidebarWidth(width: number) {
   const ceiling = Math.min(SIDEBAR_MAX_WIDTH, Math.round(window.innerWidth / 2));
@@ -593,7 +596,7 @@ export default function Home() {
               setAddKey((k) => k + 1);
               setAddOpen(true);
             }}
-            className={cn("pointer-events-auto h-11 gap-2 px-6 font-medium shadow-lg", ADD_FINDING_STYLE)}
+            className={cn("pointer-events-auto h-11 gap-2 px-6 shadow-lg", ADD_FINDING_STYLE)}
           >
             <MapPin className="size-4" strokeWidth={1.875} />
             Add finding
@@ -623,7 +626,7 @@ export default function Home() {
               setAddKey((k) => k + 1);
               setAddOpen(true);
             }}
-            className={cn("h-11 w-full gap-2 font-medium", ADD_FINDING_STYLE)}
+            className={cn("h-11 w-full gap-2", ADD_FINDING_STYLE)}
           >
             <MapPin className="size-4" strokeWidth={1.875} />
             Add finding

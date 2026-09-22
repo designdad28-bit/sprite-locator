@@ -342,10 +342,10 @@ export function SpriteCatalogBrowser({
                               it opens that Sprite's detail panel, so it reads
                               as part of the title rather than as a second map
                               control beside the Radar. */}
-                          {/* 20px glyph, matching the Radar opposite it — at
-                              14px it was both the smallest mark in the app and
-                              the thinnest, since a 24-unit viewBox drawn that
-                              small renders a 0.875px stroke.
+                          {/* 12px glyph. Stroke 2.5 rather than the 1.5 a
+                              20px icon takes, so it still lands on the app's
+                              one ink weight: 2.5 x 12/24 = 1.25px, the same
+                              as every other icon.
 
                               Targets: 32px on desktop, clearing the 28x28pt
                               macOS recommendation, and 44px on a phone for
@@ -365,9 +365,9 @@ export function SpriteCatalogBrowser({
                             data-slot="sprite-details"
                             onClick={() => onSelect(baseVariant.id)}
                             aria-label={`${group.family} details`}
-                            className="-my-1.5 -ml-1.5 text-muted-foreground max-md:-my-3 max-md:-ml-2.5 max-md:size-11"
+                            className="-my-1.5 -ml-2.5 text-muted-foreground max-md:-my-3 max-md:-ml-3.5 max-md:size-11"
                           >
-                            <Info className="size-5" strokeWidth={1.5} />
+                            <Info className="size-3" strokeWidth={2.5} />
                           </Button>
                         </span>
                         <span className="flex items-center gap-3">
