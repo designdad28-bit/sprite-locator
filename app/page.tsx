@@ -67,6 +67,17 @@ const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
 /** Remembers whether demo findings are switched on. */
 const DEMO_MODE_KEY = "sprite-radar:demo-mode";
 
+/**
+ * Demo findings exist for development only and are not deployed.
+ *
+ * They are synthetic — one invented sighting per Sprite (see
+ * lib/demo-findings.ts) — and the live site must never offer a way to put data
+ * nobody logged on the map, whatever a visitor's localStorage happens to hold.
+ * Next inlines NODE_ENV at build time, so the toggle and the findings it makes
+ * are both dead code in a production bundle.
+ */
+const DEMO_AVAILABLE = process.env.NODE_ENV !== "production";
+
 /** Below Tailwind's `md`, so JS and the `max-md:` classes agree on the breakpoint. */
 const MOBILE_QUERY = "(max-width: 767px)";
 
@@ -185,8 +196,11 @@ export default function Home() {
    * stored value is applied just after, in the effect.
    */
   const isMobile = useIsMobile();
-  const [demoMode, setDemoMode] = useState(false);
+  const [storedDemoMode, setDemoMode] = useState(false);
+  // Never on in production, however the stored value was left.
+  const demoMode = DEMO_AVAILABLE && storedDemoMode;
   useEffect(() => {
+    if (!DEMO_AVAILABLE) return;
     // Read synchronously, NOT deferred to requestAnimationFrame.
     //
     // Deferring was the original shape here, purely to satisfy
@@ -200,6 +214,7 @@ export default function Home() {
   }, []);
 
   function toggleDemoMode() {
+    if (!DEMO_AVAILABLE) return;
     const next = !demoMode;
     window.localStorage.setItem(DEMO_MODE_KEY, next ? "1" : "0");
     setDemoMode(next);
@@ -545,10 +560,12 @@ export default function Home() {
           </Select>
           )}
 
-          {/* Always present, so the mode can be left as easily as it is
-              entered — but it never looks the same in both states. Lit and
-              labelled while on, because the map is then showing data nobody
-              logged and that must not be a quiet state. */}
+          {/* Always present in development, so the mode can be left as easily
+              as it is entered — but it never looks the same in both states.
+              Lit and labelled while on, because the map is then showing data
+              nobody logged and that must not be a quiet state. Absent in
+              production entirely. */}
+          {DEMO_AVAILABLE && (
           <Button
             variant="outline"
             onClick={toggleDemoMode}
@@ -561,6 +578,7 @@ export default function Home() {
             <FlaskConical strokeWidth={1.5} />
             {demoMode ? "Demo data — on" : "Demo data"}
           </Button>
+          )}
           </div>
         </div>
 
