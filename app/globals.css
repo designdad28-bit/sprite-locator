@@ -365,9 +365,11 @@
 
 .sprite-pin__body {
   fill: var(--pin-color);
-  /* A dark keyline so the pin holds its shape on any terrain, including
-     terrain of its own colour; the drop shadow lifts it off the island. */
-  stroke: rgb(0 0 0 / 0.55);
+  /* A white keyline, not a dark one: the marker's own colour is the only
+     colour inside it too now (see .sprite-pin__art below), so the outline
+     is what still separates the pin from terrain of its own colour. The
+     drop shadow does the rest of the lifting off the island. */
+  stroke: rgb(255 255 255 / 0.9);
   stroke-width: 1.5;
   filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.5));
 }
@@ -402,8 +404,11 @@
   aspect-ratio: 1;
   border-radius: 9999px;
   overflow: hidden;
-  background: color-mix(in oklch, var(--pin-color), black 18%);
-  box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.85);
+  /* The marker's own colour, and nothing else: no darker shade behind the
+     art, no white ring around it — the pin's colour is the only colour that
+     shows, whether that's the art itself or the sliver of gutter around a
+     non-square icon. */
+  background: var(--pin-color);
   /* Leaflet's own leaflet.css sets `.leaflet-map-pane svg { z-index: 200; }`
      for ITS vector-overlay panes — but that selector is just "any svg inside
      the map pane", so it also caught our decorative .sprite-pin__svg (which
