@@ -185,7 +185,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           size="icon-sm"
           onClick={onBack}
           aria-label="Close"
-          className="material absolute top-3 right-3 z-10 rounded-full text-muted-foreground hover:bg-card hover:text-foreground max-md:size-11 dark:bg-transparent"
+          className="material absolute top-3 right-3 z-10 rounded-full text-muted-foreground hover:brightness-125 hover:text-foreground max-md:size-11"
         >
           <X strokeWidth={1.5} />
         </Button>

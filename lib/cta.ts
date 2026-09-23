@@ -16,10 +16,11 @@
  * mastered tile ring, the mastery bar), so it marks two things.
  */
 export const ADD_FINDING_STYLE =
-  // gold-light (globals.css): top-lit gradient and a one-time sheen. The glow
-  // beneath is the button's own gold, so it reads as lit rather than shadowed.
-  // Press scales down a touch, the way a physical key gives.
-  "gold-light bg-sprite-gold text-card shadow-[0_10px_28px_-10px_var(--sprite-gold)] hover:brightness-[1.06] hover:shadow-[0_12px_32px_-8px_var(--sprite-gold)] active:scale-[0.97] focus-visible:ring-sprite-gold/40";
+  // Flat gold fill, no glow: xAI's own filled button (the one white-on-black
+  // exception to its outline-pill system) carries no shadow either — a solid
+  // fill and a 1px border are the whole treatment. Press scales down a touch,
+  // the way a physical key gives.
+  "bg-sprite-gold text-card border border-black/10 hover:brightness-[1.06] active:scale-[0.97] focus-visible:ring-sprite-gold/40";
 
 /**
  * The stroke the primary action's icon takes, where the app's baseline is

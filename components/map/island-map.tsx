@@ -950,11 +950,11 @@ export default function IslandMap({
             3px ring at ring/30 plus a border, so map controls focused
             differently from every other control in the app. */}
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon-lg"
           onClick={resetView}
           aria-label="Reset view"
-          className="material rounded-full text-muted-foreground hover:bg-card hover:text-foreground dark:bg-transparent"
+          className="material rounded-full text-muted-foreground hover:brightness-125 hover:text-foreground"
         >
           <RotateCcw className="size-5" strokeWidth={1.5} />
         </Button>

@@ -518,7 +518,10 @@ export default function Home() {
           >
             <SelectTrigger
               aria-label="Filter the map by variant"
-              className="material pointer-events-auto h-11 gap-2 rounded-xl px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-card dark:bg-transparent"
+              // !bg-card: SelectTrigger's own bg-input/50 sits later in the generated
+              // stylesheet than the material utility's background-color, so it wins
+              // the cascade at equal specificity without this override.
+              className="material !bg-card pointer-events-auto h-11 gap-2 rounded-xl px-4 py-2 text-sm font-medium text-foreground hover:brightness-125"
             >
               <SelectValue>
                 {(value: string) => {
@@ -564,11 +567,11 @@ export default function Home() {
               production entirely. */}
           {DEMO_AVAILABLE && (
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={toggleDemoMode}
             aria-pressed={demoMode}
             className={cn(
-              "material pointer-events-auto h-11 rounded-xl hover:bg-card dark:bg-transparent",
+              "material pointer-events-auto h-11 rounded-xl hover:brightness-125",
               demoMode ? "border-sprite-gold/60 text-sprite-gold" : "text-muted-foreground"
             )}
           >

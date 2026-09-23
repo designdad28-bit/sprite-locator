@@ -526,30 +526,25 @@ export function SpriteCatalogBrowser({
                 : "Unknown";
               return (
                 <section key={section.rarity ?? "unknown"} id={sectionId(section.rarity)} aria-label={`${label} Sprites`}>
-                  {/* An iOS-style sticky section header, in the app's own
-                      material: the list's surface frosted behind it, tinted
-                      from the rarity's colour at the leading edge and fading
-                      out across the row, so the colour reads as light cast
-                      on the header rather than paint on a bar.
+                  {/* An iOS-style sticky section header — flat, solid --card,
+                      one hairline border along the bottom. No blur, no
+                      gradient wash: xAI's surfaces carry elevation with a
+                      hairline, never a glow (see DESIGN.md's Don'ts).
 
                       -mx-4 px-4 runs it edge to edge while the label keeps
                       the list's 16px line. top-[-16px] cancels the pane's
                       own pt-4 so it pins flush to the pane's top edge.
 
-                      The rarity's colour lives in three places, each doing
-                      one job: the gem (identity), the wash (which section
-                      you are in, even at a glance while scrolling), and a
-                      hairline along the bottom (where the header ends and
-                      the list begins). The label itself stays foreground —
-                      colour carries the category, type carries the name. */}
+                      The label stays foreground; the rarity's colour lives
+                      only on the scrubber's gems now — colour marks identity
+                      there, type carries the name here. */}
                   <div
                     data-slot="rarity-header"
-                    className="sticky top-[-16px] z-10 -mx-4 mt-4 mb-2 flex h-11 items-center gap-2.5 px-4 backdrop-blur-xl backdrop-saturate-150"
-                    style={{
-                      backgroundImage: `linear-gradient(90deg, color-mix(in oklch, ${accent.solid} 38%, transparent), color-mix(in oklch, ${accent.solid} 10%, transparent) 55%, transparent)`,
-                      backgroundColor: "color-mix(in oklch, var(--card) 78%, transparent)",
-                      boxShadow: `inset 0 -1px 0 color-mix(in oklch, ${accent.solid} 55%, transparent)`,
-                    }}
+                    // Flat and solid, no frosted glass and no colour wash: xAI's
+                    // surfaces carry elevation with a hairline border, never a
+                    // blur or a gradient glow (see DESIGN.md). The rarity's
+                    // colour still marks the section, just on the gem alone.
+                    className="sticky top-[-16px] z-10 -mx-4 mt-4 mb-2 flex h-11 items-center gap-2.5 border-b border-border bg-card px-4"
                   >
                     <span className="text-sm font-semibold tracking-[0.02em] text-foreground">{label}</span>
                     <span className="text-xs font-medium tabular-nums text-muted-foreground">
