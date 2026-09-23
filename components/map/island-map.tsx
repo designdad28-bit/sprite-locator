@@ -351,21 +351,30 @@ function makeIcon(
   size: number,
   offset: [number, number]
 ) {
-  const inner = icon
-    ? `<span class="sprite-marker__badge"><img src="${icon}" alt="" /></span>`
-    : `<span class="sprite-marker__dot"></span>`;
+  // A location pin, drawn in a 60x80 box: a solid teardrop in the variant's
+  // colour, the Sprite's art in a circle in its head, and a ground ring under
+  // the tip — the ring is where the pin touches the island, so the tip (not
+  // the head) is what sits on the coordinate. The ring carries the ping.
+  const height = Math.round((size * 80) / 60);
+  const art = icon
+    ? `<span class="sprite-pin__art"><img src="${icon}" alt="" /></span>`
+    : "";
   return L.divIcon({
     className: "sprite-marker-wrapper",
     html: `
-      <span class="sprite-marker ${isNew ? "sprite-marker--new" : ""}" style="--marker-fill:${accent};--marker-ring:${accent};--marker-size:${size}px">
-        <span class="sprite-marker__ping"></span>
-        ${inner}
+      <span class="sprite-pin ${isNew ? "sprite-pin--new" : ""}" style="--pin-color:${accent};width:${size}px;height:${height}px">
+        <svg class="sprite-pin__svg" viewBox="0 0 60 80" aria-hidden="true">
+          <ellipse class="sprite-pin__ping" cx="30" cy="72" rx="20" ry="6.5" />
+          <ellipse class="sprite-pin__ground" cx="30" cy="72" rx="20" ry="6.5" />
+          <path class="sprite-pin__body" d="M30 72C30 72 4 46 4 28A26 26 0 1 1 56 28C56 46 30 72 30 72Z" />
+        </svg>
+        ${art}
       </span>
     `,
-    iconSize: [size, size],
-    // The anchor is the point in the icon pinned to the coordinate, so shifting
-    // it the other way slides the pin out to its place in the ring.
-    iconAnchor: [size / 2 - offset[0], size / 2 - offset[1]],
+    iconSize: [size, height],
+    // The tip, at (30, 72) of the 60x80 box, is pinned to the coordinate;
+    // shifting the anchor the other way slides the pin to its cluster slot.
+    iconAnchor: [size / 2 - offset[0], (height * 72) / 80 - offset[1]],
   });
 }
 
