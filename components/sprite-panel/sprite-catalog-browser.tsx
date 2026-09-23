@@ -2,18 +2,18 @@
 
 import { useMemo, useState, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Radar, Info, Search, Ban, Crown, X, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Radar, Info, Search, X, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
 import { rarityAccent } from "@/lib/rarity";
 import { displayName } from "@/lib/sprite-name";
-import { VARIANT_SLOTS, variantGradient, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
-import { spriteIconScale } from "@/lib/sprite-icon-metrics";
+import { VARIANT_SLOTS, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { Button } from "@/components/ui/button";
 import { RarityGem } from "@/components/rarity-gem";
 import { Input } from "@/components/ui/input";
 import { BorderBeam } from "border-beam";
+import { SpriteTileArt } from "@/components/sprite-catalog/sprite-tile";
 import { MasterySummary } from "./mastery-summary";
 import { cn } from "@/lib/utils";
 
@@ -86,6 +86,85 @@ function HoverBeam({
   );
 }
 
+/**
+ * One Sprite in the sidebar grid.
+ *
+ * The tile itself is the map toggle: click to pin this Sprite's sightings,
+ * again to clear them. Shown tiles carry a Radar-blue ring and badge — the
+ * same colour the Radar used, so "on the map" means one thing everywhere.
+ * On a phone there is no map, so the tile opens the profile instead.
+ *
+ * The profile (with the variant row where collected / mastered is set) opens
+ * from the Info button in the corner: revealed on hover or keyboard focus on
+ * desktop, always visible on touch screens, which have no hover.
+ */
+function GridTile({
+  sprite,
+  status,
+  shown,
+  onToggleShown,
+  onOpen,
+}: {
+  sprite: NormalizedSprite;
+  status: string;
+  shown: boolean;
+  onToggleShown: () => void;
+  onOpen: () => void;
+}) {
+  const name = displayName(sprite.name);
+  return (
+    <div className="group/tile relative flex min-w-0 flex-col gap-1.5">
+      <button
+        type="button"
+        data-slot="grid-tile"
+        aria-pressed={shown}
+        aria-label={`${name}: ${shown ? "hide from" : "show on"} the map`}
+        onClick={() => (window.matchMedia("(max-width: 767px)").matches ? onOpen() : onToggleShown())}
+        className="group flex flex-col gap-1.5 rounded-sm text-left outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/30 active:scale-[0.96] transition-transform motion-reduce:transition-none"
+      >
+        <span
+          className={cn(
+            "block rounded-[6px] transition-shadow duration-200",
+            shown && "ring-2 ring-sprite-radar-active ring-offset-2 ring-offset-card"
+          )}
+        >
+          <HoverBeam>
+            <SpriteTileArt sprite={sprite} status={status} />
+          </HoverBeam>
+        </span>
+        <span className="flex min-w-0 flex-col leading-tight">
+          <span
+            className="text-2xs font-semibold tracking-[0.06em] uppercase"
+            style={{ color: variantLabelColor(sprite.variant) ?? undefined }}
+          >
+            {variantLabel(sprite.variant)}
+          </span>
+          <span className="truncate text-xs font-medium text-foreground">{sprite.family}</span>
+        </span>
+      </button>
+
+      {shown && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute top-1.5 left-1.5 z-10 flex size-6 items-center justify-center rounded-full bg-sprite-radar-active text-white shadow-md"
+        >
+          <Radar className="size-3.5" strokeWidth={2.14} />
+        </span>
+      )}
+
+      <button
+        type="button"
+        data-slot="sprite-details"
+        aria-label={`${name} profile`}
+        onClick={onOpen}
+        className="absolute top-1 right-1 z-10 flex size-7 items-center justify-center rounded-full bg-black/45 text-white opacity-0 backdrop-blur-sm transition-opacity duration-150 outline-none group-hover/tile:opacity-100 hover:bg-black/65 focus-visible:opacity-100 focus-visible:ring-3 focus-visible:ring-ring/40 [@media(hover:none)]:opacity-100 after:absolute after:-inset-2 after:content-['']"
+      >
+        <Info className="size-3.5" strokeWidth={2.14} />
+      </button>
+    </div>
+  );
+}
+
 /** DOM id of a rarity's section, for the header scrubber to scroll to. */
 function sectionId(rarity: string | null) {
   return `rarity-${rarity ?? "unknown"}`;
@@ -96,10 +175,6 @@ const container = {
   show: { transition: { staggerChildren: 0.05, delayChildren: 0.08 } },
 };
 
-const item = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } },
-};
 
 interface SpriteFamilyGroup {
   family: string;
@@ -162,12 +237,13 @@ export function SpriteCatalogBrowser({
   const [query, setQuery] = useState("");
   const [rarityPill, setRarityPill] = useState<string | null>(null); // null = no filter = show all (the default view)
   const { sprites, loading, error, reload } = useSpriteCatalog();
-  const { getStatus, cycleStatus } = useCollectionStatus();
+  const { getStatus } = useCollectionStatus();
 
   // Only Sprites the current season's live config actually makes obtainable
   // — vaulted/rotated-out/unreleased entries never show up in the browsable
   // catalog at all (they're still in sprites.json for reference, just not here).
   const liveSprites = useMemo(() => sprites.filter((s) => s.currentlyLive), [sprites]);
+  const shownCount = liveSprites.filter((s) => visibleSpriteIds.has(s.id)).length;
   const groups = useMemo(() => {
     const byFamily = groupByFamily(liveSprites);
     return byFamily.sort((a, b) => {
@@ -300,6 +376,25 @@ export function SpriteCatalogBrowser({
             strokeWidth={1.875}
           />
         </div>
+
+        {/* Only once you've picked: how many are on the map, and the way back
+            to all of them. Hidden on a phone, where there is no map. */}
+        {liveSprites.length > 0 && shownCount < liveSprites.length && (
+          <div className="mt-2 flex items-center justify-between gap-3 rounded-full bg-sprite-radar-active/12 py-1 pr-1 pl-4 max-md:hidden">
+            <span className="flex items-center gap-2 text-sm text-foreground">
+              <Radar className="size-4 text-sprite-radar-active" strokeWidth={1.875} />
+              {shownCount === 0 ? "Nothing on the map" : `${shownCount} on the map`}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onSetVisibility(liveSprites.map((o) => o.id), true)}
+              className="rounded-full text-sprite-radar-active hover:text-foreground"
+            >
+              Show all
+            </Button>
+          </div>
+        )}
         {/* Also scrolls: the four hugging pills total ~293px, which no longer
             fits the 252px of content width at a 280px sidebar. */}
         {/* -mx-4 px-4: full-bleed to the panel edge so the row clips there rather
@@ -394,340 +489,6 @@ export function SpriteCatalogBrowser({
       {!loading && !error && (
         <motion.div variants={container} initial="hidden" animate="show">
           {(() => {
-            const renderCard = (group: SpriteFamilyGroup) => {
-            const baseVariant = group.variants.find((v) => v.variant === null) ?? group.variants[0];
-            // One Radar per Sprite, covering every variant it has: findings are
-            // stored against the variant that was actually found, so "show
-            // Jonesy" means all of Jonesy's ids. Narrowing to a single variant
-            // is the map's own filter (see app/page.tsx), not a per-tile
-            // control — it is one choice about the map rather than 101 of them.
-            const isShown = group.variants.some((v) => visibleSpriteIds.has(v.id));
-            // Out of the variants this family actually has, not a flat four —
-            // Mega Man ships only its base one, so it reads (0/1).
-            const masteredInSet = group.variants.filter((v) => getStatus(v.id) === "mastered").length;
-
-            return (
-              <motion.div key={group.family} variants={item}>
-                <div className="rounded-lg py-0.5">
-                  {/* Header: purely informational — not clickable/hoverable, per design. Only the Radar/Info icons act. */}
-                  <div className="flex items-center justify-between py-1">
-                    <span className="flex min-w-0 items-center">
-                      {group.icon ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={group.icon}
-                          alt=""
-                          className="size-14 md:size-16 shrink-0 object-contain"
-                          // Every icon is a 512x512 square, but the artwork inside fills
-                          // 71%-92% of it depending on the Sprite — so equal boxes alone
-                          // still render visibly unequal sprites. See scripts/measure-sprite-icons.py.
-                          style={{ transform: `scale(${spriteIconScale(baseVariant.id)})` }}
-                        />
-                      ) : (
-                        <span className="size-14 md:size-16 shrink-0 rounded-md bg-input/30" />
-                      )}
-                      <span className="flex min-w-0 flex-col items-start justify-center gap-0.5">
-                        <span className="flex min-w-0 items-center gap-1.5">
-                          <span className="truncate font-heading text-xl font-medium leading-[1.15] text-foreground">
-                            {group.family}
-                          </span>
-                          {/* Sits right next to the name it describes — it
-                              opens that Sprite's detail panel, so it reads as
-                              part of the title rather than a second map
-                              control beside the Radar.
-
-                              12px glyph, stroke 2.5 rather than the 1.5 a 20px
-                              icon takes, so it still lands on the app's one
-                              ink weight: 2.5 x 12/24 = 1.25px, same as every
-                              other icon.
-
-                              size-[23px]: the button's own box, matched to
-                              the family name's rendered line-height (20px x
-                              1.15), now the same at every breakpoint. Visually
-                              that is below foundations/accessibility.md's
-                              minimums (28x28pt macOS, 44x44pt iOS), so the hit
-                              area is extended past the visible box — see the
-                              ::after below.
-
-                              No negative margins. Those existed to pull a
-                              PADDED 32px/44px button back into a compact row
-                              without growing it — with size="icon-xs" there is
-                              no padding left to pull back from, so the same
-                              offsets just dragged the glyph onto the name's own
-                              text instead. The row's existing gap-1.5 (6px) is
-                              now the only spacing between them, matching every
-                              other icon-next-to-text pairing in the app. */}
-                          <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            data-slot="sprite-details"
-                            onClick={() => onSelect(baseVariant.id)}
-                            aria-label={`${group.family} details`}
-                            // The visible box stays at the name's line-height, but
-                            // the ::after extends the hit area 10px each way to
-                            // 43px — clearing the accessibility minimum the
-                            // visible box alone could not.
-                            className="relative size-[23px] text-muted-foreground after:absolute after:-inset-2.5 after:content-['']"
-                          >
-                            <Info className="size-3" strokeWidth={2.5} />
-                          </Button>
-                        </span>
-                        {/* The rarity badge that lived here is gone — rarity is
-                            now said once per group, by the coloured header
-                            above it, rather than repeated on every card. That
-                            leaves the dots as the row's only content, so they
-                            sit flush under the name instead of trailing a
-                            badge.
-                            One dot per variant SLOT, in VARIANT_SLOTS order, so
-                            a dot's position tells you which variant it stands
-                            for: the second dot is always gold, the fifth
-                            always bounty hunter. That is why all five are
-                            always drawn, even for a family that doesn't have
-                            all five — dropping the missing ones would shift
-                            every dot after them onto the wrong variant. Slots
-                            the family has no variant for are dimmed instead,
-                            the same thing the dashed tile and its Ban icon say
-                            further down the card. */}
-                        <span
-                          className="flex h-4 items-center gap-1"
-                          role="img"
-                          aria-label={`${masteredInSet} of ${group.variants.length} mastered`}
-                        >
-                          {VARIANT_SLOTS.map((slot) => {
-                            const v = group.variants.find((x) => variantKey(x.variant) === slot);
-                            const mastered = v ? getStatus(v.id) === "mastered" : false;
-                            return (
-                              <span
-                                key={slot}
-                                data-slot="mastery-dot"
-                                data-state={!v ? "absent" : mastered ? "mastered" : "unmastered"}
-                                className={cn(
-                                  "size-2 rounded-full",
-                                  mastered
-                                    ? "bg-sprite-gold"
-                                    : v
-                                      ? "bg-muted-foreground/40"
-                                      : "bg-muted-foreground/15"
-                                )}
-                              />
-                            );
-                          })}
-                        </span>
-                      </span>
-                    </span>
-                    <span className="flex shrink-0 items-center gap-2">
-                      {/* Same reasoning as Info above: a 20px glyph was a 20px
-                          target. -mr-1.5 keeps the glyph on the 12px gutter
-                          now that the button carries padding of its own. */}
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        data-slot="toggle-findings"
-                        onClick={() => onSetVisibility(group.variants.map((v) => v.id), !isShown)}
-                        aria-pressed={isShown}
-                        aria-label={
-                          isShown
-                            ? `Hide ${group.family} findings on the map`
-                            : `Show ${group.family} findings on the map`
-                        }
-                        className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
-                      >
-                        <Radar className="size-5" strokeWidth={1.5} />
-                      </Button>
-                    </span>
-                  </div>
-
-                  <div className="h-[0.5px] w-full bg-border" />
-
-                  {/* Two behaviours, because the two widths want opposite things.
-
-                      Beside the map the panel is narrow and draggable, so tiles
-                      keep a fixed 80px and the row scrolls — squeezing five
-                      tiles into 264px would leave them too small to read the
-                      art in. The -mx-4/px-4 pair makes the row full-bleed so it
-                      clips at the panel edge rather than 12px short of it.
-
-                      On a phone the catalog has the whole screen, so the tiles
-                      flex to fill the row instead of scrolling — but inside the
-                      same 12px gutter everything else sits on. Full width means
-                      the full CONTENT width; running the tiles to the screen
-                      edge would leave them the only thing in the app not
-                      aligned with the column above them. */}
-                  <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 py-2 max-md:overflow-x-visible">
-                    {VARIANT_SLOTS.map((slot) => {
-                      const v = group.variants.find((x) => variantKey(x.variant) === slot);
-                      // Not every family ships all five variants (Mega Man has only
-                      // the base one). Render a placeholder so the columns line up
-                      // and every tile is the same size.
-                      if (!v) {
-                        return (
-                          <div
-                            key={slot}
-                            data-slot="variant-slot-empty"
-                            className="flex w-20 shrink-0 flex-col items-center gap-1 max-md:w-auto max-md:flex-1 max-md:shrink"
-                          >
-                            {/* Colour-coded like a real tile's caption, so the
-                                five columns stay identifiable straight down
-                                the sidebar. Not dimmed: every variant colour
-                                falls below the 4.5:1 small-text floor once
-                                faded (indigo reaches 2.7:1 at 70%), and the
-                                dashed border and Ban icon below already say
-                                the variant doesn't exist. */}
-                            <span
-                              className="text-xs font-medium leading-5"
-                              style={{ color: variantLabelColor(slot === "normal" ? null : slot) ?? undefined }}
-                            >
-                              {variantLabel(slot)}
-                            </span>
-                            <span
-                              className="relative flex aspect-square w-full items-center justify-center rounded-sm border-[0.5px] border-dashed border-border bg-muted/40"
-                              aria-label={`${group.family} has no ${variantLabel(slot).toLowerCase()} variant`}
-                            >
-                              {/* Opaque, not muted-foreground/50. The Ban glyph
-                                  is one path whose slash crosses its own
-                                  circle, and at partial opacity that overlap
-                                  blends against itself — the crossing showed
-                                  as a brighter seam, so the line appeared to
-                                  continue through the ring.
-                                  color-mix resolves what 50% WOULD have looked
-                                  like over this tile, but as one opaque colour
-                                  and out of the theme's own tokens. It was a
-                                  hard-coded #506988 before, which no longer
-                                  tracked the palette. */}
-                              <Ban
-                                className="size-5"
-                                strokeWidth={1.5}
-                                style={{
-                                  color: "color-mix(in oklch, var(--muted-foreground), var(--card) 50%)",
-                                }}
-                              />
-                            </span>
-                          </div>
-                        );
-                      }
-                      const status = getStatus(v.id);
-                      const label = variantLabel(v.variant);
-                      const accent = variantGradient(v.variant);
-                      const isColored = status !== "default";
-                      return (
-                        <button
-                          key={v.id}
-                          type="button"
-                          data-slot="variant-tile"
-                          data-status={status}
-                          onClick={() => cycleStatus(v.id)}
-                          aria-label={`${displayName(v.name)}: ${status}, click to change`}
-                          className="group flex w-20 shrink-0 flex-col items-center gap-1 rounded-sm outline-none transition-transform duration-200 ease-out select-none focus-visible:ring-3 focus-visible:ring-ring/30 active:scale-[0.96] max-md:w-auto max-md:flex-1 max-md:shrink motion-reduce:transition-none"
-                        >
-                          {/* Caption carries its variant's colour whether or
-                              not the sprite is collected, so the row reads as
-                              a legend of the five variants rather than only
-                              labelling what you happen to own. Placeholder
-                              slots above stay dimmed — a family with no such
-                              variant has no fill to match. */}
-                          <span
-                            className="text-xs font-medium leading-5"
-                            style={{ color: variantLabelColor(v.variant) ?? undefined }}
-                          >
-                            {label}
-                          </span>
-                          <HoverBeam>
-                          <span
-                            className={cn(
-                              // outline, not border: outlines paint outside the box and
-                              // take no layout space, so thickening one on hover can't
-                              // nudge the tile's contents (the crown especially).
-                              "relative block aspect-square w-full overflow-clip rounded-sm outline -outline-offset-1 transition-all duration-200 ease-out",
-                              // No outline change on hover — hover is conveyed by the
-                              // image coming to full color and scaling up. The gold
-                              // outline is reserved for mastered, so it reads as the
-                              // top of the ladder rather than just "collected".
-                              status === "mastered"
-                                ? "outline-2 outline-sprite-gold"
-                                : "outline-[0.5px] outline-border",
-                              // Collected tiles cast a shadow so they sit above
-                              // the panel rather than flush in it — the fill
-                              // alone reads as a swatch painted on the surface.
-                              // Two layers: a tight one for the contact edge
-                              // and a wider, softer one for the cast. Both are
-                              // black rather than a tinted shadow, because the
-                              // panel is already dark and a coloured shadow
-                              // muddies into it instead of darkening it.
-                              isColored &&
-                                "shadow-[0_1px_2px_rgba(0,0,0,0.55),0_6px_14px_-4px_rgba(0,0,0,0.65)]",
-                              // Uncollected tiles share the empty-slot fill (see the
-                              // variant-slot-empty branch above), so "nothing here yet"
-                              // and "not collected yet" read as the same weight.
-                              !isColored && "bg-muted/40"
-                            )}
-                            style={isColored ? { background: accent ?? undefined } : undefined}
-                          >
-                            {v.icon ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={v.icon}
-                                alt={displayName(v.name)}
-                                className={cn(
-                                  "absolute inset-0 size-full object-cover transition-all duration-150 group-hover:scale-110",
-                                  // Uncollected sprites read as black-and-white, and come
-                                  // up to full color on hover.
-                                  !isColored && "sprite-unowned group-hover:[filter:none]"
-                                )}
-                                // Same visual-mass scale as the heading art, so tiles
-                                // match each other across families too. Composes with
-                                // the hover's `scale` property rather than replacing it.
-                                //
-                                // Collected tiles stand the Sprite on a glossy floor:
-                                // the art stays centred in the tile at 92% (just
-                                // enough in from full size that the feet clear the
-                                // tile's bottom edge), and -webkit-box-reflect
-                                // mirrors it beneath, fading
-                                // from 40% opacity at the feet to nothing. -13px pulls
-                                // the reflection up over the icon's own transparent
-                                // bottom margin so it meets the feet rather than
-                                // floating below them. The tile's overflow-clip keeps
-                                // it inside the container. The reflection belongs to
-                                // the image, so it follows the hover zoom too.
-                                // Browsers without box-reflect (Firefox) simply show
-                                // the lifted Sprite with no reflection.
-                                style={
-                                  isColored
-                                    ? ({
-                                        transform: `scale(${spriteIconScale(v.id) * 0.92})`,
-                                        WebkitBoxReflect:
-                                          "below -13px linear-gradient(transparent 52%, rgb(255 255 255 / 0.4))",
-                                      } as CSSProperties)
-                                    : { transform: `scale(${spriteIconScale(v.id)})` }
-                                }
-                              />
-                            ) : (
-                              <span className="absolute inset-0 bg-input/30" />
-                            )}
-                            {status === "mastered" && (
-                              // Sits over the sprite's head rather than in a corner badge.
-                              // The drop shadow keeps it legible on the lighter variant
-                              // backgrounds (gold especially).
-                              <Crown
-                                aria-hidden
-                                // Lucide's Crown ships two paths: the crown itself and a
-                                // separate base bar ("M5 21h14"). Hide the bar rather than
-                                // hand-authoring a trimmed copy of the icon.
-                                className="absolute top-1 left-1/2 size-5 -translate-x-1/2 text-sprite-gold drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)] [&>path:last-child]:hidden"
-                                strokeWidth={1.5}
-                                fill="currentColor"
-                              />
-                            )}
-                          </span>
-                          </HoverBeam>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </motion.div>
-            );
-            };
-
             // One section per rarity run. `filtered` is already rarity-sorted
             // and filtering never reorders it, so adjacent runs are the
             // sections. Each is its own element so its header can be sticky
@@ -739,6 +500,11 @@ export function SpriteCatalogBrowser({
               if (last && last.rarity === group.rarity) last.groups.push(group);
               else sections.push({ rarity: group.rarity, groups: [group] });
             });
+
+            // The map starts with every Sprite on it. While that's so, no tile
+            // is marked as "shown" (101 rings would say nothing) and the first
+            // click picks rather than removes.
+            const allShown = shownCount === liveSprites.length;
 
             return sections.map((section) => {
               const accent = rarityAccent(section.rarity);
@@ -815,7 +581,36 @@ export function SpriteCatalogBrowser({
                       })}
                     </nav>
                   </div>
-                  {section.groups.map((group) => renderCard(group))}
+                  {/* Every Sprite in the section as one grid — each variant its
+                      own tile, families kept together in slot order (base,
+                      gold, cheat, hacker, bounty). auto-fill at 84px gives
+                      three columns at the default sidebar width, four on a
+                      phone and as the sidebar is dragged wider. */}
+                  <div className="grid grid-cols-[repeat(auto-fill,minmax(84px,1fr))] gap-x-2 gap-y-3 pb-2">
+                    {section.groups.flatMap((group) =>
+                      VARIANT_SLOTS.map((slot) => group.variants.find((v) => variantKey(v.variant) === slot))
+                        .filter((v): v is NormalizedSprite => !!v)
+                        .map((v) => (
+                          <GridTile
+                            key={v.id}
+                            sprite={v}
+                            status={getStatus(v.id)}
+                            shown={!allShown && visibleSpriteIds.has(v.id)}
+                            onToggleShown={() =>
+                              allShown
+                                ? // Everything is on the map by default, so the
+                                  // first pick solos: clear the rest, keep this.
+                                  onSetVisibility(
+                                    liveSprites.filter((o) => o.id !== v.id).map((o) => o.id),
+                                    false
+                                  )
+                                : onSetVisibility([v.id], !visibleSpriteIds.has(v.id))
+                            }
+                            onOpen={() => onSelect(v.id)}
+                          />
+                        ))
+                    )}
+                  </div>
                 </section>
               );
             });

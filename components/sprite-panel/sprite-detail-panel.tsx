@@ -12,6 +12,8 @@ import { VARIANT_SLOTS, variantKey, variantLabel, variantLabelColor } from "@/li
 import { cn } from "@/lib/utils";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
+import { SpriteTileArt } from "@/components/sprite-catalog/sprite-tile";
+import { useCollectionStatus } from "@/hooks/use-collection-status";
 import { RarityGem } from "@/components/rarity-gem";
 
 /**
@@ -123,6 +125,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 
 export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPanelProps) {
   const { getSprite, sprites } = useSpriteCatalog();
+  const { getStatus, cycleStatus } = useCollectionStatus();
   const sprite = getSprite(spriteId);
 
   if (!sprite) {
@@ -136,7 +139,13 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
     );
   }
 
-  const accent = rarityAccent(sprite.rarity);
+  // The catalog files every variant as "special"; rarity proper (rare /
+  // epic / legendary / mythic) lives on the family's base Sprite. The profile
+  // now opens on any variant, so it takes the family's rarity — the same one
+  // the sidebar grid sorts it under — rather than a sixth, variant-only tier.
+  const familyBase = sprites.find((s) => s.family === sprite.family && s.variant === null);
+  const rarity = familyBase?.rarity ?? sprite.rarity;
+  const accent = rarityAccent(rarity);
   const sightingCount = findings.filter((f) => f.spriteId === spriteId).length;
   const dropRateEntries = sprite.dropRates ? Object.entries(sprite.dropRates) : [];
   // Authored copy first (see lib/sprite-abilities.ts), then the catalog's.
@@ -242,7 +251,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           <span data-slot="rarity-badge" className="mt-1.5 flex shrink-0 items-center gap-2">
             <RarityGem color={accent.solid} />
             <span className="text-sm font-semibold text-foreground">
-              {sprite.rarity ? sprite.rarity.charAt(0).toUpperCase() + sprite.rarity.slice(1) : "Unknown"}
+              {rarity ? rarity.charAt(0).toUpperCase() + rarity.slice(1) : "Unknown"}
             </span>
           </span>
         </div>
@@ -267,6 +276,46 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           from opposite ends, one of them a heading over the words "Coming
           soon". Folded into one, so a placeholder costs a row rather than a
           whole section. */}
+      {/* The one place collection is set: the sidebar grid is for finding
+          Sprites on the map, the profile is for your own record of them. Tap a
+          variant to mark it collected, again for mastered, again to clear. The
+          variant open in this profile is ringed, so you can see which of the
+          five you came in on. */}
+      <Section title="Variants">
+        <div className="grid grid-cols-5 gap-2">
+          {familyVariants.map((v) => {
+            const status = getStatus(v.id);
+            return (
+              <button
+                key={v.id}
+                type="button"
+                data-slot="variant-tile"
+                data-status={status}
+                onClick={() => cycleStatus(v.id)}
+                aria-label={`${displayName(v.name)}: ${status}, tap to change`}
+                className="group flex min-w-0 flex-col items-center gap-1.5 rounded-sm outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/30 active:scale-[0.96] transition-transform motion-reduce:transition-none"
+              >
+                <span
+                  className={cn(
+                    "block w-full rounded-[6px]",
+                    v.id === spriteId && "ring-2 ring-foreground/70 ring-offset-2 ring-offset-card"
+                  )}
+                >
+                  <SpriteTileArt sprite={v} status={status} />
+                </span>
+                <span
+                  className="text-2xs font-semibold tracking-[0.06em] uppercase"
+                  style={{ color: variantLabelColor(v.variant) ?? undefined }}
+                >
+                  {variantLabel(v.variant)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">Tap once for collected, twice for mastered.</p>
+      </Section>
+
       <Section title="Locations">
         <Row
           label={sightingCount === 1 ? "Sighting logged" : "Sightings logged"}
