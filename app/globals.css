@@ -404,6 +404,14 @@
   overflow: hidden;
   background: color-mix(in oklch, var(--pin-color), black 18%);
   box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.85);
+  /* Leaflet's own leaflet.css sets `.leaflet-map-pane svg { z-index: 200; }`
+     for ITS vector-overlay panes — but that selector is just "any svg inside
+     the map pane", so it also caught our decorative .sprite-pin__svg (which
+     never declared a z-index of its own). At 200 it painted above this art
+     layer, hiding the Sprite's face completely behind the solid teardrop —
+     not a missing image, an invisible one. 201 clears it; nothing else in
+     the pin stack sets a z-index this high. */
+  z-index: 201;
 }
 
 .sprite-pin__art img {
