@@ -86,8 +86,12 @@ function PoiLabels({ pois, worldSize, nativeZoom }: { pois: Poi[]; worldSize: nu
  * shrink as the ring grows so the cluster stays roughly the size of a single
  * pin. All of this is screen-space: a cluster looks the same at every zoom.
  */
-const MARKER_BASE_SIZE = 60;
-const MARKER_MIN_SIZE = 26;
+// 46, not the old round marker's 60: the pin is a 60x80 box (see makeIcon),
+// so 60 here made an 80px-tall pin — visibly bigger than the marker it
+// replaced even though it was meant to read at the same scale. 46 gives a
+// 46x61 pin, closer to the old marker's footprint.
+const MARKER_BASE_SIZE = 46;
+const MARKER_MIN_SIZE = 22;
 /** Clear space between neighbouring pins in a ring. */
 const MARKER_GAP = 3;
 /**
