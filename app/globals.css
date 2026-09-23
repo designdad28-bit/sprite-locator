@@ -128,49 +128,52 @@
 
 .dark {
   /* --------------------------------------------------------------------
-     xAI DESIGN.md, adapted: a near-black neutral canvas (their #0a0a0a),
-     pure-white ink, and translucent-white hairlines standing in for their
-     border colour — instead of this app's previous navy-tinted (hue 256)
-     surfaces. What's DELIBERATELY NOT adopted: xAI's own restraint to a
-     single accent colour. Sprite Radar's rarity hues, the five variant
-     colours, mastery gold and radar-active blue are functional, not
-     decorative — they're how a rarity or a variant is told apart at a
-     glance, the same job xAI's own accent palette does inside its product
-     illustrations rather than on page chrome (DESIGN.md's own accent tokens
-     "live in the design tokens but appear rarely" on the marketing surface).
-     Those all stay untouched below; only the neutral scaffolding changes.
-     -------------------------------------------------------------------- */
-  --background: oklch(0.06 0 0);
-  --foreground: oklch(1 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(1 0 0);
-  --popover: oklch(0.16 0.002 250);
-  --popover-foreground: oklch(1 0 0);
-  --primary: oklch(1 0 0);
-  --primary-foreground: oklch(0.06 0 0);
-  --secondary: oklch(0.16 0.002 250);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.16 0.002 250);
-  --muted-foreground: oklch(0.56 0.006 250);
-  --accent: oklch(0.16 0.002 250);
-  --accent-foreground: oklch(1 0 0);
+     xAI DESIGN.md's STRUCTURE, Tailwind SLATE's colour: flat surfaces,
+     hairline borders, one filled-button exception, no glow — everything
+     this app took from DESIGN.md stays. What changes is which neutral
+     family fills it in. xAI's own canvas is achromatic (#0a0a0a, zero
+     chroma); Slate is Tailwind's built-in cool-grey scale, referenced by
+     var() rather than pasted hex so it tracks the installed Tailwind
+     version. --card is slate-900, --popover/--muted/--accent one step up
+     at slate-800 (the same relative spacing the achromatic version used),
+     --foreground/--primary slate-50, --muted-foreground slate-400.
+     Sprite Radar's rarity hues, the five variant colours, mastery gold and
+     radar-active blue are functional, not decorative, and stay untouched
+     regardless of which neutral family sits behind them. */
+  --background: var(--color-slate-950);
+  --foreground: var(--color-slate-50);
+  --card: var(--color-slate-900);
+  --card-foreground: var(--color-slate-50);
+  --popover: var(--color-slate-800);
+  --popover-foreground: var(--color-slate-50);
+  --primary: var(--color-slate-50);
+  --primary-foreground: var(--color-slate-950);
+  --secondary: var(--color-slate-800);
+  --secondary-foreground: var(--color-slate-50);
+  --muted: var(--color-slate-800);
+  --muted-foreground: var(--color-slate-400);
+  --accent: var(--color-slate-800);
+  --accent-foreground: var(--color-slate-50);
   --destructive: oklch(0.704 0.191 22.216);
+  /* Still a translucent-white hairline, not a solid slate tone: at low alpha
+     over any slate surface it reads as the same neutral edge DESIGN.md's own
+     button-outline spec calls for, without needing its own step in the scale. */
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(1 0 0);
+  --ring: var(--color-slate-50);
   --chart-1: oklch(0.872 0.03 256);
   --chart-2: oklch(0.58 0.07 256);
   --chart-3: oklch(0.45 0.09 256);
   --chart-4: oklch(0.378 0.095 256);
   --chart-5: oklch(0.3 0.085 256);
-  --sidebar: oklch(0.145 0 0);
-  --sidebar-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(1 0 0);
-  --sidebar-primary-foreground: oklch(0.06 0 0);
-  --sidebar-accent: oklch(0.16 0.002 250);
-  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar: var(--color-slate-900);
+  --sidebar-foreground: var(--color-slate-50);
+  --sidebar-primary: var(--color-slate-50);
+  --sidebar-primary-foreground: var(--color-slate-950);
+  --sidebar-accent: var(--color-slate-800);
+  --sidebar-accent-foreground: var(--color-slate-50);
   --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(1 0 0);
+  --sidebar-ring: var(--color-slate-50);
   /* Two washes of light off the top of each panel, the move that keeps a dark
      ground from reading heavy. Alpha so they layer over --card; applied via
      .panel-wash below. A deeper blue and a cyan, set either side of the
