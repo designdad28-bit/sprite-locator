@@ -398,9 +398,13 @@
    60x80 box, i.e. 70% of the width, starting 15% in and 8.75% down. */
 .sprite-pin__art {
   position: absolute;
-  left: 15%;
-  top: 8.75%;
-  width: 70%;
+  /* The head is a circle of radius 26 centred at (30, 28) of the 60x80 box
+     (see .sprite-pin__body's path) — 86.7% of the pin's width. This sits
+     just inside that at 80%, leaving a slight 2px ring of the pin's own
+     colour showing at the head's rim rather than filling it edge to edge. */
+  left: 10%;
+  top: 5%;
+  width: 80%;
   aspect-ratio: 1;
   border-radius: 9999px;
   overflow: hidden;
