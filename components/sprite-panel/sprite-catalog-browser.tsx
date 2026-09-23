@@ -87,10 +87,10 @@ function HoverBeam({
 }
 
 /**
- * One Sprite in the sidebar grid.
+ * One Sprite family in the sidebar grid, drawn with its base art.
  *
- * The tile itself is the map toggle: click to pin this Sprite's sightings,
- * again to clear them. Shown tiles carry a Radar-blue ring and badge — the
+ * The tile itself is the map toggle: click to pin the sightings of every
+ * variant in the family, again to clear them. Shown tiles carry a Radar-blue ring and badge — the
  * same colour the Radar used, so "on the map" means one thing everywhere.
  * On a phone there is no map, so the tile opens the profile instead.
  *
@@ -101,17 +101,20 @@ function HoverBeam({
 function GridTile({
   sprite,
   status,
+  variantStatuses,
   shown,
   onToggleShown,
   onOpen,
 }: {
   sprite: NormalizedSprite;
   status: string;
+  /** Per variant slot, in slot order; null where the family has no such variant. */
+  variantStatuses: (string | null)[];
   shown: boolean;
   onToggleShown: () => void;
   onOpen: () => void;
 }) {
-  const name = displayName(sprite.name);
+  const name = sprite.family;
   return (
     <div className="group/tile relative flex min-w-0 flex-col gap-1.5">
       <button
@@ -132,14 +135,24 @@ function GridTile({
             <SpriteTileArt sprite={sprite} status={status} />
           </HoverBeam>
         </span>
-        <span className="flex min-w-0 flex-col leading-tight">
-          <span
-            className="text-2xs font-semibold tracking-[0.06em] uppercase"
-            style={{ color: variantLabelColor(sprite.variant) ?? undefined }}
-          >
-            {variantLabel(sprite.variant)}
+        <span className="flex min-w-0 flex-col gap-1">
+          <span className="truncate text-sm font-medium text-foreground">{name}</span>
+          {/* Your record across the family at a glance, one dot per variant
+              in slot order: gold mastered, light collected, dim not yet. Set
+              in the profile, not here. */}
+          <span className="flex items-center gap-1" aria-hidden>
+            {variantStatuses.map((st, i) =>
+              st === null ? null : (
+                <span
+                  key={i}
+                  className={cn(
+                    "size-1.5 rounded-full",
+                    st === "mastered" ? "bg-sprite-gold" : st === "default" ? "bg-input" : "bg-foreground/70"
+                  )}
+                />
+              )
+            )}
           </span>
-          <span className="truncate text-xs font-medium text-foreground">{sprite.family}</span>
         </span>
       </button>
 
@@ -581,35 +594,40 @@ export function SpriteCatalogBrowser({
                       })}
                     </nav>
                   </div>
-                  {/* Every Sprite in the section as one grid — each variant its
-                      own tile, families kept together in slot order (base,
-                      gold, cheat, hacker, bounty). auto-fill at 84px gives
-                      three columns at the default sidebar width, four on a
-                      phone and as the sidebar is dragged wider. */}
+                  {/* One tile per Sprite, its base art. The tile is the map
+                      activator for the whole family — all five variants'
+                      sightings together; the variants themselves live in the
+                      profile. auto-fill at 84px: three columns at the default
+                      sidebar width, four on a phone and as it's dragged wider. */}
                   <div className="grid grid-cols-[repeat(auto-fill,minmax(84px,1fr))] gap-x-2 gap-y-3 pb-2">
-                    {section.groups.flatMap((group) =>
-                      VARIANT_SLOTS.map((slot) => group.variants.find((v) => variantKey(v.variant) === slot))
-                        .filter((v): v is NormalizedSprite => !!v)
-                        .map((v) => (
-                          <GridTile
-                            key={v.id}
-                            sprite={v}
-                            status={getStatus(v.id)}
-                            shown={!allShown && visibleSpriteIds.has(v.id)}
-                            onToggleShown={() =>
-                              allShown
-                                ? // Everything is on the map by default, so the
-                                  // first pick solos: clear the rest, keep this.
-                                  onSetVisibility(
-                                    liveSprites.filter((o) => o.id !== v.id).map((o) => o.id),
-                                    false
-                                  )
-                                : onSetVisibility([v.id], !visibleSpriteIds.has(v.id))
-                            }
-                            onOpen={() => onSelect(v.id)}
-                          />
-                        ))
-                    )}
+                    {section.groups.map((group) => {
+                      const base = group.variants.find((v) => v.variant === null) ?? group.variants[0];
+                      const ids = group.variants.map((v) => v.id);
+                      const shown = !allShown && ids.some((id) => visibleSpriteIds.has(id));
+                      return (
+                        <GridTile
+                          key={group.family}
+                          sprite={base}
+                          status={getStatus(base.id)}
+                          variantStatuses={VARIANT_SLOTS.map((slot) => {
+                            const v = group.variants.find((o) => variantKey(o.variant) === slot);
+                            return v ? getStatus(v.id) : null;
+                          })}
+                          shown={shown}
+                          onToggleShown={() =>
+                            allShown
+                              ? // Everything is on the map by default, so the
+                                // first pick solos: clear every other family.
+                                onSetVisibility(
+                                  liveSprites.filter((o) => !ids.includes(o.id)).map((o) => o.id),
+                                  false
+                                )
+                              : onSetVisibility(ids, !shown)
+                          }
+                          onOpen={() => onSelect(base.id)}
+                        />
+                      );
+                    })}
                   </div>
                 </section>
               );
