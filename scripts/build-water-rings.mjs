@@ -4,23 +4,23 @@
  * match Fortnite's own in-game map as vector shapes.
  *
  * What Fortnite draws (measured from an in-game map screenshot, beach
- * outward, at ~962px per unit of map width):
- *   surf line  #26beef  ~2px, hugging the sand
- *   shallows   #1395d8  ~15-40px, lumpy
- *   mid        #0f5eb3  ~25-40px
- *   deep       #0e477f  the widest, in big irregular lobes, darkening
- *                       outward to #0a3e68 before it meets the background
- * Each is a flat colour with a crisp edge. The widths vary all the way round,
- * and small puddles of one colour float inside the next: the pattern is
- * organic, not a set of even offset rings.
+ * outward, at ~962px per unit of map width): TWO water colours plus a rim.
+ *   rim    #26beef  ~2px, a bright line right on the sand
+ *   light  #1395d8  out to ~30px from the beach
+ *   dark   #0f5eb3  out to ~60px
+ * Beyond that is the game's own background, not water. Both bands are offset
+ * curves of the coastline: they follow every peninsula and bay, with convex
+ * corners rounded and bays narrower than the offset filled in. The light band
+ * hugs the coast closely; the dark band echoes it in broader scallops. Flat
+ * colours, crisp edges, no randomness.
  *
- * How it's reproduced: a scalar field g = (distance from the land, smoothed)
- * + (smooth noise). Each layer is the region g <= its level, traced with
- * marching squares into every loop it has (outer edges, holes and puddles
- * alike, filled even-odd). Smoothing the distance keeps edges round; the
- * noise gives the uneven widths and the puddles. Traced here, once, rather
- * than rendered as live SVG filters, because browsers rasterise big blurs at
- * low resolution and the edges stair-step when zoomed.
+ * How it's reproduced: the exact Euclidean distance from the land, blurred a
+ * little (more for the dark band, so it's smoother), and each band is the
+ * region within its distance, traced with marching squares into vector loops.
+ * Traced here, once, rather than rendered as live SVG filters, because
+ * browsers rasterise big blurs at low resolution and the edges stair-step
+ * when zoomed. A noise term is still supported per layer (`noise`, `detail`)
+ * but set to zero: Fortnite's bands don't wander.
  *
  * Deterministic (seeded noise), so re-running gives the same shapes. Re-run
  * whenever lib/map/land-outline.ts is re-traced:
@@ -40,10 +40,13 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
  * is fine wobble rather than big lobes.
  */
 const LAYERS = JSON.parse(process.env.WATER_LAYERS || "null") ?? [
-  { name: "deep", color: "#0e477f", level: 0.092, smooth: 0.03, noise: 0.042, detail: 0.12 },
-  { name: "mid", color: "#0f5eb3", level: 0.056, smooth: 0.022, noise: 0.028, detail: 0.3 },
-  { name: "shallows", color: "#1395d8", level: 0.024, smooth: 0.014, noise: 0.018, detail: 0.4 },
-  { name: "surf", color: "#26beef", level: 0.0028, smooth: 0, noise: 0 },
+  // dark band: ~60px out in the screenshot; smoother, so it echoes the
+  // island's big shapes in broad scallops
+  { name: "dark", color: "#0f5eb3", level: 0.062, smooth: 0.009, noise: 0 },
+  // light band: ~30px out; follows every peninsula and bay closely
+  { name: "light", color: "#1395d8", level: 0.03, smooth: 0.005, noise: 0 },
+  // the thin bright rim on the sand
+  { name: "surf", color: "#26beef", level: 0.0022, smooth: 0.0015, noise: 0 },
 ];
 
 /** Feature size of the noise, as a fraction of map width. */
@@ -270,7 +273,7 @@ function simplify(p, eps) {
 const toFraction = (p) => p.map(([x, y]) => [+((x - P) / S).toFixed(4), +((y - P) / S).toFixed(4)]);
 
 const layers = LAYERS.map((layer, i) => {
-  let g = blur(dist, layer.smooth * S);
+  let g = blur(dist, (layer.smooth || 0) * S);
   if (layer.noise) {
     const n = noiseField(1234 + i * 101, layer.detail ?? 0.3);
     g = Float32Array.from(g, (v, j) => v + n[j] * layer.noise);
