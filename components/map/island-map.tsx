@@ -18,7 +18,9 @@ import {
 } from "./map-provider";
 import { Finding } from "@/lib/findings";
 import { Poi } from "@/lib/map/pois";
-import { ISLAND_OUTLINE, isOnIsland } from "@/lib/map/island-outline";
+import { isOnIsland } from "@/lib/map/island-outline";
+import { LAND_OUTLINE } from "@/lib/map/land-outline";
+import { WATER_RING_OUTLINES } from "@/lib/map/water-rings";
 import { Button } from "@/components/ui/button";
 import { variantColor } from "@/lib/variant-colors";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
@@ -33,7 +35,7 @@ function islandFitBounds(worldSize: number, nativeZoom: number) {
   const cy = (ISLAND_BOUNDS.minY + ISLAND_BOUNDS.maxY) / 2;
   // Plus the water rings' reach past the coast (half the widest ring's
   // stroke), so the fitted view frames the rings too instead of cropping them.
-  const ringReach = WATER_RINGS[0].width / 2;
+  const ringReach = WATER_RING_REACH;
   const halfW = (ISLAND_BOUNDS.maxX - ISLAND_BOUNDS.minX) / 2 / ISLAND_FIT_SCALE + ringReach;
   const halfH = (ISLAND_BOUNDS.maxY - ISLAND_BOUNDS.minY) / 2 / ISLAND_FIT_SCALE + ringReach;
   return L.latLngBounds(
@@ -442,33 +444,6 @@ function clusterFindings(
  * filter default is linearRGB, which makes the falloff look bitten-into
  * rather than soft.
  */
-const COASTLINE_FEATHER = 0.020;
-
-/**
- * Pulls the cover further over the coast, so no raw void survives at the edge.
- *
- * A plain blur is symmetric about the traced outline: half the ramp lies
- * outside the coast, where the cover is what we want, and half lies inside it,
- * where the cover is only partly opaque and fortnite.gg's grey still shows
- * through as a thin ring. Tracing tighter would fix that but also eat into the
- * glow their tiles draw around the island, which is worth keeping.
- *
- * So rather than move the outline, the alpha ramp is re-mapped: alpha' =
- * slope * alpha + intercept, clamped. Solving slope * t + intercept = 0.5 puts
- * the ramp's halfway point at t = 0.115 of the original — that is, the cover
- * reaches to where the blur had only faded to 11.5%, well inside the coast.
- *
- * The intercept MUST stay at or below zero. It is added to every pixel, so a
- * positive one lifts fully transparent pixels off zero too: at slope 3.4 the
- * intercept came out at +0.11 and the island wore an 11% veil of the water
- * colour, measured as alpha 28 of 255 at its centre. Solving for the same
- * halfway point with a steeper slope keeps the intercept negative and the hole
- * a real hole. Steeper also means a harder edge, which is why the feather went
- * up alongside it — softness is roughly feather / slope.
- * The slope also steepens the ramp, which is why FEATHER above went up to
- * compensate: the visible softness is roughly feather / slope.
- */
-const COASTLINE_TIGHTEN = { slope: 4.35, intercept: 0 };
 
 /**
  * How far the mask image extends past the tile square, as a fraction of it.
@@ -485,14 +460,21 @@ const COASTLINE_TIGHTEN = { slope: 4.35, intercept: 0 };
  */
 const VOID_COVER_BLEED = 0.06;
 
+/**
+ * The cover's edge now follows LAND_OUTLINE (the beach), not ISLAND_OUTLINE
+ * (the outside of fortnite.gg's dark shoreline water), so their water is
+ * hidden and our rings meet the sand. Only a hairline of softening, in
+ * viewBox units, so the stair-stepped trace doesn't show as jaggies.
+ */
+const LAND_EDGE_FEATHER = 0.0012;
+
 const VOID_MASK_URL = (() => {
-  const island = ISLAND_OUTLINE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("") + "Z";
+  const island = LAND_OUTLINE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("") + "Z";
   const B = VOID_COVER_BLEED;
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${1 + 2 * B} ${1 + 2 * B}" preserveAspectRatio="none">` +
     `<filter id="f" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">` +
-    `<feGaussianBlur stdDeviation="${COASTLINE_FEATHER}"/>` +
-    `<feComponentTransfer><feFuncA type="linear" slope="${COASTLINE_TIGHTEN.slope}" intercept="${COASTLINE_TIGHTEN.intercept}"/></feComponentTransfer>` +
+    `<feGaussianBlur stdDeviation="${LAND_EDGE_FEATHER}"/>` +
     `</filter>` +
     // The outer rectangle runs past the viewBox on every side. Drawn flush to
     // it, the blur feathers ITS edges too, so the cover turned semi-transparent
@@ -504,36 +486,35 @@ const VOID_MASK_URL = (() => {
 })();
 
 /**
- * Fortnite's own map rings the island in water: a light cyan shallows band
- * hugging the coast, a mid-blue band outside that, and a deep-blue band
- * fading into the surround. Drawn here as the coastline stroked three times,
- * widest and darkest first, with round joins so the traced outline's corners
- * swell into the soft, blobby bands Fortnite draws rather than a stepped
- * copy of the coast.
+ * Fortnite's map rings the island in water: light cyan shallows right on the
+ * beach, a bright mid-blue band outside that, and a deeper blue band beyond,
+ * each a smooth, rounded, evenly spaced contour rather than a copy of the
+ * coastline.
  *
- * Same viewBox as VOID_MASK_URL so the two register exactly. The strokes are
- * centred on the coastline, so half of each lies over the island — the void
- * mask's hole hides that half, leaving only the water outside.
+ * The band shapes are precomputed vectors (lib/map/water-rings.ts, generated
+ * by scripts/build-water-rings.mjs), filled flat and painted outermost first,
+ * each covering the inner part of the one before. Vectors rather than live
+ * blur filters because browsers rasterise big blurs at reduced resolution,
+ * which left the edges stair-stepped when zoomed in. The void mask's hole
+ * hides whatever falls over the land itself.
  *
  * Colours are literal rather than theme tokens: a data-URI SVG can't read the
  * page's CSS variables. The surround behind them is still var(--map-field).
  */
-const WATER_RINGS = [
-  { width: 0.11, color: "#1d4fc9" },
-  { width: 0.07, color: "#2a86ee" },
-  { width: 0.032, color: "#5fd0ff" },
-];
+const WATER_RING_COLORS = ["#1f5fd4", "#2d8ff0", "#63cdf7"];
+
+/** How far the outermost band reaches past the coast, for fitting the view. */
+const WATER_RING_REACH = 0.066;
 
 const VOID_RINGS_URL = (() => {
-  const island = ISLAND_OUTLINE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("") + "Z";
   const B = VOID_COVER_BLEED;
+  const bands = WATER_RING_OUTLINES.map((poly, i) => {
+    const d = poly.map(([x, y], j) => `${j ? "L" : "M"}${x} ${y}`).join("") + "Z";
+    return `<path d="${d}" fill="${WATER_RING_COLORS[i]}"/>`;
+  }).join("");
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${1 + 2 * B} ${1 + 2 * B}" preserveAspectRatio="none">` +
-    `<filter id="s" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="0.0025"/></filter>` +
-    WATER_RINGS.map(
-      (r) =>
-        `<path d="${island}" fill="none" stroke="${r.color}" stroke-width="${r.width}" stroke-linejoin="round" stroke-linecap="round" filter="url(#s)"/>`
-    ).join("") +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${1 + 2 * B} ${1 + 2 * B}" preserveAspectRatio="none" shape-rendering="geometricPrecision">` +
+    bands +
     `</svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 })();
