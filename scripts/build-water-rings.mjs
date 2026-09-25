@@ -1,23 +1,29 @@
 #!/usr/bin/env node
 /**
- * Generates lib/map/water-rings.ts: the Fortnite-style water bands drawn
- * around the island, as smooth vector outlines.
+ * Generates lib/map/water-rings.ts: the water around the island, drawn to
+ * match Fortnite's own in-game map as vector shapes.
  *
- * Why precomputed vectors: the bands used to be SVG filters (blur, then a
- * threshold) applied live in the browser. Browsers rasterise large blur
- * filters at reduced resolution, so the band edges came out stair-stepped
- * when zoomed in. Doing the same blur-and-threshold here, once, and tracing
- * the result into paths gives edges that stay razor-sharp at every zoom.
+ * What Fortnite draws (measured from an in-game map screenshot, beach
+ * outward, at ~962px per unit of map width):
+ *   surf line  #26beef  ~2px, hugging the sand
+ *   shallows   #1395d8  ~15-40px, lumpy
+ *   mid        #0f5eb3  ~25-40px
+ *   deep       #0e477f  the widest, in big irregular lobes, darkening
+ *                       outward to #0a3e68 before it meets the background
+ * Each is a flat colour with a crisp edge. The widths vary all the way round,
+ * and small puddles of one colour float inside the next: the pattern is
+ * organic, not a set of even offset rings.
  *
- * How each band is made: rasterise LAND_OUTLINE onto a padded grid, blur it
- * with a Gaussian of sigma, and keep everything whose blurred value is at
- * least t. Outside a straight coast the blurred value is Phi(-d/sigma), so the
- * band's edge sits d = -sigma * Phi^-1(t) out from the beach, and any corner
- * or inlet narrower than about sigma is rounded away: smooth, evenly spaced
- * contours rather than copies of the coastline. The edge is then traced,
- * simplified, and softened with Chaikin corner-cutting.
+ * How it's reproduced: a scalar field g = (distance from the land, smoothed)
+ * + (smooth noise). Each layer is the region g <= its level, traced with
+ * marching squares into every loop it has (outer edges, holes and puddles
+ * alike, filled even-odd). Smoothing the distance keeps edges round; the
+ * noise gives the uneven widths and the puddles. Traced here, once, rather
+ * than rendered as live SVG filters, because browsers rasterise big blurs at
+ * low resolution and the edges stair-step when zoomed.
  *
- * Re-run whenever lib/map/land-outline.ts is re-traced:
+ * Deterministic (seeded noise), so re-running gives the same shapes. Re-run
+ * whenever lib/map/land-outline.ts is re-traced:
  *   node scripts/build-water-rings.mjs
  */
 import { readFileSync, writeFileSync } from "node:fs";
@@ -27,33 +33,32 @@ import { dirname, join } from "node:path";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 /**
- * Outermost first. sigma and d are fractions of the map's width.
- *
- * Each band is the UNION of two contours. "smooth" uses a large sigma, so it
- * only follows the island's big shapes and sweeps over small bays in long
- * curves, the way Fortnite's own bands do. But a large sigma also shrinks
- * away from thin peninsulas, so "margin" (a small sigma) guarantees the band
- * still clears every tip of land by at least its distance.
+ * Outermost first; each paints over the one before. `level` is the edge's
+ * distance from the coast (fraction of map width) before noise; `smooth` is
+ * the sigma the distance field is blurred by (bigger = rounder); `noise` is
+ * how far the noise can push the edge in or out; `detail` is how much of that
+ * is fine wobble rather than big lobes.
  */
-const BANDS = JSON.parse(process.env.RING_BANDS || "null") ?? [
-  // deep blue, the widest: smooth edge ~0.089 out, never closer than ~0.051
-  { smooth: { sigma: 0.06, threshold: 0.07 }, margin: { sigma: 0.025, threshold: 0.02 } },
-  // mid blue: ~0.038 out, never closer than ~0.017
-  { smooth: { sigma: 0.045, threshold: 0.2 }, margin: { sigma: 0.012, threshold: 0.08 } },
-  // light shallows, the thinnest: ~0.009 out, never closer than ~0.004
-  { smooth: { sigma: 0.03, threshold: 0.38 }, margin: { sigma: 0.006, threshold: 0.25 } },
+const LAYERS = JSON.parse(process.env.WATER_LAYERS || "null") ?? [
+  { name: "deep", color: "#0e477f", level: 0.092, smooth: 0.03, noise: 0.042, detail: 0.12 },
+  { name: "mid", color: "#0f5eb3", level: 0.056, smooth: 0.022, noise: 0.028, detail: 0.3 },
+  { name: "shallows", color: "#1395d8", level: 0.024, smooth: 0.014, noise: 0.018, detail: 0.4 },
+  { name: "surf", color: "#26beef", level: 0.0028, smooth: 0, noise: 0 },
 ];
 
+/** Feature size of the noise, as a fraction of map width. */
+const NOISE_SCALE = Number(process.env.WATER_NOISE_SCALE || 0.09);
+
 const S = 1024; // cells across the [0,1] map
-const P = 128; // padding cells, so the outer band isn't clipped at the edges
+const P = 200; // padding, so the outermost lobes aren't clipped
 const G = S + 2 * P;
 
 const src = readFileSync(join(ROOT, "lib/map/land-outline.ts"), "utf8");
 const body = src.slice(src.indexOf("= [") + 2, src.lastIndexOf("];") + 1);
 const land = JSON.parse(body.replace(/,\s*\]$/, "]"));
 
-// Rasterise the polygon (even-odd scanline fill, sampled at cell centres).
-const base = new Float32Array(G * G);
+// --- land raster (1 = land), even-odd scanline fill at cell centres ---
+const isLand = new Uint8Array(G * G);
 for (let gy = 0; gy < G; gy++) {
   const y = (gy - P + 0.5) / S;
   const xs = [];
@@ -66,16 +71,62 @@ for (let gy = 0; gy < G; gy++) {
   for (let k = 0; k + 1 < xs.length; k += 2) {
     const a = Math.max(0, Math.ceil(xs[k] * S + P - 0.5));
     const b = Math.min(G - 1, Math.floor(xs[k + 1] * S + P - 0.5));
-    for (let gx = a; gx <= b; gx++) base[gy * G + gx] = 1;
+    for (let gx = a; gx <= b; gx++) isLand[gy * G + gx] = 1;
   }
 }
 
-function blur(field, sigma) {
-  const r = Math.ceil(sigma * 3);
+// --- exact Euclidean distance to land (Felzenszwalb & Huttenlocher) ---
+const INF = 1e20;
+function dt1d(f, n) {
+  const d = new Float64Array(n);
+  const v = new Int32Array(n);
+  const z = new Float64Array(n + 1);
+  let k = 0;
+  v[0] = 0;
+  z[0] = -INF;
+  z[1] = INF;
+  for (let q = 1; q < n; q++) {
+    let s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+    while (s <= z[k]) {
+      k--;
+      s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+    }
+    k++;
+    v[k] = q;
+    z[k] = s;
+    z[k + 1] = INF;
+  }
+  k = 0;
+  for (let q = 0; q < n; q++) {
+    while (z[k + 1] < q) k++;
+    d[q] = (q - v[k]) * (q - v[k]) + f[v[k]];
+  }
+  return d;
+}
+const dist = new Float32Array(G * G);
+{
+  const tmp = new Float64Array(G * G);
+  const col = new Float64Array(G);
+  for (let x = 0; x < G; x++) {
+    for (let y = 0; y < G; y++) col[y] = isLand[y * G + x] ? 0 : INF;
+    const d = dt1d(col, G);
+    for (let y = 0; y < G; y++) tmp[y * G + x] = d[y];
+  }
+  const row = new Float64Array(G);
+  for (let y = 0; y < G; y++) {
+    for (let x = 0; x < G; x++) row[x] = tmp[y * G + x];
+    const d = dt1d(row, G);
+    for (let x = 0; x < G; x++) dist[y * G + x] = Math.sqrt(d[x]) / S;
+  }
+}
+
+function blur(field, sigmaCells) {
+  if (sigmaCells <= 0) return field;
+  const r = Math.ceil(sigmaCells * 3);
   const k = [];
   let sum = 0;
   for (let i = -r; i <= r; i++) {
-    const v = Math.exp((-i * i) / (2 * sigma * sigma));
+    const v = Math.exp((-i * i) / (2 * sigmaCells * sigmaCells));
     k.push(v);
     sum += v;
   }
@@ -86,8 +137,8 @@ function blur(field, sigma) {
     for (let x = 0; x < G; x++) {
       let a = 0;
       for (let i = -r; i <= r; i++) {
-        const xx = x + i;
-        if (xx >= 0 && xx < G) a += field[y * G + xx] * k[i + r];
+        const xx = Math.min(G - 1, Math.max(0, x + i));
+        a += field[y * G + xx] * k[i + r];
       }
       tmp[y * G + x] = a;
     }
@@ -95,99 +146,106 @@ function blur(field, sigma) {
     for (let x = 0; x < G; x++) {
       let a = 0;
       for (let i = -r; i <= r; i++) {
-        const yy = y + i;
-        if (yy >= 0 && yy < G) a += tmp[yy * G + x] * k[i + r];
+        const yy = Math.min(G - 1, Math.max(0, y + i));
+        a += tmp[yy * G + x] * k[i + r];
       }
       out[y * G + x] = a;
     }
   return out;
 }
 
-const N4 = [
-  [1, 0],
-  [-1, 0],
-  [0, 1],
-  [0, -1],
-];
+// --- smooth, seeded value noise in [-1, 1] ---
+function makeNoise(seed) {
+  let s = seed >>> 0;
+  const rand = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296) * 2 - 1;
+  const cell = NOISE_SCALE * S;
+  const N = Math.ceil((G * 2.2) / cell) + 3;
+  const lattice = new Float32Array(N * N);
+  for (let i = 0; i < N * N; i++) lattice[i] = rand();
+  const fade = (t) => t * t * t * (t * (t * 6 - 15) + 10);
+  return (x, y) => {
+    const fx = x / cell;
+    const fy = y / cell;
+    const x0 = Math.floor(fx);
+    const y0 = Math.floor(fy);
+    const tx = fade(fx - x0);
+    const ty = fade(fy - y0);
+    const at = (i, j) => lattice[(j % N) * N + (i % N)];
+    const a = at(x0, y0) + (at(x0 + 1, y0) - at(x0, y0)) * tx;
+    const b = at(x0, y0 + 1) + (at(x0 + 1, y0 + 1) - at(x0, y0 + 1)) * tx;
+    return a + (b - a) * ty;
+  };
+}
+// Two octaves: big lobes plus finer wobble. `detail` is the fine octave's
+// share. Fortnite's outermost edge is big smooth lobes (low detail), while its
+// inner layers wobble more and break off into puddles (higher detail).
+function noiseField(seed, detail) {
+  const n1 = makeNoise(seed);
+  const n2 = makeNoise(seed + 7919);
+  const out = new Float32Array(G * G);
+  for (let y = 0; y < G; y++)
+    for (let x = 0; x < G; x++) out[y * G + x] = n1(x, y) * (1 - detail) + n2(x * 2.6, y * 2.6) * detail;
+  return out;
+}
 
-/** Union of thresholded fields, keep the largest region, crack-trace its edge. */
-function trace(parts) {
-  const m = new Uint8Array(G * G);
-  for (const [field, t] of parts) for (let i = 0; i < G * G; i++) if (field[i] >= t) m[i] = 1;
-
-  const lab = new Int32Array(G * G);
-  let best = 0;
-  let bestN = 0;
-  let id = 0;
-  for (let i = 0; i < G * G; i++) {
-    if (!m[i] || lab[i]) continue;
-    id++;
-    let n = 0;
-    const st = [i];
-    lab[i] = id;
-    while (st.length) {
-      const c = st.pop();
-      n++;
-      const x = c % G;
-      const y = (c / G) | 0;
-      for (const [dx, dy] of N4) {
-        const nx = x + dx;
-        const ny = y + dy;
-        if (nx < 0 || ny < 0 || nx >= G || ny >= G) continue;
-        const nc = ny * G + nx;
-        if (m[nc] && !lab[nc]) {
-          lab[nc] = id;
-          st.push(nc);
-        }
+// --- marching squares: every loop of { g <= level } ---
+function contours(field, level) {
+  const inside = (i) => field[i] <= level;
+  const segs = new Map();
+  const pt = (x0, y0, x1, y1) => {
+    const a = field[y0 * G + x0] - level;
+    const b = field[y1 * G + x1] - level;
+    const t = a / (a - b);
+    return [x0 + (x1 - x0) * t, y0 + (y1 - y0) * t];
+  };
+  const key = (p) => `${p[0].toFixed(4)},${p[1].toFixed(4)}`;
+  const add = (p, q) => segs.set(key(p), [key(q), p]);
+  for (let y = 0; y < G - 1; y++)
+    for (let x = 0; x < G - 1; x++) {
+      const tl = inside(y * G + x);
+      const tr = inside(y * G + x + 1);
+      const br = inside((y + 1) * G + x + 1);
+      const bl = inside((y + 1) * G + x);
+      const c = (tl ? 8 : 0) | (tr ? 4 : 0) | (br ? 2 : 0) | (bl ? 1 : 0);
+      if (c === 0 || c === 15) continue;
+      const T = () => pt(x, y, x + 1, y);
+      const R = () => pt(x + 1, y, x + 1, y + 1);
+      const B = () => pt(x, y + 1, x + 1, y + 1);
+      const L = () => pt(x, y, x, y + 1);
+      switch (c) {
+        case 1: add(L(), B()); break;
+        case 2: add(B(), R()); break;
+        case 3: add(L(), R()); break;
+        case 4: add(R(), T()); break;
+        case 5: add(L(), T()); add(R(), B()); break;
+        case 6: add(B(), T()); break;
+        case 7: add(L(), T()); break;
+        case 8: add(T(), L()); break;
+        case 9: add(T(), B()); break;
+        case 10: add(T(), R()); add(B(), L()); break;
+        case 11: add(T(), R()); break;
+        case 12: add(R(), L()); break;
+        case 13: add(R(), B()); break;
+        case 14: add(B(), L()); break;
       }
     }
-    if (n > bestN) {
-      bestN = n;
-      best = id;
+  const loops = [];
+  while (segs.size) {
+    const [startKey, first] = segs.entries().next().value;
+    segs.delete(startKey);
+    const loop = [first[1]];
+    let nextKey = first[0];
+    let guard = 0;
+    while (nextKey !== startKey && guard++ < 5_000_000) {
+      const seg = segs.get(nextKey);
+      if (!seg) break;
+      segs.delete(nextKey);
+      loop.push(seg[1]);
+      nextKey = seg[0];
     }
+    if (loop.length >= 8) loops.push(loop);
   }
-  for (let i = 0; i < G * G; i++) m[i] = lab[i] === best ? 1 : 0;
-
-  const at = (x, y) => x >= 0 && y >= 0 && x < G && y < G && m[y * G + x] === 1;
-  let sx = -1;
-  let sy = -1;
-  outer: for (let y = 0; y < G; y++)
-    for (let x = 0; x < G; x++)
-      if (at(x, y)) {
-        sx = x;
-        sy = y;
-        break outer;
-      }
-
-  const V = [
-    [1, 0],
-    [0, 1],
-    [-1, 0],
-    [0, -1],
-  ];
-  const right = (x, y, d) => (d === 0 ? [x, y] : d === 1 ? [x - 1, y] : d === 2 ? [x - 1, y - 1] : [x, y - 1]);
-  const left = (x, y, d) => (d === 0 ? [x, y - 1] : d === 1 ? [x, y] : d === 2 ? [x - 1, y] : [x - 1, y - 1]);
-  const pts = [];
-  let x = sx;
-  let y = sy;
-  let dir = 0;
-  let steps = 0;
-  do {
-    pts.push([x, y]);
-    for (const turn of [3, 0, 1, 2]) {
-      const nd = (dir + turn) % 4;
-      const [rx, ry] = right(x, y, nd);
-      const [lx, ly] = left(x, y, nd);
-      if (at(rx, ry) && !at(lx, ly)) {
-        dir = nd;
-        break;
-      }
-    }
-    x += V[dir][0];
-    y += V[dir][1];
-    steps++;
-  } while ((x !== sx || y !== sy) && steps < 2_000_000);
-  return pts;
+  return loops;
 }
 
 function simplify(p, eps) {
@@ -209,45 +267,42 @@ function simplify(p, eps) {
   return max > eps ? [...simplify(p.slice(0, idx + 1), eps).slice(0, -1), ...simplify(p.slice(idx), eps)] : [a, b];
 }
 
-function chaikin(p, iterations) {
-  for (let it = 0; it < iterations; it++) {
-    const q = [];
-    for (let i = 0; i < p.length; i++) {
-      const a = p[i];
-      const b = p[(i + 1) % p.length];
-      q.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25]);
-      q.push([a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]);
-    }
-    p = q;
-  }
-  return p;
-}
-
 const toFraction = (p) => p.map(([x, y]) => [+((x - P) / S).toFixed(4), +((y - P) / S).toFixed(4)]);
 
-const bands = BANDS.map(({ smooth, margin }) => {
-  const edge = trace([
-    [blur(base, smooth.sigma * S), smooth.threshold],
-    [blur(base, margin.sigma * S), margin.threshold],
-  ]);
-  return toFraction(simplify(chaikin(simplify(edge, 1.2), 3), 0.25));
+const layers = LAYERS.map((layer, i) => {
+  let g = blur(dist, layer.smooth * S);
+  if (layer.noise) {
+    const n = noiseField(1234 + i * 101, layer.detail ?? 0.3);
+    g = Float32Array.from(g, (v, j) => v + n[j] * layer.noise);
+  }
+  const loops = contours(g, layer.level)
+    .map((l) => toFraction(simplify(l, 0.35)))
+    .filter((l) => l.length >= 4);
+  return { name: layer.name, color: layer.color, loops };
 });
 
-const fmt = (poly) => "  [\n" + poly.map(([x, y]) => `    [${x}, ${y}],`).join("\n") + "\n  ],";
+const fmtLoop = (l) => "      [" + l.map(([x, y]) => `[${x},${y}]`).join(",") + "],";
 const out = `// GENERATED by scripts/build-water-rings.mjs from lib/map/land-outline.ts.
 // Do not edit by hand; re-run the script instead.
 //
-// The Fortnite-style water bands around the island, outermost first, as
-// closed polygons in the same [0,1] fraction space as LAND_OUTLINE. See the
-// script for how they're made (blur the land, threshold, trace, smooth).
-export const WATER_RING_OUTLINES: ReadonlyArray<ReadonlyArray<readonly [number, number]>> = [
-${bands.map(fmt).join("\n")}
+// The water around the island, matched to Fortnite's in-game map: layers
+// painted outermost first, each a set of closed loops (outer edges, holes and
+// puddles) in the same [0,1] fraction space as LAND_OUTLINE, to be filled
+// with the even-odd rule. See the script for how they're made.
+export interface WaterLayer {
+  name: string;
+  color: string;
+  loops: ReadonlyArray<ReadonlyArray<readonly [number, number]>>;
+}
+
+export const WATER_LAYERS: ReadonlyArray<WaterLayer> = [
+${layers
+  .map((l) => `  {\n    name: "${l.name}",\n    color: "${l.color}",\n    loops: [\n${l.loops.map(fmtLoop).join("\n")}\n    ],\n  },`)
+  .join("\n")}
 ];
+
+/** How far the outermost layer reaches past the coast, for fitting the view. */
+export const WATER_REACH = ${(LAYERS[0].level + LAYERS[0].noise).toFixed(3)};
 `;
 writeFileSync(join(ROOT, "lib/map/water-rings.ts"), out);
-console.log(
-  "water rings:",
-  bands.map((b) => `${b.length} pts`).join(", "),
-  "| reach past the island's left edge:",
-  bands.map((b) => Math.min(...b.map((p) => p[0])).toFixed(4)).join(", ")
-);
+console.log(layers.map((l) => `${l.name}: ${l.loops.length} loops, ${l.loops.reduce((a, b) => a + b.length, 0)} pts`).join(" | "));

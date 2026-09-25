@@ -20,7 +20,7 @@ import { Finding } from "@/lib/findings";
 import { Poi } from "@/lib/map/pois";
 import { isOnIsland } from "@/lib/map/island-outline";
 import { LAND_OUTLINE } from "@/lib/map/land-outline";
-import { WATER_RING_OUTLINES } from "@/lib/map/water-rings";
+import { WATER_LAYERS, WATER_REACH } from "@/lib/map/water-rings";
 import { Button } from "@/components/ui/button";
 import { variantColor } from "@/lib/variant-colors";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
@@ -35,7 +35,7 @@ function islandFitBounds(worldSize: number, nativeZoom: number) {
   const cy = (ISLAND_BOUNDS.minY + ISLAND_BOUNDS.maxY) / 2;
   // Plus the water rings' reach past the coast (half the widest ring's
   // stroke), so the fitted view frames the rings too instead of cropping them.
-  const ringReach = WATER_RING_REACH;
+  const ringReach = WATER_REACH;
   const halfW = (ISLAND_BOUNDS.maxX - ISLAND_BOUNDS.minX) / 2 / ISLAND_FIT_SCALE + ringReach;
   const halfH = (ISLAND_BOUNDS.maxY - ISLAND_BOUNDS.minY) / 2 / ISLAND_FIT_SCALE + ringReach;
   return L.latLngBounds(
@@ -457,8 +457,12 @@ function clusterFindings(
  * that distinction matters: scaling the mask up would drag the coastline hole
  * out with it and open a ring of void around the island. Widening the viewBox
  * leaves the hole exactly where it belongs and pads opaque white around it.
+ *
+ * 0.2 rather than the few percent the overhang alone needs: the cover also
+ * carries the water layers, whose outermost lobes reach well past the tile
+ * square, and anything outside the cover's box would be clipped.
  */
-const VOID_COVER_BLEED = 0.06;
+const VOID_COVER_BLEED = 0.2;
 
 /**
  * The cover's edge now follows LAND_OUTLINE (the beach), not ISLAND_OUTLINE
@@ -486,46 +490,28 @@ const VOID_MASK_URL = (() => {
 })();
 
 /**
- * Fortnite's map rings the island in water: light cyan shallows right on the
- * beach, a bright mid-blue band outside that, and a deeper blue band beyond,
- * each a smooth, rounded, evenly spaced contour rather than a copy of the
- * coastline.
+ * The water around the island, matched to Fortnite's own in-game map: a thin
+ * cyan surf line on the sand, lumpy light shallows, a mid blue, and a deep
+ * blue in big irregular lobes, each a flat colour with a crisp edge, with
+ * uneven widths and small puddles of one colour inside the next.
  *
- * The band shapes are precomputed vectors (lib/map/water-rings.ts, generated
- * by scripts/build-water-rings.mjs), filled flat and painted outermost first,
- * each covering the inner part of the one before. Vectors rather than live
- * blur filters because browsers rasterise big blurs at reduced resolution,
- * which left the edges stair-stepped when zoomed in. The void mask's hole
- * hides whatever falls over the land itself.
- *
- * Colours are literal rather than theme tokens: a data-URI SVG can't read the
- * page's CSS variables. The surround behind them is still var(--map-field).
+ * The shapes are generated vectors (lib/map/water-rings.ts, from
+ * scripts/build-water-rings.mjs, where the colours and measurements are
+ * documented), painted outermost first and filled even-odd so puddles and
+ * holes show through. Vectors rather than live filters, which browsers
+ * rasterise at low resolution. The void mask's hole hides whatever falls over
+ * the land itself.
  */
-const WATER_RING_COLORS = ["#1e56cf", "#2f86ea", "#5ecbf7"];
-
-/**
- * Fortnite's outermost band doesn't stop dead against the dark background, it
- * fades out. A blurred copy of the outer band under everything gives that
- * falloff. A live blur is fine here, unlike for the bands themselves: this
- * layer is meant to be soft, so its lower render resolution can't show.
- */
-const WATER_RING_GLOW = { sigma: 0.014, opacity: 0.55 };
-
-/** How far the outermost band reaches past the coast, for fitting the view. */
-const WATER_RING_REACH = 0.1;
-
 const VOID_RINGS_URL = (() => {
   const B = VOID_COVER_BLEED;
-  const paths = WATER_RING_OUTLINES.map(
-    (poly) => poly.map(([x, y], j) => `${j ? "L" : "M"}${x} ${y}`).join("") + "Z"
-  );
-  const glow =
-    `<filter id="g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${WATER_RING_GLOW.sigma}"/></filter>` +
-    `<path d="${paths[0]}" fill="${WATER_RING_COLORS[0]}" opacity="${WATER_RING_GLOW.opacity}" filter="url(#g)"/>`;
-  const bands = glow + paths.map((d, i) => `<path d="${d}" fill="${WATER_RING_COLORS[i]}"/>`).join("");
+  const path = (loop: ReadonlyArray<readonly [number, number]>) =>
+    loop.map(([x, y], j) => `${j ? "L" : "M"}${x} ${y}`).join("") + "Z";
+  const layers = WATER_LAYERS.map(
+    (layer) => `<path fill-rule="evenodd" fill="${layer.color}" d="${layer.loops.map(path).join("")}"/>`
+  ).join("");
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${1 + 2 * B} ${1 + 2 * B}" preserveAspectRatio="none" shape-rendering="geometricPrecision">` +
-    bands +
+    layers +
     `</svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 })();
