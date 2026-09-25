@@ -31,8 +31,11 @@ import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-con
 function islandFitBounds(worldSize: number, nativeZoom: number) {
   const cx = (ISLAND_BOUNDS.minX + ISLAND_BOUNDS.maxX) / 2;
   const cy = (ISLAND_BOUNDS.minY + ISLAND_BOUNDS.maxY) / 2;
-  const halfW = (ISLAND_BOUNDS.maxX - ISLAND_BOUNDS.minX) / 2 / ISLAND_FIT_SCALE;
-  const halfH = (ISLAND_BOUNDS.maxY - ISLAND_BOUNDS.minY) / 2 / ISLAND_FIT_SCALE;
+  // Plus the water rings' reach past the coast (half the widest ring's
+  // stroke), so the fitted view frames the rings too instead of cropping them.
+  const ringReach = WATER_RINGS[0].width / 2;
+  const halfW = (ISLAND_BOUNDS.maxX - ISLAND_BOUNDS.minX) / 2 / ISLAND_FIT_SCALE + ringReach;
+  const halfH = (ISLAND_BOUNDS.maxY - ISLAND_BOUNDS.minY) / 2 / ISLAND_FIT_SCALE + ringReach;
   return L.latLngBounds(
     CRS.Simple.pointToLatLng(L.point((cx - halfW) * worldSize, (cy + halfH) * worldSize), nativeZoom),
     CRS.Simple.pointToLatLng(L.point((cx + halfW) * worldSize, (cy - halfH) * worldSize), nativeZoom)
@@ -501,6 +504,41 @@ const VOID_MASK_URL = (() => {
 })();
 
 /**
+ * Fortnite's own map rings the island in water: a light cyan shallows band
+ * hugging the coast, a mid-blue band outside that, and a deep-blue band
+ * fading into the surround. Drawn here as the coastline stroked three times,
+ * widest and darkest first, with round joins so the traced outline's corners
+ * swell into the soft, blobby bands Fortnite draws rather than a stepped
+ * copy of the coast.
+ *
+ * Same viewBox as VOID_MASK_URL so the two register exactly. The strokes are
+ * centred on the coastline, so half of each lies over the island — the void
+ * mask's hole hides that half, leaving only the water outside.
+ *
+ * Colours are literal rather than theme tokens: a data-URI SVG can't read the
+ * page's CSS variables. The surround behind them is still var(--map-field).
+ */
+const WATER_RINGS = [
+  { width: 0.11, color: "#1d4fc9" },
+  { width: 0.07, color: "#2a86ee" },
+  { width: 0.032, color: "#5fd0ff" },
+];
+
+const VOID_RINGS_URL = (() => {
+  const island = ISLAND_OUTLINE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("") + "Z";
+  const B = VOID_COVER_BLEED;
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${1 + 2 * B} ${1 + 2 * B}" preserveAspectRatio="none">` +
+    `<filter id="s" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="0.0025"/></filter>` +
+    WATER_RINGS.map(
+      (r) =>
+        `<path d="${island}" fill="none" stroke="${r.color}" stroke-width="${r.width}" stroke-linejoin="round" stroke-linecap="round" filter="url(#s)"/>`
+    ).join("") +
+    `</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+})();
+
+/**
  * Hides fortnite.gg's flat grey void by covering it with the app's own ground,
  * feathered along the coastline so the island blends out rather than ending on
  * the trace's staircase. See lib/map/island-outline.ts for why the grey can't
@@ -542,7 +580,8 @@ function IslandClip({ worldSize, nativeZoom }: { worldSize: number; nativeZoom: 
     Object.assign(cover.style, {
       position: "absolute",
       transformOrigin: "0 0",
-      background: "var(--map-field)",
+      // The water rings over the surround colour (see VOID_RINGS_URL).
+      background: `${VOID_RINGS_URL} 0 0 / 100% 100% no-repeat, var(--map-field)`,
       maskImage: VOID_MASK_URL,
       webkitMaskImage: VOID_MASK_URL,
       maskRepeat: "no-repeat",
