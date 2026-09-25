@@ -170,9 +170,11 @@
   --sidebar-ring: #ffc93c;
   /* The ink every pop outline and hard shadow is drawn in. */
   --pop-ink: #141c4a;
-  /* The primary action's yellow. The field around the island matches the sidebar (--card). */
+  /* The primary action's yellow. The field around the island is the water's
+     own dark blue — the same #0f5eb3 as the outer water band (see
+     lib/map/water-rings.ts), so the sea runs out to the edge of the map. */
   --pop-yellow: #ffc93c;
-  --map-field: var(--card);
+  --map-field: #0f5eb3;
   /* Two washes of light off the top of each panel, the move that keeps a dark
      ground from reading heavy. Alpha so they layer over --card; applied via
      .panel-wash below. A deeper blue and a cyan, set either side of the
