@@ -170,9 +170,9 @@
   --sidebar-ring: #ffc93c;
   /* The ink every pop outline and hard shadow is drawn in. */
   --pop-ink: #141c4a;
-  /* The primary action's yellow, and the ocean behind the island. */
+  /* The primary action's yellow, and the violet field around the island. */
   --pop-yellow: #ffc93c;
-  --map-field: #29a3ec;
+  --map-field: #5b3fd1;
   /* Two washes of light off the top of each panel, the move that keeps a dark
      ground from reading heavy. Alpha so they layer over --card; applied via
      .panel-wash below. A deeper blue and a cyan, set either side of the
