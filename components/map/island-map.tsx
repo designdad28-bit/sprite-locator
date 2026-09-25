@@ -501,17 +501,28 @@ const VOID_MASK_URL = (() => {
  * Colours are literal rather than theme tokens: a data-URI SVG can't read the
  * page's CSS variables. The surround behind them is still var(--map-field).
  */
-const WATER_RING_COLORS = ["#1f5fd4", "#2d8ff0", "#63cdf7"];
+const WATER_RING_COLORS = ["#1e56cf", "#2f86ea", "#5ecbf7"];
+
+/**
+ * Fortnite's outermost band doesn't stop dead against the dark background, it
+ * fades out. A blurred copy of the outer band under everything gives that
+ * falloff. A live blur is fine here, unlike for the bands themselves: this
+ * layer is meant to be soft, so its lower render resolution can't show.
+ */
+const WATER_RING_GLOW = { sigma: 0.014, opacity: 0.55 };
 
 /** How far the outermost band reaches past the coast, for fitting the view. */
-const WATER_RING_REACH = 0.066;
+const WATER_RING_REACH = 0.1;
 
 const VOID_RINGS_URL = (() => {
   const B = VOID_COVER_BLEED;
-  const bands = WATER_RING_OUTLINES.map((poly, i) => {
-    const d = poly.map(([x, y], j) => `${j ? "L" : "M"}${x} ${y}`).join("") + "Z";
-    return `<path d="${d}" fill="${WATER_RING_COLORS[i]}"/>`;
-  }).join("");
+  const paths = WATER_RING_OUTLINES.map(
+    (poly) => poly.map(([x, y], j) => `${j ? "L" : "M"}${x} ${y}`).join("") + "Z"
+  );
+  const glow =
+    `<filter id="g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${WATER_RING_GLOW.sigma}"/></filter>` +
+    `<path d="${paths[0]}" fill="${WATER_RING_COLORS[0]}" opacity="${WATER_RING_GLOW.opacity}" filter="url(#g)"/>`;
+  const bands = glow + paths.map((d, i) => `<path d="${d}" fill="${WATER_RING_COLORS[i]}"/>`).join("");
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${1 + 2 * B} ${1 + 2 * B}" preserveAspectRatio="none" shape-rendering="geometricPrecision">` +
     bands +

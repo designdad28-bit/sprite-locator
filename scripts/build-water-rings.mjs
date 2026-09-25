@@ -26,11 +26,22 @@ import { dirname, join } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-/** Outermost first. sigma and d are fractions of the map's width. */
-const BANDS = [
-  { sigma: 0.032, threshold: 0.02 }, // d ~ 0.066
-  { sigma: 0.022, threshold: 0.06 }, // d ~ 0.034
-  { sigma: 0.012, threshold: 0.15 }, // d ~ 0.0125
+/**
+ * Outermost first. sigma and d are fractions of the map's width.
+ *
+ * Each band is the UNION of two contours. "smooth" uses a large sigma, so it
+ * only follows the island's big shapes and sweeps over small bays in long
+ * curves, the way Fortnite's own bands do. But a large sigma also shrinks
+ * away from thin peninsulas, so "margin" (a small sigma) guarantees the band
+ * still clears every tip of land by at least its distance.
+ */
+const BANDS = JSON.parse(process.env.RING_BANDS || "null") ?? [
+  // deep blue, the widest: smooth edge ~0.089 out, never closer than ~0.051
+  { smooth: { sigma: 0.06, threshold: 0.07 }, margin: { sigma: 0.025, threshold: 0.02 } },
+  // mid blue: ~0.038 out, never closer than ~0.017
+  { smooth: { sigma: 0.045, threshold: 0.2 }, margin: { sigma: 0.012, threshold: 0.08 } },
+  // light shallows, the thinnest: ~0.009 out, never closer than ~0.004
+  { smooth: { sigma: 0.03, threshold: 0.38 }, margin: { sigma: 0.006, threshold: 0.25 } },
 ];
 
 const S = 1024; // cells across the [0,1] map
@@ -99,10 +110,10 @@ const N4 = [
   [0, -1],
 ];
 
-/** Threshold, keep the largest region, fill its holes, crack-trace its edge. */
-function trace(field, t) {
+/** Union of thresholded fields, keep the largest region, crack-trace its edge. */
+function trace(parts) {
   const m = new Uint8Array(G * G);
-  for (let i = 0; i < G * G; i++) m[i] = field[i] >= t ? 1 : 0;
+  for (const [field, t] of parts) for (let i = 0; i < G * G; i++) if (field[i] >= t) m[i] = 1;
 
   const lab = new Int32Array(G * G);
   let best = 0;
@@ -214,8 +225,11 @@ function chaikin(p, iterations) {
 
 const toFraction = (p) => p.map(([x, y]) => [+((x - P) / S).toFixed(4), +((y - P) / S).toFixed(4)]);
 
-const bands = BANDS.map(({ sigma, threshold }) => {
-  const edge = trace(blur(base, sigma * S), threshold);
+const bands = BANDS.map(({ smooth, margin }) => {
+  const edge = trace([
+    [blur(base, smooth.sigma * S), smooth.threshold],
+    [blur(base, margin.sigma * S), margin.threshold],
+  ]);
   return toFraction(simplify(chaikin(simplify(edge, 1.2), 3), 0.25));
 });
 
