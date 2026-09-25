@@ -42,7 +42,9 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const LAYERS = JSON.parse(process.env.WATER_LAYERS || "null") ?? [
   // dark band: ~60px out in the screenshot; smoother, so it echoes the
   // island's big shapes in broad scallops
-  { name: "dark", color: "#0f5eb3", level: 0.062, smooth: 0.009, noise: 0 },
+  // Recoloured to the light band's #1395d8 by request (Fortnite's own is
+  // #0f5eb3); the band itself is kept, so it can take its own colour again.
+  { name: "dark", color: "#1395d8", level: 0.062, smooth: 0.009, noise: 0 },
   // light band: ~30px out; follows every peninsula and bay closely
   { name: "light", color: "#1395d8", level: 0.03, smooth: 0.005, noise: 0 },
   // the thin bright rim on the sand
