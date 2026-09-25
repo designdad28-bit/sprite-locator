@@ -33,7 +33,10 @@
      than the app's previous Rajdhani, which read as a gaming wordmark, not
      an engineered-cosmic one. The SpriteRadar mark itself is a logo image
      (public/brand/logo-lockup.svg), so this only affects in-app headings. */
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display);
+  --color-pop-ink: var(--pop-ink);
+  --color-pop-yellow: var(--pop-yellow);
+  --color-map-field: var(--map-field);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -128,52 +131,48 @@
 
 .dark {
   /* --------------------------------------------------------------------
-     xAI DESIGN.md's STRUCTURE, Tailwind SLATE's colour: flat surfaces,
-     hairline borders, one filled-button exception, no glow — everything
-     this app took from DESIGN.md stays. What changes is which neutral
-     family fills it in. xAI's own canvas is achromatic (#0a0a0a, zero
-     chroma); Slate is Tailwind's built-in cool-grey scale, referenced by
-     var() rather than pasted hex so it tracks the installed Tailwind
-     version. --card is slate-900, --popover/--muted/--accent one step up
-     at slate-800 (the same relative spacing the achromatic version used),
-     --foreground/--primary slate-50, --muted-foreground slate-400.
-     Sprite Radar's rarity hues, the five variant colours, mastery gold and
-     radar-active blue are functional, not decorative, and stay untouched
-     regardless of which neutral family sits behind them. */
-  --background: var(--color-slate-950);
-  --foreground: var(--color-slate-50);
-  --card: var(--color-slate-900);
-  --card-foreground: var(--color-slate-50);
-  --popover: var(--color-slate-800);
-  --popover-foreground: var(--color-slate-50);
-  --primary: var(--color-slate-50);
-  --primary-foreground: var(--color-slate-950);
-  --secondary: var(--color-slate-800);
-  --secondary-foreground: var(--color-slate-50);
-  --muted: var(--color-slate-800);
-  --muted-foreground: var(--color-slate-400);
-  --accent: var(--color-slate-800);
-  --accent-foreground: var(--color-slate-50);
+     SPRITE SCOUT palette (the Instinct reference): deep indigo-navy panels,
+     a sky-blue ocean around the island, pure-white type, and one ink colour
+     — a near-black navy — for every chunky outline and hard drop shadow.
+     Rarity, variant, gold and radar colours stay untouched: they carry
+     meaning, and the reference's own pins are colour-coded the same way.
+     -------------------------------------------------------------------- */
+  --background: #1b2266;
+  --foreground: #ffffff;
+  --card: #232a7a;
+  --card-foreground: #ffffff;
+  --popover: #2d3591;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #141c4a;
+  --secondary: #2d3591;
+  --secondary-foreground: #ffffff;
+  --muted: #2d3591;
+  --muted-foreground: #c3caff;
+  --accent: #2d3591;
+  --accent-foreground: #ffffff;
   --destructive: oklch(0.704 0.191 22.216);
-  /* Still a translucent-white hairline, not a solid slate tone: at low alpha
-     over any slate surface it reads as the same neutral edge DESIGN.md's own
-     button-outline spec calls for, without needing its own step in the scale. */
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: var(--color-slate-50);
+  --border: oklch(1 0 0 / 16%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: #ffc93c;
   --chart-1: oklch(0.872 0.03 256);
   --chart-2: oklch(0.58 0.07 256);
   --chart-3: oklch(0.45 0.09 256);
   --chart-4: oklch(0.378 0.095 256);
   --chart-5: oklch(0.3 0.085 256);
-  --sidebar: var(--color-slate-900);
-  --sidebar-foreground: var(--color-slate-50);
-  --sidebar-primary: var(--color-slate-50);
-  --sidebar-primary-foreground: var(--color-slate-950);
-  --sidebar-accent: var(--color-slate-800);
-  --sidebar-accent-foreground: var(--color-slate-50);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: var(--color-slate-50);
+  --sidebar: #232a7a;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #141c4a;
+  --sidebar-accent: #2d3591;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: oklch(1 0 0 / 16%);
+  --sidebar-ring: #ffc93c;
+  /* The ink every pop outline and hard shadow is drawn in. */
+  --pop-ink: #141c4a;
+  /* The primary action's yellow, and the ocean behind the island. */
+  --pop-yellow: #ffc93c;
+  --map-field: #29a3ec;
   /* Two washes of light off the top of each panel, the move that keeps a dark
      ground from reading heavy. Alpha so they layer over --card; applied via
      .panel-wash below. A deeper blue and a cyan, set either side of the
@@ -185,7 +184,7 @@
      has to change, but with both stops transparent it now paints nothing —
      the panel is flat --card with a hairline border doing the separation. */
   --wash-a: transparent;
-  --wash-b: transparent;
+  --wash-b: rgba(124, 58, 237, 0.55);
   /* Collected BASE tile — and, since variantColor(null) reads this var, the
      base map pin and the BASE caption too.
      NOT taken from the artwork: measured across all 21 families, base Sprites'
@@ -509,8 +508,12 @@
    "hairline borders carry elevation").
    --------------------------------------------------------------------------- */
 @utility material {
-  background-color: var(--card);
-  border: 1px solid color-mix(in oklch, white 14%, transparent);
+  /* Sprite Scout's secondary button: a white pill with the pop ink outline
+     and hard shadow, ink-coloured content. */
+  background-color: #ffffff;
+  color: var(--pop-ink);
+  border: 3px solid var(--pop-ink);
+  box-shadow: 0 4px 0 var(--pop-ink);
 }
 
 /* Skeleton shimmer for loading states: the real layout, drawn in advance. */
@@ -529,4 +532,30 @@
   .skeleton {
     animation: none;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   POP. The Sprite Scout button: a thick ink outline and a hard, unblurred
+   drop shadow straight down, so it reads as a physical sticker-button.
+   Pressing sinks it into its own shadow.
+   --------------------------------------------------------------------------- */
+@utility pop {
+  border: 3px solid var(--pop-ink);
+  box-shadow: 0 4px 0 var(--pop-ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.15s ease;
+  &:where(button, [role="button"], [role="combobox"]):active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--pop-ink);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* The display face for chunky caps labels (headings, button text). */
+@utility display-caps {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 400;
 }

@@ -59,7 +59,7 @@ const AVAILABILITY_LABEL: Record<string, string> = {
 /** The one section heading treatment. Same size and weight as the catalog's variant captions. */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{children}</h3>
+    <h3 className="display-caps text-base text-pop-yellow">{children}</h3>
   );
 }
 
@@ -185,7 +185,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           size="icon-sm"
           onClick={onBack}
           aria-label="Close"
-          className="material absolute top-3 right-3 z-10 rounded-full text-muted-foreground hover:brightness-125 hover:text-foreground max-md:size-11"
+          className="material absolute top-3 right-3 z-10 rounded-full text-pop-ink hover:brightness-95 hover:text-pop-ink max-md:size-11"
         >
           <X strokeWidth={1.5} />
         </Button>
@@ -241,7 +241,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
             which would drop its top to 3px — further out than where it
             started. */}
         <div className="flex items-start justify-between gap-3">
-          <h2 className="min-w-0 font-heading text-2xl font-medium leading-[1.15] text-foreground">
+          <h2 className="min-w-0 display-caps text-3xl leading-[1.1] text-foreground">
             {displayName(sprite.name)}
           </h2>
 

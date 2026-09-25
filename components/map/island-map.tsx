@@ -542,7 +542,7 @@ function IslandClip({ worldSize, nativeZoom }: { worldSize: number; nativeZoom: 
     Object.assign(cover.style, {
       position: "absolute",
       transformOrigin: "0 0",
-      background: "var(--card)",
+      background: "var(--map-field)",
       maskImage: VOID_MASK_URL,
       webkitMaskImage: VOID_MASK_URL,
       maskRepeat: "no-repeat",
@@ -880,7 +880,7 @@ export default function IslandMap({
         // than --background so the field around the island reads as the same
         // surface as the panels either side of it. --map-background still
         // feeds the tile-seam patch in globals.css, so it tracks this.
-        style={{ backgroundColor: "var(--card)", "--map-background": "var(--card)" } as CSSProperties}
+        style={{ backgroundColor: "var(--map-field)", "--map-background": "var(--map-field)" } as CSSProperties}
       >
       <TileWorldSetup
         worldSize={worldSize}
@@ -954,7 +954,7 @@ export default function IslandMap({
           size="icon-lg"
           onClick={resetView}
           aria-label="Reset view"
-          className="material rounded-full text-muted-foreground hover:brightness-125 hover:text-foreground"
+          className="material rounded-full text-pop-ink hover:brightness-95 hover:text-pop-ink"
         >
           <RotateCcw className="size-5" strokeWidth={1.5} />
         </Button>
@@ -964,17 +964,17 @@ export default function IslandMap({
             size="icon-lg"
             onClick={() => map?.zoomIn()}
             aria-label="Zoom in"
-            className="rounded-none text-muted-foreground hover:text-foreground focus-visible:ring-inset"
+            className="rounded-none text-pop-ink hover:bg-pop-ink/10 hover:text-pop-ink focus-visible:ring-inset"
           >
             <Plus className="size-5" strokeWidth={1.5} />
           </Button>
-          <div className="h-px w-full bg-border" />
+          <div className="h-[3px] w-full bg-pop-ink" />
           <Button
             variant="ghost"
             size="icon-lg"
             onClick={() => map?.zoomOut()}
             aria-label="Zoom out"
-            className="rounded-none text-muted-foreground hover:text-foreground focus-visible:ring-inset"
+            className="rounded-none text-pop-ink hover:bg-pop-ink/10 hover:text-pop-ink focus-visible:ring-inset"
           >
             <Minus className="size-5" strokeWidth={1.5} />
           </Button>

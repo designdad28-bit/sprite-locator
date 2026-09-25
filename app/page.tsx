@@ -518,10 +518,10 @@ export default function Home() {
           >
             <SelectTrigger
               aria-label="Filter the map by variant"
-              // !bg-card: SelectTrigger's own bg-input/50 sits later in the generated
+              // !bg-white: SelectTrigger's own bg-input/50 sits later in the generated
               // stylesheet than the material utility's background-color, so it wins
               // the cascade at equal specificity without this override.
-              className="material !bg-card pointer-events-auto h-11 gap-2 rounded-xl px-4 py-2 text-sm font-medium text-foreground hover:brightness-125"
+              className="material !bg-white pointer-events-auto h-11 gap-2 rounded-full px-4 py-2 text-sm font-semibold text-pop-ink hover:brightness-95"
             >
               <SelectValue>
                 {(value: string) => {
@@ -571,8 +571,8 @@ export default function Home() {
             onClick={toggleDemoMode}
             aria-pressed={demoMode}
             className={cn(
-              "material pointer-events-auto h-11 rounded-xl hover:brightness-125",
-              demoMode ? "border-sprite-gold/60 text-sprite-gold" : "text-muted-foreground"
+              "material pointer-events-auto h-11 rounded-full hover:brightness-95",
+              demoMode ? "!bg-pop-yellow text-pop-ink" : "text-pop-ink"
             )}
           >
             <FlaskConical strokeWidth={1.875} />
@@ -661,7 +661,7 @@ export default function Home() {
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               // Above the Add finding button below it, which now occupies the
               // bottom-centre this used to have to itself.
-              className="pointer-events-none absolute bottom-24 left-1/2 z-[500] -translate-x-1/2 material rounded-full px-5 py-2.5 text-sm font-semibold text-foreground"
+              className="pointer-events-none absolute bottom-24 left-1/2 z-[500] -translate-x-1/2 material rounded-full px-5 py-2.5 text-sm font-semibold text-pop-ink"
             >
               Sprite location added — {displayName(getSprite(lastAdded)?.name)}
             </motion.div>

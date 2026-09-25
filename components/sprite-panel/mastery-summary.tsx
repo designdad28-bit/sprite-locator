@@ -46,7 +46,7 @@ export function MasterySummary() {
         // elevation" — see DESIGN.md).
         className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-indicator]]:rounded-full [&_[data-slot=progress-track]]:h-1.5 [&_[data-slot=progress-track]]:bg-card [&_[data-slot=progress-track]]:shadow-[inset_0_1px_2px_rgb(0_0_0/0.5)]"
       >
-        <ProgressLabel className="flex items-center gap-1 text-base leading-none text-sprite-gold md:text-sm">
+        <ProgressLabel className="display-caps flex items-center gap-1.5 text-lg leading-none text-sprite-gold">
           <Crown
             aria-hidden
             // Inherits the label's gold via currentColor. Nudged down 1px:
@@ -67,7 +67,7 @@ export function MasterySummary() {
             but the count is what belongs here. */}
         {/* Only the count you've earned is gold (matching the bar and the tile
             crowns); the total stays muted so it reads as the denominator. */}
-        <ProgressValue className="text-base font-medium leading-none text-muted-foreground md:text-sm">
+        <ProgressValue className="display-caps text-lg leading-none text-muted-foreground">
           {() => (
             <>
               <span className="text-sprite-gold">{mastered}</span> / {total}

@@ -16,11 +16,10 @@
  * mastered tile ring, the mastery bar), so it marks two things.
  */
 export const ADD_FINDING_STYLE =
-  // Flat gold fill, no glow: xAI's own filled button (the one white-on-black
-  // exception to its outline-pill system) carries no shadow either — a solid
-  // fill and a 1px border are the whole treatment. Press scales down a touch,
-  // the way a physical key gives.
-  "bg-sprite-gold text-card border border-black/10 hover:brightness-[1.06] active:scale-[0.97] focus-visible:ring-sprite-gold/40";
+  // Sprite Scout's primary button: a yellow-to-amber pill in thick ink
+  // outline with a hard drop shadow, labelled in the display caps. It sinks
+  // into its shadow when pressed (see the pop utility in globals.css).
+  "pop display-caps bg-[linear-gradient(180deg,#ffd84d,#f5a623)] text-pop-ink text-lg hover:brightness-105 focus-visible:ring-pop-yellow/50";
 
 /**
  * The stroke the primary action's icon takes, where the app's baseline is

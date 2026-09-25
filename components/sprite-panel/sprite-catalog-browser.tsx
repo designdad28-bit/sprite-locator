@@ -136,7 +136,7 @@ function GridTile({
           </HoverBeam>
         </span>
         <span className="flex min-w-0 flex-col gap-1">
-          <span className="truncate text-sm font-medium text-foreground">{name}</span>
+          <span className="display-caps truncate text-sm text-foreground">{name}</span>
           {/* Your record across the family at a glance, one dot per variant
               in slot order: gold mastered, light collected, dim not yet. Set
               in the profile, not here. */}
@@ -380,12 +380,12 @@ export function SpriteCatalogBrowser({
             // when the field is lighter than its surroundings; bg-card is
             // exactly the sidebar's own background, so with no border the
             // field would have no edge at all at rest.
-            className="border-border bg-card pl-11 [&::-webkit-search-cancel-button]:appearance-none"
+            className="pop !bg-white pl-11 font-semibold text-pop-ink placeholder:text-pop-ink/50 focus-visible:ring-pop-yellow/60 [&::-webkit-search-cancel-button]:appearance-none"
           />
           </HoverBeam>
           {/* After the beam in the DOM so it paints above the beam's glow. */}
           <Search
-            className="pointer-events-none absolute top-5 left-4 z-10 size-4 max-md:top-[22px] -translate-y-1/2 text-muted-foreground"
+            className="pointer-events-none absolute top-5 left-4 z-10 size-4 max-md:top-[22px] -translate-y-1/2 text-pop-ink"
             strokeWidth={1.875}
           />
         </div>
@@ -546,7 +546,7 @@ export function SpriteCatalogBrowser({
                     // colour still marks the section, just on the gem alone.
                     className="sticky top-[-16px] z-10 -mx-4 mt-4 mb-2 flex h-11 items-center gap-2.5 border-b border-border bg-card px-4"
                   >
-                    <span className="text-sm font-semibold tracking-[0.02em] text-foreground">{label}</span>
+                    <span className="display-caps text-lg text-foreground">{label}</span>
                     <span className="text-xs font-medium tabular-nums text-muted-foreground">
                       {section.groups.length}
                     </span>
