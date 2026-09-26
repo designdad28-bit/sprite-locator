@@ -457,7 +457,7 @@ export function SpriteCatalogBrowser({
                         }
                         className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
                       >
-                        <Radar className="size-6" strokeWidth={2.75} />
+                        <Radar className="size-6" strokeWidth={2.25} />
                       </Button>
                     </span>
                   </div>
