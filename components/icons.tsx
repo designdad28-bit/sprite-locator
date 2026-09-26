@@ -11,7 +11,7 @@ import {
   InformationCircleIcon,
   Layers01Icon,
   Location01Icon,
-  Radar02Icon,
+  Radar01Icon,
   Refresh01Icon,
   Remove01Icon,
   Search01Icon,
@@ -40,7 +40,7 @@ export const X = make(Cancel01Icon);
 export const Plus = make(Add01Icon);
 export const Minus = make(Remove01Icon);
 export const RotateCcw = make(Refresh01Icon);
-export const Radar = make(Radar02Icon, 2.5) // busier drawing: full weight fills it in;
+export const Radar = make(Radar01Icon, 2.5) // fine detail: full weight fills it in;
 export const Info = make(InformationCircleIcon, 2.75);
 export const Search = make(Search01Icon);
 export const Ban = make(BanIcon);

@@ -11,7 +11,6 @@ import { displayName } from "@/lib/sprite-name";
 import { VARIANT_SLOTS, variantGradient, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { MasterySummary } from "./mastery-summary";
 import { cn } from "@/lib/utils";
 
@@ -122,7 +121,7 @@ export function SpriteCatalogBrowser({
   collapsed,
   onToggleCollapsed,
 }: SpriteCatalogBrowserProps) {
-  const [query, setQuery] = useState("");
+  const query = "";
   const [rarityPill, setRarityPill] = useState<string | null>(null); // null = no filter = show all (the default view)
   const { sprites, loading, error, reload } = useSpriteCatalog();
   const { getStatus, cycleStatus } = useCollectionStatus();
@@ -177,7 +176,7 @@ export function SpriteCatalogBrowser({
       {/* Pinned header, lifted one step off the panel (--muted, the same fill the
           sprite tiles use) so it reads as its own section. Full-bleed — the
           sidebar's own overflow-hidden clips it to the rounded corners. */}
-      <div className="shrink-0 bg-muted">
+      <div className="shrink-0">
         {/* px-4 matches the search and sprite cards, so everything in the
             sidebar shares one left edge. */}
         <div className="flex items-center gap-2 px-4 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
@@ -222,47 +221,9 @@ export function SpriteCatalogBrowser({
         </div>
       </div>
 
-      {/* Separates the pinned header from everything that scrolls. Full-bleed,
-          unlike the in-card dividers, because it divides two regions of the
-          sidebar rather than sections of one card. */}
-      <div className="h-[0.5px] w-full shrink-0 bg-border" />
-
       {/* Only the logo and the mastery count stay pinned; the search scrolls
           away with the list below it. */}
       <div className="no-scrollbar flex-1 overflow-y-auto px-4 pt-4 pb-4">
-        {/* pb-1.5, not pb-3: each sprite card carries 6px of its own leading padding
-            (py-0.5 here plus py-1 on its header), so 6px here lands the first
-            sprite 12px below the field — matching the 12px above it. */}
-        <div className="relative pb-1.5">
-          {/* Same beam as the tiles, and also lit while the field has focus.
-              overflowVisible: the beam's layers clip themselves to the pill,
-              and the field's focus ring has to show outside it. */}
-          <HoverBeam whileFocused overflowVisible className="w-full rounded-3xl">
-          <Input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search sprites…"
-            disabled={liveSprites.length === 0}
-            // bg-card: the same fill as the mastery bar's track in the header
-            // above — the darkest of the panel's blues, where the default
-            // --input is white at 15% alpha and composites lighter than
-            // anything else in the sidebar.
-            //
-            // The border is not optional with this fill. Input defaults to
-            // `border-transparent` and only colours it on focus, which works
-            // when the field is lighter than its surroundings; bg-card is
-            // exactly the sidebar's own background, so with no border the
-            // field would have no edge at all at rest.
-            className="pop !bg-white pl-11 font-semibold text-pop-ink placeholder:text-pop-ink/50 focus-visible:ring-pop-yellow/60 [&::-webkit-search-cancel-button]:appearance-none"
-          />
-          </HoverBeam>
-          {/* After the beam in the DOM so it paints above the beam's glow. */}
-          <Search
-            className="pointer-events-none absolute top-5 left-4 z-10 size-4 max-md:top-[22px] -translate-y-1/2 text-pop-ink"
-            strokeWidth={1.875}
-          />
-        </div>
         {/* Also scrolls: the four hugging pills total ~293px, which no longer
             fits the 252px of content width at a 280px sidebar. */}
         {/* -mx-4 px-4: full-bleed to the panel edge so the row clips there rather
@@ -495,7 +456,7 @@ export function SpriteCatalogBrowser({
                         }
                         className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
                       >
-                        <Radar className="size-6" strokeWidth={1.5} />
+                        <Radar className="size-5" strokeWidth={1.5} />
                       </Button>
                     </span>
                   </div>
