@@ -399,7 +399,8 @@
 }
 
 .sprite-pin__body {
-  fill: var(--pin-color);
+  /* The CTA's gradient (lib/cta.ts), defined in each pin's own <defs>. */
+  fill: url(#pin-cta);
   /* A white keyline, not a dark one: the marker's own colour is the only
      colour inside it too now (see .sprite-pin__art below), so the outline
      is what still separates the pin from terrain of its own colour. The

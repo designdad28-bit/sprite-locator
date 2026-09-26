@@ -373,6 +373,7 @@ function makeIcon(
     html: `
       <span class="sprite-pin ${isNew ? "sprite-pin--new" : ""}" style="--pin-color:${accent};width:${size}px;height:${height}px">
         <svg class="sprite-pin__svg" viewBox="0 0 60 80" aria-hidden="true">
+          <defs><linearGradient id="pin-cta" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd84d"/><stop offset="1" stop-color="#f5a623"/></linearGradient></defs>
           <ellipse class="sprite-pin__ping" cx="30" cy="72" rx="20" ry="6.5" />
           <ellipse class="sprite-pin__ground" cx="30" cy="72" rx="20" ry="6.5" />
           <path class="sprite-pin__body" d="M30 72C30 72 4 46 4 28A26 26 0 1 1 56 28C56 46 30 72 30 72Z" />
