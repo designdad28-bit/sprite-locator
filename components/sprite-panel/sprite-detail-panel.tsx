@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { X } from "lucide-react";
+import { X } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { Finding } from "@/lib/findings";
 import { rarityAccent } from "@/lib/rarity";

@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { Crown } from "lucide-react";
+import { Crown } from "@/components/icons";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
 import { displayName } from "@/lib/sprite-name";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
@@ -59,7 +59,7 @@ export function SpriteTileArt({ sprite, status }: { sprite: NormalizedSprite; st
       {status === "mastered" && (
         <Crown
           aria-hidden
-          className="absolute top-1 left-1/2 size-5 -translate-x-1/2 text-sprite-gold drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)] [&>path:last-child]:hidden"
+          className="absolute top-1 left-1/2 size-5 -translate-x-1/2 text-sprite-gold drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)]"
           strokeWidth={1.5}
           fill="currentColor"
         />

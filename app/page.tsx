@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Layers, FlaskConical } from "lucide-react";
+import { MapPin, Layers, FlaskConical } from "@/components/icons";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
 import { Button } from "@/components/ui/button";
 import {
@@ -151,7 +151,7 @@ const ALL_VARIANTS = "all";
 function AllVariantsThumb() {
   return (
     <span className="flex size-6 shrink-0 items-center justify-center">
-      <Layers className="size-6 text-muted-foreground" strokeWidth={1.875} />
+      <Layers className="size-4 text-muted-foreground" strokeWidth={1.875} />
     </span>
   );
 }
@@ -595,7 +595,7 @@ export default function Home() {
             }}
             className={cn("pointer-events-auto h-12 gap-2 px-7 text-base shadow-lg", ADD_FINDING_STYLE)}
           >
-            <MapPin className="size-6" strokeWidth={ADD_FINDING_ICON_STROKE} />
+            <MapPin className="size-4" strokeWidth={ADD_FINDING_ICON_STROKE} />
             Add Sprite Location
           </Button>
         </div>
@@ -638,7 +638,7 @@ export default function Home() {
                 primary action, a baseline-weight icon reads thin. Both the
                 label and the icon sit one step above the app baseline because
                 this is the one thing the page asks you to do. */}
-            <MapPin className="size-6" strokeWidth={ADD_FINDING_ICON_STROKE} />
+            <MapPin className="size-4" strokeWidth={ADD_FINDING_ICON_STROKE} />
             Add Sprite Location
           </Button>
         </div>

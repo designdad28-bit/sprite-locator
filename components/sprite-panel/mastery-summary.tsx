@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Crown } from "lucide-react";
+import { Crown } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress";
@@ -57,7 +57,7 @@ export function MasterySummary() {
             // render two different weights. CSS wins over the presentation
             // attribute, so each breakpoint gets the value that lands on the
             // app's one weight: 1.25px of ink.
-            className="size-4 shrink-0 translate-y-px [stroke-width:1.875] [&>path:last-child]:hidden max-md:size-5 max-md:[stroke-width:1.5]"
+            className="size-4 shrink-0 translate-y-px [stroke-width:1.875] max-md:size-5 max-md:[stroke-width:1.5]"
             fill="currentColor"
           />
           Mastered
