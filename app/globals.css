@@ -411,14 +411,14 @@
 }
 
 .sprite-pin__ground {
-  fill: color-mix(in oklch, #ffc93c 35%, transparent);
-  stroke: #ffc93c;
+  fill: color-mix(in oklch, #26beef 35%, transparent);
+  stroke: #26beef;
   stroke-width: 2;
 }
 
 .sprite-pin__ping {
   fill: none;
-  stroke: #ffc93c;
+  stroke: #26beef;
   stroke-width: 2;
   transform-box: fill-box;
   transform-origin: center;
