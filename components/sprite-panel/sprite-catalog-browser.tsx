@@ -218,7 +218,7 @@ export function SpriteCatalogBrowser({
 
       {/* Only the logo and the mastery count stay pinned; the search scrolls
           away with the list below it. */}
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-4">
+      <div className="no-scrollbar mt-[21px] flex-1 overflow-y-auto px-4 pb-4">
         {/* Also scrolls: the four hugging pills total ~293px, which no longer
             fits the 252px of content width at a 280px sidebar. */}
         {/* -mx-4 px-4: full-bleed to the panel edge so the row clips there rather
@@ -661,7 +661,7 @@ export function SpriteCatalogBrowser({
                   <div
                     data-slot="rarity-header"
                     // No backing fill: the band floats over the list.
-                    className="sticky top-0 z-10 -mx-4 mt-3 [section:first-of-type_&]:mt-[21px] flex h-9 items-center px-4"
+                    className="sticky top-0 z-10 -mx-4 mt-3 [section:first-of-type_&]:mt-0 flex h-9 items-center px-4"
                   >
                     {/* The section divider: a rarity-coloured sticker band,
                         ink outline and hard drop shadow like every button. */}
