@@ -974,7 +974,7 @@ export default function IslandMap({
           aria-label="Reset view"
           className="material rounded-full text-pop-ink hover:brightness-95 hover:text-pop-ink"
         >
-          <RotateCcw className="size-5" strokeWidth={1.5} />
+          <RotateCcw className="size-7" strokeWidth={1.5} />
         </Button>
         <div className="material flex flex-col overflow-hidden rounded-full">
           <Button
@@ -984,7 +984,7 @@ export default function IslandMap({
             aria-label="Zoom in"
             className="rounded-none text-pop-ink hover:bg-pop-ink/10 hover:text-pop-ink focus-visible:ring-inset"
           >
-            <Plus className="size-5" strokeWidth={1.5} />
+            <Plus className="size-7" strokeWidth={1.5} />
           </Button>
           <div className="h-[3px] w-full bg-pop-ink" />
           <Button
@@ -994,7 +994,7 @@ export default function IslandMap({
             aria-label="Zoom out"
             className="rounded-none text-pop-ink hover:bg-pop-ink/10 hover:text-pop-ink focus-visible:ring-inset"
           >
-            <Minus className="size-5" strokeWidth={1.5} />
+            <Minus className="size-7" strokeWidth={1.5} />
           </Button>
         </div>
       </div>

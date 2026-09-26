@@ -166,7 +166,7 @@ export function SpriteCatalogBrowser({
           aria-expanded={false}
           className="text-muted-foreground"
         >
-          <PanelLeftOpen className="size-5" strokeWidth={1.5} />
+          <PanelLeftOpen className="size-6" strokeWidth={1.5} />
         </Button>
       </div>
     );
@@ -213,7 +213,7 @@ export function SpriteCatalogBrowser({
             // nothing behind it, because the catalog is the whole screen.
             className="-mr-1.5 ml-auto text-muted-foreground max-md:hidden"
           >
-            <PanelLeftClose className="size-5" strokeWidth={1.5} />
+            <PanelLeftClose className="size-6" strokeWidth={1.5} />
           </Button>
         </div>
 
@@ -254,12 +254,12 @@ export function SpriteCatalogBrowser({
             // when the field is lighter than its surroundings; bg-card is
             // exactly the sidebar's own background, so with no border the
             // field would have no edge at all at rest.
-            className="pop !bg-white pl-11 font-semibold text-pop-ink placeholder:text-pop-ink/50 focus-visible:ring-pop-yellow/60 [&::-webkit-search-cancel-button]:appearance-none"
+            className="pop !bg-white pl-12 font-semibold text-pop-ink placeholder:text-pop-ink/50 focus-visible:ring-pop-yellow/60 [&::-webkit-search-cancel-button]:appearance-none"
           />
           </HoverBeam>
           {/* After the beam in the DOM so it paints above the beam's glow. */}
           <Search
-            className="pointer-events-none absolute top-5 left-4 z-10 size-4 max-md:top-[22px] -translate-y-1/2 text-pop-ink"
+            className="pointer-events-none absolute top-5 left-4 z-10 size-6 max-md:top-[22px] -translate-y-1/2 text-pop-ink"
             strokeWidth={1.875}
           />
         </div>
@@ -292,7 +292,7 @@ export function SpriteCatalogBrowser({
                   aria-label={`Clear the ${rarityPill} filter`}
                   className="rounded-full text-muted-foreground hover:text-foreground"
                 >
-                  <X className="size-5" strokeWidth={1.5} />
+                  <X className="size-6" strokeWidth={1.5} />
                 </Button>
               </motion.div>
             )}
@@ -432,7 +432,7 @@ export function SpriteCatalogBrowser({
                             // visible box alone could not.
                             className="relative size-[23px] text-muted-foreground after:absolute after:-inset-2.5 after:content-['']"
                           >
-                            <Info className="size-3" strokeWidth={2.5} />
+                            <Info className="size-4" strokeWidth={2.5} />
                           </Button>
                         </span>
                         {/* The rarity badge that lived here is gone — rarity is
@@ -495,7 +495,7 @@ export function SpriteCatalogBrowser({
                         }
                         className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
                       >
-                        <Radar className="size-5" strokeWidth={1.5} />
+                        <Radar className="size-6" strokeWidth={1.5} />
                       </Button>
                     </span>
                   </div>
@@ -659,7 +659,7 @@ export function SpriteCatalogBrowser({
                                 // Lucide's Crown ships two paths: the crown itself and a
                                 // separate base bar ("M5 21h14"). Hide the bar rather than
                                 // hand-authoring a trimmed copy of the icon.
-                                className="absolute top-1 left-1/2 size-5 -translate-x-1/2 text-sprite-gold [&>path:last-child]:hidden"
+                                className="absolute top-0.5 left-1/2 size-8 -translate-x-1/2 text-sprite-gold [&>path:last-child]:hidden"
                                 strokeWidth={1.5}
                                 fill="currentColor"
                               />
