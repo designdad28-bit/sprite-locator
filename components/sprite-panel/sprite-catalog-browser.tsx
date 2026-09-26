@@ -432,7 +432,7 @@ export function SpriteCatalogBrowser({
                             // visible box alone could not.
                             className="relative size-[23px] text-muted-foreground after:absolute after:-inset-2.5 after:content-['']"
                           >
-                            <Info className="size-3.5" strokeWidth={2.5} />
+                            <Info className="size-4" strokeWidth={2.5} />
                           </Button>
                         </span>
                         {/* The rarity badge that lived here is gone — rarity is
@@ -495,7 +495,7 @@ export function SpriteCatalogBrowser({
                         }
                         className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
                       >
-                        <Radar className="size-5" strokeWidth={1.5} />
+                        <Radar className="size-6" strokeWidth={1.5} />
                       </Button>
                     </span>
                   </div>

@@ -11,7 +11,7 @@ import {
   InformationCircleIcon,
   Layers01Icon,
   Location01Icon,
-  Radar01Icon,
+  Radar02Icon,
   Refresh01Icon,
   Remove01Icon,
   Search01Icon,
@@ -29,9 +29,9 @@ type IconProps = Omit<ComponentProps<typeof HugeiconsIcon>, "icon">;
 
 const STROKE = 3.25;
 
-function make(icon: IconSvgElement) {
+function make(icon: IconSvgElement, stroke = STROKE) {
   return function Icon(props: IconProps) {
-    return <HugeiconsIcon {...props} icon={icon} strokeWidth={STROKE} />;
+    return <HugeiconsIcon {...props} icon={icon} strokeWidth={stroke} />;
   };
 }
 
@@ -40,8 +40,8 @@ export const X = make(Cancel01Icon);
 export const Plus = make(Add01Icon);
 export const Minus = make(Remove01Icon);
 export const RotateCcw = make(Refresh01Icon);
-export const Radar = make(Radar01Icon);
-export const Info = make(InformationCircleIcon);
+export const Radar = make(Radar02Icon, 2.5) // busier drawing: full weight fills it in;
+export const Info = make(InformationCircleIcon, 2.75);
 export const Search = make(Search01Icon);
 export const Ban = make(BanIcon);
 export const PanelLeftClose = make(SidebarLeft01Icon);
