@@ -10,16 +10,16 @@ export function RarityGem({ color, dim = false }: { color: string; dim?: boolean
   return (
     <span
       aria-hidden
-      className="size-2.5 shrink-0 rotate-45 rounded-[2px] transition-[background-color,box-shadow] duration-300"
+      className="size-2.5 shrink-0 rotate-45 rounded-[2px] transition-[background-color,border-color] duration-300"
       style={
         dim
-          ? { boxShadow: `inset 0 0 0 1.5px color-mix(in oklch, ${color} 70%, transparent)` }
+          ? { border: `1.5px solid ${color}` }
           : {
               // No outer glow: xAI's material system carries elevation with
               // hairline borders, not neon bloom (see DESIGN.md's Don'ts).
               // The white ring plus solid fill is enough to read as "lit".
               backgroundColor: color,
-              boxShadow: `0 0 0 1.5px color-mix(in oklch, white 35%, transparent)`,
+              border: "1.5px solid var(--pop-ink)",
             }
       }
     />
