@@ -190,7 +190,7 @@ export function SpriteCatalogBrowser({
               back from it, so it needs to overhang a flat edge slightly to
               appear flush. The crown, search field and tiles below are all
               flat-edged and stay at 12. */}
-          <Logo className="-ml-[2px] text-xl max-md:-ml-[3px] max-md:text-2xl" />
+          <Logo className="-ml-[2px] text-lg max-md:-ml-[3px] max-md:text-xl" />
           {/* ml-auto pins it to the row's right edge, opposite the logo. */}
           <Button
             variant="ghost"

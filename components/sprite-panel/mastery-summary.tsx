@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Crown } from "@/components/icons";
+import { CrownSolid } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress";
@@ -46,20 +46,14 @@ export function MasterySummary() {
         className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-indicator]]:rounded-full [&_[data-slot=progress-track]]:h-3.5 [&_[data-slot=progress-track]]:border-[3px] [&_[data-slot=progress-track]]:border-pop-ink [&_[data-slot=progress-track]]:bg-card [&_[data-slot=progress-track]]:shadow-[0_3px_0_var(--pop-ink)]"
       >
         <ProgressLabel className="display-caps flex items-center gap-1.5 text-lg leading-none text-sprite-gold">
-          <Crown
+          {/* The same badge as a mastered tile: a gold disc, ink outline and
+              hard drop shadow, holding a solid crown in the sidebar's colour. */}
+          <span
             aria-hidden
-            // Inherits the label's gold via currentColor. Nudged down 1px:
-            // hiding the base bar leaves the remaining shape sitting high in
-            // the 24-unit box, so box-centering alone reads as too high.
-            // Stroke set in CSS, not as the attribute, because this is the one
-            // icon whose SIZE is responsive — 16px beside the desktop label,
-            // 20px beside the phone one. A single strokeWidth would therefore
-            // render two different weights. CSS wins over the presentation
-            // attribute, so each breakpoint gets the value that lands on the
-            // app's one weight: 1.25px of ink.
-            className="size-4 shrink-0 translate-y-px [stroke-width:1.875] max-md:size-5 max-md:[stroke-width:1.5]"
-            fill="currentColor"
-          />
+            className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-sprite-gold shadow-[0_2px_0_var(--pop-ink)]"
+          >
+            <CrownSolid className="size-3 text-card" fill="currentColor" />
+          </span>
           Mastered
         </ProgressLabel>
         {/* Children is a render fn; the default would print the percentage,
