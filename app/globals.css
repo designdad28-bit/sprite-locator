@@ -448,7 +448,7 @@
      art, no white ring around it — the pin's colour is the only colour that
      shows, whether that's the art itself or the sliver of gutter around a
      non-square icon. */
-  background: var(--pin-color);
+  background: transparent;
   /* Leaflet's own leaflet.css sets `.leaflet-map-pane svg { z-index: 200; }`
      for ITS vector-overlay panes — but that selector is just "any svg inside
      the map pane", so it also caught our decorative .sprite-pin__svg (which
