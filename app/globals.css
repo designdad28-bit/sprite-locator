@@ -186,7 +186,7 @@
      has to change, but with both stops transparent it now paints nothing —
      the panel is flat --card with a hairline border doing the separation. */
   --wash-a: transparent;
-  --wash-b: rgba(124, 58, 237, 0.55);
+  --wash-b: transparent; /* flat sidebar: the sticky rarity container must match it exactly */
   /* Collected BASE tile — and, since variantColor(null) reads this var, the
      base map pin and the BASE caption too.
      NOT taken from the artwork: measured across all 21 families, base Sprites'

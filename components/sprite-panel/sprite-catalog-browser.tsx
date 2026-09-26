@@ -218,7 +218,7 @@ export function SpriteCatalogBrowser({
 
       {/* Only the logo and the mastery count stay pinned; the search scrolls
           away with the list below it. */}
-      <div className="no-scrollbar mt-[5px] flex-1 overflow-y-auto px-4 pb-4 [mask-image:linear-gradient(to_bottom,transparent,#000_4px)]">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-4">
         {/* Also scrolls: the four hugging pills total ~293px, which no longer
             fits the 252px of content width at a 280px sidebar. */}
         {/* -mx-4 px-4: full-bleed to the panel edge so the row clips there rather
@@ -663,7 +663,7 @@ export function SpriteCatalogBrowser({
                     // Container with 16px above and below the band, fading in and out so it
                     // blends with the panel rather than reading as a slab. Cards scroll
                     // under it; -mb-4 keeps the first card where it was.
-                    className="sticky top-0 z-10 -mx-4 mt-3 -mb-4 [section:first-of-type_&]:mt-0 flex h-[68px] items-center px-4 py-4 [background:linear-gradient(to_bottom,var(--card),var(--card)_6px,var(--card)_calc(100%-8px),transparent)]"
+                    className="sticky top-0 z-10 -mx-4 mt-3 -mb-4 [section:first-of-type_&]:mt-0 flex h-[68px] items-center px-4 py-4 bg-card after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-3 after:bg-gradient-to-b after:from-card after:to-transparent after:content-['']"
                   >
                     {/* The section divider: a rarity-coloured sticker band,
                         ink outline and hard drop shadow like every button. */}
