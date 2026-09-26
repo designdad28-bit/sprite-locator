@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Radar, Info, Search, Ban, Crown, X, PanelLeftClose, PanelLeftOpen } from "@/components/icons";
+import { Radar, Info, Search, Ban, CrownSolid, X, PanelLeftClose, PanelLeftOpen } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
@@ -616,9 +616,9 @@ export function SpriteCatalogBrowser({
                               // the sidebar's own background colour (--card).
                               <span
                                 aria-hidden
-                                className="absolute right-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full bg-sprite-gold"
+                                className="absolute right-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full border-2 border-pop-ink bg-sprite-gold shadow-[0_2px_0_var(--pop-ink)]"
                               >
-                                <Crown className="size-3.5 text-card" fill="currentColor" />
+                                <CrownSolid className="size-3 text-card" fill="currentColor" />
                               </span>
                             )}
                           </span>

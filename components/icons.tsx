@@ -36,6 +36,8 @@ function make(icon: IconSvgElement, stroke = STROKE) {
 }
 
 export const Crown = make(CrownIcon);
+/** Filled crown for the mastered badge: a light stroke, so it reads as a solid shape. */
+export const CrownSolid = make(CrownIcon, 1);
 export const X = make(Cancel01Icon);
 export const Plus = make(Add01Icon);
 export const Minus = make(Remove01Icon);
