@@ -430,9 +430,9 @@ export function SpriteCatalogBrowser({
                             // the ::after extends the hit area 10px each way to
                             // 43px — clearing the accessibility minimum the
                             // visible box alone could not.
-                            className="relative size-[23px] text-muted-foreground after:absolute after:-inset-2.5 after:content-['']"
+                            className="relative size-8 text-muted-foreground after:absolute after:-inset-2.5 after:content-['']"
                           >
-                            <Info className="size-4" strokeWidth={2.5} />
+                            <Info className="size-6" strokeWidth={2.5} />
                           </Button>
                         </span>
                         {/* The rarity badge that lived here is gone — rarity is
@@ -493,9 +493,9 @@ export function SpriteCatalogBrowser({
                             ? `Hide ${group.family} findings on the map`
                             : `Show ${group.family} findings on the map`
                         }
-                        className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
+                        className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5 size-11", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
                       >
-                        <Radar className="size-6" strokeWidth={1.5} />
+                        <Radar className="size-9" strokeWidth={1.5} />
                       </Button>
                     </span>
                   </div>
@@ -659,7 +659,7 @@ export function SpriteCatalogBrowser({
                                 // Lucide's Crown ships two paths: the crown itself and a
                                 // separate base bar ("M5 21h14"). Hide the bar rather than
                                 // hand-authoring a trimmed copy of the icon.
-                                className="absolute top-0.5 left-1/2 size-8 -translate-x-1/2 text-sprite-gold [&>path:last-child]:hidden"
+                                className="absolute top-1 left-1/2 size-6 -translate-x-1/2 text-sprite-gold [&>path:last-child]:hidden"
                                 strokeWidth={1.5}
                                 fill="currentColor"
                               />
