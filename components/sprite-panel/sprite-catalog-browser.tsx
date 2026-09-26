@@ -620,7 +620,7 @@ export function SpriteCatalogBrowser({
                                 // Lucide's Crown ships two paths: the crown itself and a
                                 // separate base bar ("M5 21h14"). Hide the bar rather than
                                 // hand-authoring a trimmed copy of the icon.
-                                className="absolute top-1 left-1/2 size-5 -translate-x-1/2 text-sprite-gold"
+                                className="absolute bottom-1 left-1/2 size-5 -translate-x-1/2 text-sprite-gold"
                                 strokeWidth={1.5}
                                 fill="currentColor"
                               />

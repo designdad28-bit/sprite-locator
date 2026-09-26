@@ -59,7 +59,7 @@ export function SpriteTileArt({ sprite, status }: { sprite: NormalizedSprite; st
       {status === "mastered" && (
         <Crown
           aria-hidden
-          className="absolute top-1 left-1/2 size-5 -translate-x-1/2 text-sprite-gold drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)]"
+          className="absolute bottom-1 left-1/2 size-5 -translate-x-1/2 text-sprite-gold drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)]"
           strokeWidth={1.5}
           fill="currentColor"
         />
