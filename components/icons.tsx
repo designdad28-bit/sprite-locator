@@ -22,13 +22,16 @@ import {
 /**
  * The app's icon set: Hugeicons, wrapped so call sites read like the lucide
  * components they replaced (className, strokeWidth, fill all pass through).
- * The default stroke is a heavy 2.25 to sit with the 3px ink outlines.
+ * Every icon is drawn at one heavy stroke, ignoring any strokeWidth a call
+ * site passes, so the set stays uniform and sits with the 3px ink outlines.
  */
 type IconProps = Omit<ComponentProps<typeof HugeiconsIcon>, "icon">;
 
+const STROKE = 3.25;
+
 function make(icon: IconSvgElement) {
-  return function Icon({ strokeWidth = 2.25, ...props }: IconProps) {
-    return <HugeiconsIcon icon={icon} strokeWidth={strokeWidth} {...props} />;
+  return function Icon(props: IconProps) {
+    return <HugeiconsIcon {...props} icon={icon} strokeWidth={STROKE} />;
   };
 }
 
