@@ -713,10 +713,10 @@ export function SpriteCatalogBrowser({
                     // surfaces carry elevation with a hairline border, never a
                     // blur or a gradient glow (see DESIGN.md). The rarity's
                     // colour still marks the section, just on the gem alone.
-                    className="sticky top-[-16px] z-10 -mx-4 mt-4 mb-2 flex h-11 items-center gap-2.5 border-b border-border bg-card px-4"
+                    className="sticky top-[-16px] z-10 -mx-4 mt-4 mb-2 flex h-11 items-center gap-2.5 bg-card px-4"
                   >
-                    <span className="display-caps text-lg text-foreground">{label}</span>
-                    <span className="text-xs font-medium tabular-nums text-muted-foreground">
+                    <span className="display-caps text-xl text-pop-yellow">{label}</span>
+                    <span className="display-caps rounded-full border-[3px] border-pop-ink bg-white px-2 text-sm leading-5 tabular-nums text-pop-ink shadow-[0_2px_0_var(--pop-ink)]">
                       {section.groups.length}
                     </span>
 
