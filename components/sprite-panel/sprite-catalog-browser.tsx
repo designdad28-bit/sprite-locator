@@ -665,7 +665,7 @@ export function SpriteCatalogBrowser({
                   <div
                     data-slot="rarity-header"
                     // No backing fill: the band floats over the list.
-                    className="sticky top-0 z-10 -mx-4 mb-2 flex h-14 items-center px-4"
+                    className="sticky top-0 z-10 -mx-4 mt-3 [section:first-of-type_&]:mt-[21px] flex h-9 items-center px-4"
                   >
                     {/* The section divider: a rarity-coloured sticker band,
                         ink outline and hard drop shadow like every button. */}
