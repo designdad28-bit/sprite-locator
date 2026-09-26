@@ -49,10 +49,10 @@ const VARIANT_COLOR: Record<string, string> = {
  * on borders and text where a gradient is not a valid value.
  */
 const VARIANT_GRADIENT: Record<string, string> = {
-  gold: "linear-gradient(to bottom, oklch(0.636 0.130 86), oklch(0.816 0.149 86))",
-  cheatmaster: "linear-gradient(to bottom, oklch(0.637 0.205 140), oklch(0.817 0.234 140))",
-  hacker: "linear-gradient(to bottom, oklch(0.395 0.245 276.9), oklch(0.575 0.236 276.9))",
-  reaper: "linear-gradient(to bottom, oklch(0.546 0.265 318), oklch(0.726 0.223 318))",
+  gold: "linear-gradient(to top, oklch(0.636 0.130 86), oklch(0.816 0.149 86))",
+  cheatmaster: "linear-gradient(to top, oklch(0.637 0.205 140), oklch(0.817 0.234 140))",
+  hacker: "linear-gradient(to top, oklch(0.395 0.245 276.9), oklch(0.575 0.236 276.9))",
+  reaper: "linear-gradient(to top, oklch(0.546 0.265 318), oklch(0.726 0.223 318))",
 };
 
 /**
@@ -62,7 +62,7 @@ const VARIANT_GRADIENT: Record<string, string> = {
  * likely to be retuned.
  */
 const BASE_VARIANT_GRADIENT =
-  "linear-gradient(to bottom, var(--sprite-base-collected-top), var(--sprite-base-collected-bottom))";
+  "linear-gradient(to top, var(--sprite-base-collected-top), var(--sprite-base-collected-bottom))";
 
 /** The tile fill for a variant: its colour shaded dark-to-light, top to bottom. */
 export function variantGradient(variant: string | null): string | null {
