@@ -612,13 +612,14 @@ export function SpriteCatalogBrowser({
                               <span className="absolute inset-0 bg-input/30" />
                             )}
                             {status === "mastered" && (
-                              // Bottom-right, inset 6px. The 0.5px dark-ink outline is four
-                              // hairline drop-shadows (SVG can't stroke a glyph a second colour).
-                              <Crown
+                              // A gold disc in the tile's bottom-right, holding a crown in
+                              // the sidebar's own background colour (--card).
+                              <span
                                 aria-hidden
-                                className="absolute right-1.5 bottom-1.5 size-5 text-sprite-gold [filter:drop-shadow(0.5px_0_0_var(--pop-ink))_drop-shadow(-0.5px_0_0_var(--pop-ink))_drop-shadow(0_0.5px_0_var(--pop-ink))_drop-shadow(0_-0.5px_0_var(--pop-ink))]"
-                                fill="currentColor"
-                              />
+                                className="absolute right-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full bg-sprite-gold"
+                              >
+                                <Crown className="size-3.5 text-card" fill="currentColor" />
+                              </span>
                             )}
                           </span>
                           </HoverBeam>
