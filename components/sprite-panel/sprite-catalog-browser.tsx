@@ -3,6 +3,7 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
+import { Logo } from "@/components/logo";
 import { Info, Search, Ban, CrownSolid, X, PanelLeftClose, PanelLeftOpen } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
@@ -181,7 +182,6 @@ export function SpriteCatalogBrowser({
         {/* px-4 matches the search and sprite cards, so everything in the
             sidebar shares one left edge. */}
         <div className="flex items-center gap-2 px-4 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           {/* Pulled 2px left of the 12px everything else sits on, so the mark
               looks level rather than measuring level. Two reasons it read as
               inset: the lockup carries 3px of its own transparent padding
@@ -190,13 +190,7 @@ export function SpriteCatalogBrowser({
               back from it, so it needs to overhang a flat edge slightly to
               appear flush. The crown, search field and tiles below are all
               flat-edged and stay at 12. */}
-          <img
-            src="/brand/logo-lockup.svg"
-            alt="SpriteRadar"
-            // Scaled up on a phone with the rest of the layout. The optical
-            // pullback scales with it: -2px at 18px tall, -3px at 24px.
-            className="-ml-[2px] h-[18px] w-auto object-contain max-md:-ml-[3px] max-md:h-6"
-          />
+          <Logo className="-ml-[2px] text-xl max-md:-ml-[3px] max-md:text-2xl" />
           {/* ml-auto pins it to the row's right edge, opposite the logo. */}
           <Button
             variant="ghost"
