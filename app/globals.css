@@ -120,7 +120,7 @@
   --sprite-base-collected: var(--input);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
-  --sprite-gold: #EED12B;
+  --sprite-gold: #ffc93c;
   /* Radar active: the Sprite's findings are pinned on the map. Marks one thing
      — showing on the map — and is deliberately not a rarity or mastery hue, so
      it can't be read as either. Tailwind's own blue-500, referenced rather than
@@ -226,7 +226,7 @@
   --sprite-base-collected-bottom: oklch(0.79 0.133 225);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
-  --sprite-gold: #EED12B;
+  --sprite-gold: #ffc93c;
   /* Radar active: the Sprite's findings are pinned on the map. Marks one thing
      — showing on the map — and is deliberately not a rarity or mastery hue, so
      it can't be read as either. Tailwind's own blue-500, referenced rather than
@@ -404,20 +404,20 @@
      colour inside it too now (see .sprite-pin__art below), so the outline
      is what still separates the pin from terrain of its own colour. The
      drop shadow does the rest of the lifting off the island. */
-  stroke: rgb(255 255 255 / 0.9);
+  stroke: #ffc93c;
   stroke-width: 1.5;
   filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.5));
 }
 
 .sprite-pin__ground {
-  fill: color-mix(in oklch, var(--pin-color) 28%, transparent);
-  stroke: var(--pin-color);
+  fill: color-mix(in oklch, #ffc93c 35%, transparent);
+  stroke: #ffc93c;
   stroke-width: 2;
 }
 
 .sprite-pin__ping {
   fill: none;
-  stroke: var(--pin-color);
+  stroke: #ffc93c;
   stroke-width: 2;
   transform-box: fill-box;
   transform-origin: center;
