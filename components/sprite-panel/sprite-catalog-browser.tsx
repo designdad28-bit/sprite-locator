@@ -553,7 +553,7 @@ export function SpriteCatalogBrowser({
                           >
                             {label}
                           </span>
-                          <HoverBeam>
+                          <HoverBeam className="relative w-full">
                           <span
                             className={cn(
                               // outline, not border: outlines paint outside the box and
@@ -611,21 +611,21 @@ export function SpriteCatalogBrowser({
                             ) : (
                               <span className="absolute inset-0 bg-input/30" />
                             )}
-                            {status === "mastered" && (
-                              // Sits over the sprite's head rather than in a corner badge.
-                              // The drop shadow keeps it legible on the lighter variant
-                              // backgrounds (gold especially).
-                              <Crown
-                                aria-hidden
-                                // Lucide's Crown ships two paths: the crown itself and a
-                                // separate base bar ("M5 21h14"). Hide the bar rather than
-                                // hand-authoring a trimmed copy of the icon.
-                                className="absolute bottom-1 left-1/2 size-5 -translate-x-1/2 text-sprite-gold"
-                                strokeWidth={1.5}
-                                fill="currentColor"
-                              />
-                            )}
                           </span>
+                          {status === "mastered" && (
+                            // Sits over the sprite's head rather than in a corner badge.
+                            // The drop shadow keeps it legible on the lighter variant
+                            // backgrounds (gold especially).
+                            <Crown
+                              aria-hidden
+                              // Lucide's Crown ships two paths: the crown itself and a
+                              // separate base bar ("M5 21h14"). Hide the bar rather than
+                              // hand-authoring a trimmed copy of the icon.
+                              className="absolute top-0 left-0 z-10 size-6 -translate-x-1/2 -translate-y-1/2 text-sprite-gold"
+                              strokeWidth={1.5}
+                              fill="currentColor"
+                            />
+                          )}
                           </HoverBeam>
                         </button>
                       );
