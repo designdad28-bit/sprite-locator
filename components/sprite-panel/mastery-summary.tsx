@@ -41,10 +41,9 @@ export function MasterySummary() {
         // The track is bg-card, not the component's default bg-muted: the header
         // strip behind it is itself --muted, so the default left the empty part
         // of the bar invisible.
-        // Flat gold fill, no outer glow: elevation is the track's own hairline
-        // inset, not a coloured bloom (xAI's "hairline borders carry
-        // elevation" — see DESIGN.md).
-        className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-indicator]]:rounded-full [&_[data-slot=progress-track]]:h-1.5 [&_[data-slot=progress-track]]:bg-card [&_[data-slot=progress-track]]:shadow-[inset_0_1px_2px_rgb(0_0_0/0.5)]"
+        // Flat gold fill, no outer glow: the track is a flat ink-outlined
+        // pill with the same hard drop shadow as the buttons, no inner shadow.
+        className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-indicator]]:rounded-full [&_[data-slot=progress-track]]:h-3.5 [&_[data-slot=progress-track]]:border-[3px] [&_[data-slot=progress-track]]:border-pop-ink [&_[data-slot=progress-track]]:bg-card [&_[data-slot=progress-track]]:shadow-[0_3px_0_var(--pop-ink)]"
       >
         <ProgressLabel className="display-caps flex items-center gap-1.5 text-lg leading-none text-sprite-gold">
           <Crown

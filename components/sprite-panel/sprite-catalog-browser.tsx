@@ -372,7 +372,7 @@ export function SpriteCatalogBrowser({
 
             return (
               <motion.div key={group.family} variants={item}>
-                <div className="rounded-lg py-0.5">
+                <div className="rounded-lg py-2">
                   {/* Header: purely informational — not clickable/hoverable, per design. Only the Radar/Info icons act. */}
                   <div className="flex items-center justify-between py-1">
                     <span className="flex min-w-0 items-center">
@@ -500,8 +500,6 @@ export function SpriteCatalogBrowser({
                       </Button>
                     </span>
                   </div>
-
-                  <div className="h-[0.5px] w-full bg-border" />
 
                   {/* Two behaviours, because the two widths want opposite things.
 
