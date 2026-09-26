@@ -11,7 +11,6 @@ import { displayName } from "@/lib/sprite-name";
 import { VARIANT_SLOTS, variantGradient, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
-import { RarityGem } from "@/components/rarity-gem";
 import { Input } from "@/components/ui/input";
 import { MasterySummary } from "./mastery-summary";
 import { cn } from "@/lib/utils";
@@ -709,54 +708,20 @@ export function SpriteCatalogBrowser({
                       there, type carries the name here. */}
                   <div
                     data-slot="rarity-header"
-                    // Flat and solid, no frosted glass and no colour wash: xAI's
-                    // surfaces carry elevation with a hairline border, never a
-                    // blur or a gradient glow (see DESIGN.md). The rarity's
-                    // colour still marks the section, just on the gem alone.
-                    className="sticky top-[-16px] z-10 -mx-4 mt-4 mb-2 flex h-11 items-center gap-2.5 bg-card px-4"
+                    // Solid --card behind so cards scroll cleanly underneath.
+                    className="sticky top-[-16px] z-10 -mx-4 mt-4 mb-2 flex h-14 items-center bg-card px-4"
                   >
-                    <span className="display-caps text-xl text-pop-yellow">{label}</span>
-                    <span className="display-caps rounded-full border-[3px] border-pop-ink bg-white px-2 text-sm leading-5 tabular-nums text-pop-ink shadow-[0_2px_0_var(--pop-ink)]">
-                      {section.groups.length}
-                    </span>
-
-                    {/* The scrubber. Every section's header carries a stop
-                        for every rarity, with its own lit — and since only
-                        the header of the section on screen is pinned, the
-                        lit gem always marks where you are. Tapping another
-                        glides the list to that section. One row: where you
-                        are, where else there is, and the way there. */}
-                    <nav aria-label="Jump to rarity" className="-mr-2 ml-auto flex items-center">
-                      {sections.map((other) => {
-                        const otherLabel = other.rarity
-                          ? other.rarity.charAt(0).toUpperCase() + other.rarity.slice(1)
-                          : "Unknown";
-                        const here = other.rarity === section.rarity;
-                        return (
-                          <button
-                            key={other.rarity ?? "unknown"}
-                            type="button"
-                            aria-label={`Jump to ${otherLabel}`}
-                            aria-current={here ? "location" : undefined}
-                            onClick={() =>
-                              document
-                                .getElementById(sectionId(other.rarity))
-                                ?.scrollIntoView({
-                                  behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-                                    ? "auto"
-                                    : "smooth",
-                                  block: "start",
-                                })
-                            }
-                            className="group/gem flex size-8 items-center justify-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/30 max-md:size-11"
-                          >
-                            <span className="flex transition-transform duration-200 group-hover/gem:scale-125">
-                              <RarityGem color={rarityAccent(other.rarity).solid} dim={!here} />
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </nav>
+                    {/* The section divider: a rarity-coloured sticker band,
+                        ink outline and hard drop shadow like every button. */}
+                    <div
+                      className="flex h-9 w-full items-center gap-2.5 rounded-full border-[3px] border-pop-ink px-4 shadow-[0_3px_0_var(--pop-ink)]"
+                      style={{ background: accent.solid }}
+                    >
+                      <span className="display-caps text-xl leading-none text-pop-ink">{label}</span>
+                      <span className="display-caps ml-auto rounded-full border-[3px] border-pop-ink bg-white px-2 text-sm leading-4 tabular-nums text-pop-ink">
+                        {section.groups.length}
+                      </span>
+                    </div>
                   </div>
                   {section.groups.map((group) => renderCard(group))}
                 </section>

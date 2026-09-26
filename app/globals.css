@@ -562,3 +562,9 @@
   letter-spacing: 0.03em;
   font-weight: 400;
 }
+
+/* Chunkier icons to match the 3px ink outlines. Lives in CSS so it beats
+   the strokeWidth props scattered through the components. */
+svg.lucide {
+  stroke-width: 2.75;
+}
