@@ -660,10 +660,9 @@ export function SpriteCatalogBrowser({
                       there, type carries the name here. */}
                   <div
                     data-slot="rarity-header"
-                    // Container with 16px above and below the band, fading in and out so it
-                    // blends with the panel rather than reading as a slab. Cards scroll
+                    // Solid container with 16px above and below the band. Cards scroll
                     // under it; the container ends above the first card.
-                    className="sticky top-0 z-10 -mx-4 mt-3 [section:first-of-type_&]:mt-0 flex h-[68px] items-center px-4 py-4 bg-card after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-2 after:bg-gradient-to-b after:from-card after:to-transparent after:content-['']"
+                    className="sticky top-0 z-10 -mx-4 mt-3 [section:first-of-type_&]:mt-0 flex h-[68px] items-center px-4 py-4 bg-card"
                   >
                     {/* The section divider: a rarity-coloured sticker band,
                         ink outline and hard drop shadow like every button. */}
