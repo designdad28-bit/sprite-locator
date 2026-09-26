@@ -46,11 +46,7 @@ const LAYERS = JSON.parse(process.env.WATER_LAYERS || "null") ?? [
   // is #0f5eb3), so it reads as a light outline around the #1395d8 shallows.
   { name: "dark", color: "#26beef", level: 0.062, smooth: 0.009, noise: 0 },
   // light band: ~30px out; follows every peninsula and bay closely
-  // Recoloured by request to the sidebar's background (--card, #232a7a in
-  // app/globals.css; Fortnite's own is #1395d8). A literal, not the token:
-  // the layers are drawn as a data-URI SVG, which can't read CSS variables,
-  // so change both together.
-  { name: "light", color: "#232a7a", level: 0.03, smooth: 0.005, noise: 0 },
+  { name: "light", color: "#1395d8", level: 0.03, smooth: 0.005, noise: 0 },
   // the thin bright rim on the sand
   { name: "surf", color: "#26beef", level: 0.0022, smooth: 0.0015, noise: 0 },
 ];
