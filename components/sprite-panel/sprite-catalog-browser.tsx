@@ -386,7 +386,7 @@ export function SpriteCatalogBrowser({
                             // the ::after extends the hit area 10px each way to
                             // 43px — clearing the accessibility minimum the
                             // visible box alone could not.
-                            className="relative size-[23px] text-muted-foreground after:absolute after:-inset-2.5 after:content-['']"
+                            className="relative size-[23px] text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow after:absolute after:-inset-2.5 after:content-['']"
                           >
                             <Info className="size-4" strokeWidth={2.5} />
                           </Button>
@@ -449,7 +449,7 @@ export function SpriteCatalogBrowser({
                             ? `Hide ${group.family} findings on the map`
                             : `Show ${group.family} findings on the map`
                         }
-                        className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
+                        className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", "hover:!bg-transparent hover:!text-pop-yellow", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
                       >
                         <Radar className="size-6" strokeWidth={2} />
                       </Button>
