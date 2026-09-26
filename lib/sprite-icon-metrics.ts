@@ -2,41 +2,42 @@
 //
 // Per-Sprite scale factors that make catalog icons render at a uniform
 // visual size. Every source icon is a 512x512 square, but the artwork
-// inside fills a different share of that canvas, so identical <img>
-// boxes still produce visibly different sprite sizes. Each factor below
-// is measured from the real icon's pixels as VISUAL MASS: the square
-// root of its opaque pixel area, as a fraction of the canvas. Height-based
-// metrics (tried twice) left narrow, tall Sprites — Crash Bandicoot,
-// Crown — reading clearly smaller than wide ones like Blinky and X-Ray,
-// because the eye judges size by how much ink there is, not how tall it
-// stands. Normalized to the least-massive icon (Jackrabbit) so nothing
-// scales past its box; every scaled art height still fits (max 91.8%).
-// Measured 2026-09-22.
+// inside fills a different share of that canvas. Size is judged the way the
+// eye does, from two measures at once: visual mass (the square root of the
+// opaque pixel area) and the art's height. Mass alone left short, wide
+// sprites like 8-Bit reading small next to tall ones; height alone
+// (tried twice) shrank narrow, tall ones. Each Sprite's size is the
+// geometric mean of the two, and every factor scales it to one common
+// target. The target is the largest that still keeps every sprite's longest
+// side within 94% of its box, so factors can now go above 1 (small art is
+// scaled UP to match) and nothing touches an edge. Measured 2026-09-26 in
+// the browser on fortnite.gg's own origin (the icons are hotlink-protected
+// and unreadable elsewhere).
 //
 // Unknown ids fall back to 1 — a new Sprite renders unscaled rather than
 // wrong, until this is regenerated.
 const ICON_SCALE: Record<string, number> = {
-  "klombo-sprite": 0.8062,
-  "mega-man-sprite": 0.8681,
-  "birthday-sprite": 0.8864,
-  "morgana-sprite": 0.8893,
-  "adventure-sprite": 0.9,
-  "tails-sprite": 0.9014,
-  "overshield-sprite": 0.9076,
-  "blinky-sprite": 0.9085,
-  "sonic-sprite": 0.9138,
-  "shadow-sprite": 0.9161,
-  "pond-sprite": 0.9292,
-  "killswitch-sprite": 0.9373,
-  "storm-scout-sprite": 0.9383,
-  "crown-sprite": 0.9417,
-  "x-ray-sprite": 0.9447,
-  "bush-sprite": 0.9563,
-  "jonesy-sprite": 0.9629,
-  "8-bit-sprite": 0.9698,
-  "onigiri-sprite": 0.9708,
-  "crash-bandicoot-sprite": 0.9859,
-  "jackrabbit-sprite": 1.0,
+  "klombo-sprite": 0.946,
+  "birthday-sprite": 0.9672,
+  "mega-man-sprite": 0.9963,
+  "morgana-sprite": 1.0003,
+  "pond-sprite": 1.0033,
+  "crown-sprite": 1.01,
+  "crash-bandicoot-sprite": 1.0168,
+  "overshield-sprite": 1.0188,
+  "tails-sprite": 1.0224,
+  "jackrabbit-sprite": 1.024,
+  "shadow-sprite": 1.0356,
+  "sonic-sprite": 1.043,
+  "adventure-sprite": 1.0453,
+  "storm-scout-sprite": 1.0699,
+  "blinky-sprite": 1.0702,
+  "killswitch-sprite": 1.0968,
+  "bush-sprite": 1.1064,
+  "x-ray-sprite": 1.1158,
+  "8-bit-sprite": 1.1245,
+  "onigiri-sprite": 1.1325,
+  "jonesy-sprite": 1.145,
 };
 
 /**

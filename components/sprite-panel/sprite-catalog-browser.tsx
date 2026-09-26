@@ -604,7 +604,7 @@ export function SpriteCatalogBrowser({
                                 style={
                                   isColored
                                     ? ({
-                                        transform: `scale(${spriteIconScale(v.id) * 0.92})`,
+                                        transform: `scale(${spriteIconScale(v.id)})`,
                                       } as CSSProperties)
                                     : { transform: `scale(${spriteIconScale(v.id)})` }
                                 }
