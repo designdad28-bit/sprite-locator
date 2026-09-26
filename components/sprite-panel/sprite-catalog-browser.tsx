@@ -121,7 +121,7 @@ export function SpriteCatalogBrowser({
   collapsed,
   onToggleCollapsed,
 }: SpriteCatalogBrowserProps) {
-  const query = "";
+  const query: string = ""; // search was removed; the filter below still reads it
   const [rarityPill, setRarityPill] = useState<string | null>(null); // null = no filter = show all (the default view)
   const { sprites, loading, error, reload } = useSpriteCatalog();
   const { getStatus, cycleStatus } = useCollectionStatus();
