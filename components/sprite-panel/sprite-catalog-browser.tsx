@@ -2,7 +2,8 @@
 
 import { useMemo, useState, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Radar, Info, Search, Ban, CrownSolid, X, PanelLeftClose, PanelLeftOpen } from "@/components/icons";
+import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
+import { Info, Search, Ban, CrownSolid, X, PanelLeftClose, PanelLeftOpen } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
@@ -456,7 +457,7 @@ export function SpriteCatalogBrowser({
                         }
                         className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
                       >
-                        <Radar className="size-5" strokeWidth={1.5} />
+                        <Radar className="size-5" strokeWidth={2} />
                       </Button>
                     </span>
                   </div>
