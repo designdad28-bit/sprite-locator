@@ -667,7 +667,7 @@ export function SpriteCatalogBrowser({
                     {/* The section divider: a rarity-coloured sticker band,
                         ink outline and hard drop shadow like every button. */}
                     <div
-                      className="flex h-9 w-full items-center gap-2.5 rounded-full border-[3px] border-pop-ink px-4 shadow-[0_3px_0_var(--pop-ink)]"
+                      className="flex h-9 w-full items-center gap-2.5 rounded-full border-[3px] border-pop-ink pr-1 pl-4 shadow-[0_3px_0_var(--pop-ink)]"
                       style={{ background: accent.solid }}
                     >
                       <span className="display-caps text-xl leading-none text-pop-ink">{label}</span>
