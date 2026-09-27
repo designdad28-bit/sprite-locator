@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Layers, FlaskConical } from "@/components/icons";
+import { Layers, FlaskConical } from "@/components/icons";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +23,7 @@ import { displayName } from "@/lib/sprite-name";
 import { AddFindingDialog, type AddFindingValues } from "@/components/add-finding-dialog";
 import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
 import { buildDemoFindings } from "@/lib/demo-findings";
-import { ADD_FINDING_STYLE, ADD_FINDING_ICON_STROKE } from "@/lib/cta";
+import { ADD_FINDING_STYLE } from "@/lib/cta";
 import { cn } from "@/lib/utils";
 
 // The open sidebar's width. The map lives in its own container to the right of
@@ -595,7 +595,6 @@ export default function Home() {
             }}
             className={cn("pointer-events-auto h-12 gap-2 px-7 text-base shadow-lg", ADD_FINDING_STYLE)}
           >
-            <MapPin className="size-4" strokeWidth={ADD_FINDING_ICON_STROKE} />
             Add Sprite Location
           </Button>
         </div>
@@ -638,7 +637,6 @@ export default function Home() {
                 primary action, a baseline-weight icon reads thin. Both the
                 label and the icon sit one step above the app baseline because
                 this is the one thing the page asks you to do. */}
-            <MapPin className="size-4" strokeWidth={ADD_FINDING_ICON_STROKE} />
             Add Sprite Location
           </Button>
         </div>
