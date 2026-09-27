@@ -414,8 +414,8 @@ export function SpriteCatalogBrowser({
                                   mastered
                                     ? "bg-sprite-gold"
                                     : v
-                                      ? "bg-card"
-                                      : "bg-card/40"
+                                      ? "bg-muted-foreground"
+                                      : "bg-muted-foreground/30"
                                 )}
                               />
                             );
