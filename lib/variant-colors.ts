@@ -269,7 +269,7 @@ const SHEEN =
   "linear-gradient(125deg, transparent 4%, rgb(255 255 255 / 0.1) 20%, transparent 34%, " +
   "rgb(255 255 255 / 0.14) 50%, transparent 64%, rgb(255 255 255 / 0.08) 80%, transparent 96%)";
 
-const INK_VEIL = "linear-gradient(rgb(20 28 74 / 0.2), rgb(20 28 74 / 0.2))";
+const INK_VEIL = "linear-gradient(rgb(20 28 74 / 0.1), rgb(20 28 74 / 0.1))";
 
 /** Gold and base are a sheen already; the rest get SHEEN on top. */
 const HAS_OWN_SHEEN = new Set(["base", "gold"]);
@@ -282,7 +282,7 @@ export function variantBackdrop(variant: string | null): string | null {
   const pattern = VARIANT_PATTERN[key];
   if (!pattern) return gradient;
   const layers = HAS_OWN_SHEEN.has(key) ? `${pattern}, ${gradient}` : `${SHEEN}, ${pattern}, ${gradient}`;
-  // A 20% ink veil over the whole backdrop, so the Sprite on top of it has
+  // A 10% ink veil over the whole backdrop, so the Sprite on top of it has
   // a little more contrast against even the brightest patterns.
   return `${INK_VEIL}, ${layers}`;
 }
