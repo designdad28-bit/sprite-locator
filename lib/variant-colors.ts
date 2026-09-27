@@ -74,8 +74,7 @@ export function variantGradient(variant: string | null): string | null {
  * A themed backdrop per variant, layered over its gradient, for a collected
  * tile. Each follows the effect Epic paints INSIDE that variant's Sprite art:
  *   base         light greyish-blue sheen, the gold treatment in #c3caff
- *   gold         reflective gold: gentle bands of light and shadow sweeping
- *                across polished metal, with a soft specular
+ *   gold         crinkled gold foil (see GOLD_FOIL)
  *   cheat master Matrix code: streams of falling green glyphs down every
  *                column, top to bottom, each with a bright head and a fading
  *                tail, over a darkened green
@@ -128,6 +127,47 @@ const MATRIX_RAIN = (() => {
   );
 })();
 
+/**
+ * Crinkled gold foil, after the Fortnite gold card: fine hammered texture over
+ * the whole surface, big soft dark swaths running diagonally, and bright
+ * yellow-gold between them.
+ *   - Swaths: low-frequency noise stretched along one axis, then rotated 25deg
+ *     so it streaks diagonally; its dark end becomes deep brown, its bright end
+ *     pale gold, both as alpha over the base.
+ *   - Crinkle: fine turbulence used as a height map and lit from the top left
+ *     (feDiffuseLighting), then split into a pale highlight layer and a brown
+ *     shadow layer, so the texture catches light without greying the gold.
+ * SVG filters render once per image and are cached, so this costs nothing per
+ * frame.
+ */
+const GOLD_FOIL = svgUrl(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">` +
+    `<defs>` +
+    `<filter id="s" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">` +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.008 0.024" numOctaves="2" seed="11"/>` +
+    `<feColorMatrix type="matrix" values="0 0 0 0 0.13  0 0 0 0 0.075  0 0 0 0 0.01  -5 0 0 0 3.05"/>` +
+    `</filter>` +
+    `<filter id="h" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">` +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.011 0.028" numOctaves="2" seed="4"/>` +
+    `<feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 0.94  0 0 0 0 0.6  3.2 0 0 0 -1.8"/>` +
+    `</filter>` +
+    `<filter id="c" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">` +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" seed="7" result="n"/>` +
+    `<feDiffuseLighting in="n" surfaceScale="1.1" diffuseConstant="1" lighting-color="#fff" result="l">` +
+    `<feDistantLight azimuth="225" elevation="48"/></feDiffuseLighting>` +
+    `<feColorMatrix in="l" type="matrix" result="hi" values="0 0 0 0 1  0 0 0 0 0.96  0 0 0 0 0.78  1.1 0 0 0 -0.8"/>` +
+    `<feColorMatrix in="l" type="matrix" result="lo" values="0 0 0 0 0.2  0 0 0 0 0.12  0 0 0 0 0.02  -1 0 0 0 0.72"/>` +
+    `<feMerge><feMergeNode in="lo"/><feMergeNode in="hi"/></feMerge>` +
+    `</filter>` +
+    `</defs>` +
+    `<g transform="rotate(25 50 50)">` +
+    `<rect x="-60" y="-60" width="220" height="220" filter="url(#s)"/>` +
+    `<rect x="-60" y="-60" width="220" height="220" filter="url(#h)"/>` +
+    `</g>` +
+    `<rect width="100" height="100" filter="url(#c)"/>` +
+    `</svg>`
+);
+
 const PINK_SWIRL = (() => {
   const cx = 50;
   const cy = 56;
@@ -161,9 +201,9 @@ const VARIANT_PATTERN: Record<string, string> = {
     "linear-gradient(125deg, oklch(0.74 0.07 277) 0%, oklch(0.87 0.06 277) 20%, oklch(0.78 0.07 277) 36%, " +
     "oklch(0.91 0.05 277) 50%, oklch(0.77 0.07 277) 64%, oklch(0.85 0.06 277) 80%, oklch(0.72 0.07 277) 100%)",
   gold:
-    "radial-gradient(ellipse 45% 30% at 28% 22%, rgb(255 255 245 / 0.45), transparent 70%), " +
-    "linear-gradient(125deg, oklch(0.66 0.13 80) 0%, oklch(0.82 0.13 90) 20%, oklch(0.7 0.13 82) 36%, " +
-    "oklch(0.86 0.11 94) 50%, oklch(0.69 0.13 81) 64%, oklch(0.8 0.13 89) 80%, oklch(0.64 0.12 78) 100%)",
+    `${GOLD_FOIL} center / cover no-repeat, ` +
+    "radial-gradient(ellipse 40% 30% at 82% 45%, oklch(0.7 0.15 60 / 0.45), transparent 70%), " +
+    "linear-gradient(160deg, oklch(0.84 0.13 96) 0%, oklch(0.72 0.13 86) 50%, oklch(0.66 0.12 80) 100%)",
   cheatmaster: `${MATRIX_RAIN} center / cover no-repeat, linear-gradient(rgb(0 35 5 / 0.55), rgb(0 35 5 / 0.3))`,
   hacker:
     "linear-gradient(to bottom, rgb(255 255 255 / 0.2), transparent 65%), " +
