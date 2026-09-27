@@ -78,15 +78,13 @@ export function variantGradient(variant: string | null): string | null {
  *   cheat master Matrix code: streams of falling green glyphs down every
  *                column, top to bottom, each with a bright head and a fading
  *                tail, over a darkened green
- *   loot hacker  purple checkerboard, lit from the top
+ *   loot hacker  panel patchwork: random-sized purple panels with light
+ *                seams (see HACKER_PANELS), lit from the top
  *   bounty       pink swirl: spiral arms turning round a glow behind the
  *                Sprite
  * The code rain and swirl need real shapes, so they're small generated
  * SVGs (deterministic, built once at load) rather than gradients.
  */
-const CHECKER = (color: string, size: number, offset = 0) =>
-  `conic-gradient(${color} 25%, transparent 0 50%, ${color} 0 75%, transparent 0) ${offset}px ${offset}px / ${size}px ${size}px`;
-
 const svgUrl = (svg: string) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 
 /** Seeded so every render draws the same rain and swirl. */
@@ -169,6 +167,50 @@ const GOLD_FOIL = svgUrl(
     `</svg>`
 );
 
+/**
+ * The loot hacker art isn't a regular checkerboard: it's a patchwork of
+ * rectangular panels of random sizes (big slabs, thin slivers), each a
+ * slightly different shade, with fine light seams between them. Built by
+ * splitting the tile at random, snapped to a 4-unit grid so it stays blocky
+ * and digital, then shading each panel lighter or darker at low alpha.
+ */
+const HACKER_PANELS = (() => {
+  const rand = seeded(9);
+  const snap = (v: number) => Math.round(v / 4) * 4;
+  let rects = "";
+  const split = (x: number, y: number, w: number, h: number, depth: number) => {
+    const canW = w >= 8;
+    const canH = h >= 8;
+    // Nothing longer than ~a third of the tile survives unsplit, so panels
+    // stay small-to-medium everywhere; below that, stop at random for a mix
+    // of sizes down to 4-unit slivers.
+    const mustSplit = Math.max(w, h) > 32;
+    const stop = (!canW && !canH) || depth >= 9 || (!mustSplit && rand() < 0.3);
+    if (stop) {
+      const light = rand() < 0.5;
+      const a = light ? 0.08 + rand() * 0.24 : 0.12 + rand() * 0.28;
+      const fill = light ? `rgb(235 215 255 / ${a.toFixed(2)})` : `rgb(35 0 85 / ${a.toFixed(2)})`;
+      rects += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`;
+      return;
+    }
+    const vertical = canW && (!canH || (w > h ? rand() < 0.75 : rand() < 0.25));
+    if (vertical) {
+      const at = Math.min(Math.max(snap(w * (0.2 + rand() * 0.6)), 4), w - 4);
+      split(x, y, at, h, depth + 1);
+      split(x + at, y, w - at, h, depth + 1);
+    } else {
+      const at = Math.min(Math.max(snap(h * (0.2 + rand() * 0.6)), 4), h - 4);
+      split(x, y, w, at, depth + 1);
+      split(x, y + at, w, h - at, depth + 1);
+    }
+  };
+  split(0, 0, 100, 100, 0);
+  return svgUrl(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges">` +
+      `<g stroke="rgb(240 205 255)" stroke-opacity="0.45" stroke-width="0.6">${rects}</g></svg>`
+  );
+})();
+
 const PINK_SWIRL = (() => {
   const cx = 50;
   const cy = 56;
@@ -207,8 +249,8 @@ const VARIANT_PATTERN: Record<string, string> = {
     "linear-gradient(160deg, oklch(0.84 0.13 96) 0%, oklch(0.72 0.13 86) 50%, oklch(0.66 0.12 80) 100%)",
   cheatmaster: `${MATRIX_RAIN} center / cover no-repeat, linear-gradient(rgb(0 35 5 / 0.55), rgb(0 35 5 / 0.3))`,
   hacker:
-    "linear-gradient(to bottom, rgb(255 255 255 / 0.2), transparent 65%), " +
-    CHECKER("rgb(205 150 255 / 0.32)", 16),
+    "linear-gradient(to bottom, rgb(255 255 255 / 0.14), transparent 65%), " +
+    `${HACKER_PANELS} center / cover no-repeat`,
   reaper: `radial-gradient(circle at 50% 56%, rgb(255 215 255 / 0.55), transparent 30%), ${PINK_SWIRL} center / cover no-repeat`,
 };
 
