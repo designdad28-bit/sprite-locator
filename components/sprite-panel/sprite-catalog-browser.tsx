@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
 import { Logo } from "@/components/logo";
-import { Info, Ban, CrownSolid, PanelLeftOpen, TapIcon } from "@/components/icons";
+import { Info, Ban, CheckIcon, CrownSolid, PanelLeftOpen, TapIcon } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
@@ -73,6 +73,89 @@ function TileBox({
         </motion.span>
       )}
     </motion.span>
+  );
+}
+
+/** The confetti's colours: the CTA yellow, white, and the five variants'. */
+const CONFETTI_COLORS = ["#ffc93c", "#ffffff", "#8fd3ff", "#D09E00", "#3EC700", "#7d6bff", "#D203FF"];
+
+/** A deterministic 0..1 hash, so the confetti is random-looking but pure. */
+function hash01(n: number) {
+  const x = Math.sin(n * 12.9898 + 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+/**
+ * 30 pieces bursting up and out from the card's middle, then tumbling down
+ * and fading: a mix of paper strips and dots. Positions come from hash01, so
+ * every burst for a given key is the same shape and the render stays pure.
+ */
+function ConfettiBurst({ seed }: { seed: number }) {
+  const pieces = Array.from({ length: 30 }, (_, i) => {
+    const r = (k: number) => hash01(seed * 97 + i * 13 + k);
+    const angle = -Math.PI / 2 + (r(1) - 0.5) * Math.PI * 1.3;
+    const power = 90 + r(2) * 110;
+    return {
+      dx: Math.cos(angle) * power,
+      up: Math.sin(angle) * power,
+      fall: 70 + r(3) * 90,
+      spin: (r(4) - 0.5) * 720,
+      color: CONFETTI_COLORS[Math.floor(r(5) * CONFETTI_COLORS.length)],
+      dot: r(6) < 0.35,
+      duration: 1.1 + r(7) * 0.6,
+      delay: r(8) * 0.08,
+    };
+  });
+  return (
+    <span aria-hidden className="pointer-events-none absolute inset-x-0 top-1/3 z-[5] flex justify-center">
+      {pieces.map((p, i) => (
+        <motion.span
+          key={i}
+          className={cn("absolute border border-pop-ink", p.dot ? "size-2 rounded-full" : "h-2.5 w-1.5 rounded-[1px]")}
+          style={{ background: p.color }}
+          initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 0.6 }}
+          animate={{
+            x: [0, p.dx * 0.85, p.dx],
+            y: [0, p.up, p.up + p.fall],
+            rotate: [0, p.spin * 0.6, p.spin],
+            opacity: [1, 1, 0],
+            scale: [0.6, 1, 1],
+          }}
+          transition={{ duration: p.duration, delay: p.delay, times: [0, 0.35, 1], ease: "easeOut" }}
+        />
+      ))}
+    </span>
+  );
+}
+
+/**
+ * Shown once every variant of a family is mastered: a yellow sticker disc
+ * with a tick on the card's top-left corner (the top-right holds the Radar),
+ * and, at the moment the set is completed, a burst of confetti. Loading a
+ * page that is already complete shows the tick with no fanfare; reduced
+ * motion shows the tick and skips the confetti.
+ */
+function SetComplete({ done }: { done: boolean }) {
+  const changes = useChangeCount(done);
+  const reduceMotion = useReducedMotion();
+  const justCompleted = done && changes > 0;
+  return (
+    <>
+      {done && (
+        <motion.span
+          key={`badge-${changes}`}
+          aria-label="Every variant mastered"
+          role="img"
+          initial={justCompleted ? { scale: 0, rotate: -60 } : false}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 460, damping: 12, delay: justCompleted ? 0.15 : 0 }}
+          className="absolute -top-2 -left-2 z-[5] flex size-8 items-center justify-center rounded-full border-[3px] border-pop-ink bg-pop-yellow text-pop-ink shadow-[0_3px_0_var(--pop-ink)]"
+        >
+          <CheckIcon className="size-4" />
+        </motion.span>
+      )}
+      {justCompleted && !reduceMotion && <ConfettiBurst key={`confetti-${changes}`} seed={changes} />}
+    </>
   );
 }
 
@@ -277,17 +360,20 @@ export function SpriteCatalogBrowser({
             // Out of the variants this family actually has, not a flat four —
             // Mega Man ships only its base one, so it reads (0/1).
             const masteredInSet = group.variants.filter((v) => getStatus(v.id) === "mastered").length;
+            const setComplete = group.variants.length > 0 && masteredInSet === group.variants.length;
 
             return (
-              <motion.div key={group.family} variants={item}>
+              <motion.div key={group.family} variants={item} className="relative">
+                <SetComplete done={setComplete} />
                 {/* Each Sprite is its own lifted panel: one step lighter than
                     the sidebar (--muted), rounded, and a soft ink drop under it
                     at half strength, so the cards separate by surface and
                     depth rather than by outlines. overflow-hidden clips the
                     scrolling tile row to the panel's rounded corners. */}
-                <div className="mb-3 overflow-hidden rounded-2xl bg-muted px-3 py-2 shadow-[0_3px_0_rgb(20_28_74/0.5)]">
-                  {/* Header: purely informational — not clickable/hoverable, per design. Only the Radar/Info icons act. */}
-                  <div className="flex items-center justify-between py-1">
+                <div className="relative mb-3 overflow-hidden rounded-2xl bg-muted px-3 py-2 shadow-[0_3px_0_rgb(20_28_74/0.5)]">
+                  {/* Header: informational. Only the Info and Radar icons act.
+                      pr-11 keeps a long name clear of the Radar in the corner. */}
+                  <div className="flex items-center justify-between py-1 pr-11">
                     <span className="flex min-w-0 items-center">
                       {group.icon ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -354,7 +440,8 @@ export function SpriteCatalogBrowser({
                         </span>
                       </span>
                     </span>
-                    <span className="flex shrink-0 items-center gap-2">
+                    {/* In the card's top-right corner, 8px in from both edges. */}
+                    <span className="absolute top-2 right-2 z-[1] flex">
                       {/* The Radar toggle. Off: a bare lavender glyph that turns
                           yellow on hover. On: a yellow sticker disc with an ink
                           glyph, so "showing on the map" reads as a switched-on
@@ -371,7 +458,7 @@ export function SpriteCatalogBrowser({
                             : `Show ${group.family} findings on the map`
                         }
                         className={cn(
-                          "-mr-1 size-10 rounded-full border-2 transition-[background-color,color,border-color,box-shadow,transform] duration-150 active:translate-y-[2px] motion-reduce:transition-none max-md:size-11",
+                          "size-10 rounded-full border-2 transition-[background-color,color,border-color,box-shadow,transform] duration-150 active:translate-y-[2px] motion-reduce:transition-none",
                           isShown
                             ? "border-pop-ink !bg-pop-yellow text-pop-ink shadow-[0_2px_0_var(--pop-ink)] hover:!text-pop-ink active:shadow-none"
                             : "border-transparent text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow"
