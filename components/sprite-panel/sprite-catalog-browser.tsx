@@ -414,8 +414,9 @@ export function SpriteCatalogBrowser({
                                   mastered
                                     ? "bg-sprite-gold"
                                     : v
-                                      ? "bg-muted-foreground"
-                                      : "bg-muted-foreground/30"
+                                      ? // Exactly the unselected tile's fill (bg-card, #232a7a).
+                                        "bg-card"
+                                      : "bg-card/40"
                                 )}
                               />
                             );
