@@ -147,9 +147,10 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className="no-scrollbar flex h-full flex-col gap-3 overflow-y-auto p-4"
     >
-      {/* The hero: the Sprite on a card panel lit by a pool of its rarity's
-          colour, brightest where it stands, like a spotlight on a stage. */}
-      <div data-slot="detail-header" className={cn(PANEL, "relative shrink-0 overflow-hidden")}>
+      {/* The hero: full-bleed across the top of the panel (the -m cancels the
+          scroll area's 16px padding), square-cornered, lit by a pool of its
+          rarity's colour, brightest where the Sprite stands. */}
+      <div data-slot="detail-header" className="relative -mx-4 -mt-4 shrink-0 overflow-hidden bg-muted">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
