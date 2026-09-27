@@ -486,7 +486,7 @@ export function SpriteCatalogBrowser({
                               {variantLabel(slot)}
                             </span>
                             <span
-                              className="relative flex aspect-square w-full items-center justify-center rounded-md border-[3px] border-dashed border-pop-ink/40 bg-muted/40"
+                              className="relative flex aspect-square w-full items-center justify-center rounded-md border-[3px] border-dashed border-pop-ink/40 bg-card"
                               aria-label={`${group.family} has no ${variantLabel(slot).toLowerCase()} variant`}
                             >
                               {/* Opaque, not muted-foreground/50. The Ban glyph
@@ -552,7 +552,7 @@ export function SpriteCatalogBrowser({
                               // Uncollected tiles share the empty-slot fill (see the
                               // variant-slot-empty branch above), so "nothing here yet"
                               // and "not collected yet" read as the same weight.
-                              !isColored && "bg-muted/40"
+                              !isColored && "bg-card"
                             )}
                             style={isColored ? { background: accent ?? undefined } : undefined}
                           >
