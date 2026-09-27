@@ -129,7 +129,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 px-4 text-center">
         <p className="text-base text-muted-foreground">Sprite not found in the catalog.</p>
-        <Button variant="outline" size="sm" onClick={onBack}>
+        <Button variant="ghost" size="sm" onClick={onBack} className="material rounded-full px-4 text-pop-ink hover:text-pop-ink">
           Close
         </Button>
       </div>
@@ -176,7 +176,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           size="icon-sm"
           onClick={onBack}
           aria-label="Close"
-          className="material absolute top-3 right-3 z-10 rounded-full text-pop-ink hover:brightness-95 hover:text-pop-ink max-md:size-11"
+          className="material absolute top-3 right-3 z-10 rounded-full text-pop-ink hover:text-pop-ink max-md:size-11"
         >
           <X strokeWidth={1.5} />
         </Button>

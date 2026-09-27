@@ -505,6 +505,20 @@
   color: var(--pop-ink);
   border: 3px solid var(--pop-ink);
   box-shadow: 0 4px 0 var(--pop-ink);
+  transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  /* Every secondary button turns the CTA yellow on hover and sinks into its
+     shadow when pressed. Only interactive elements: a material wrapper (the
+     zoom stack) stays white while the buttons inside it light up. */
+  &:where(button, a, [role="button"], [role="combobox"]):hover {
+    background-color: var(--pop-yellow) !important;
+  }
+  &:where(button, a, [role="button"], [role="combobox"]):active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--pop-ink);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 /* Skeleton shimmer for loading states: the real layout, drawn in advance. */

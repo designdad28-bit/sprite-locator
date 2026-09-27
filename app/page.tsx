@@ -521,7 +521,7 @@ export default function Home() {
               // !bg-white: SelectTrigger's own bg-input/50 sits later in the generated
               // stylesheet than the material utility's background-color, so it wins
               // the cascade at equal specificity without this override.
-              className="material !bg-white pointer-events-auto h-11 gap-2 rounded-full px-4 py-2 text-sm font-semibold text-pop-ink hover:brightness-95"
+              className="material !bg-white pointer-events-auto h-11 gap-2 rounded-full px-4 py-2 text-sm font-semibold text-pop-ink"
             >
               <SelectValue>
                 {(value: string) => {
@@ -571,7 +571,7 @@ export default function Home() {
             onClick={toggleDemoMode}
             aria-pressed={demoMode}
             className={cn(
-              "material pointer-events-auto h-11 rounded-full hover:brightness-95",
+              "material pointer-events-auto h-11 rounded-full hover:text-pop-ink",
               demoMode ? "!bg-pop-yellow text-pop-ink" : "text-pop-ink"
             )}
           >

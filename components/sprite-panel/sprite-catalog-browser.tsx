@@ -165,7 +165,7 @@ export function SpriteCatalogBrowser({
           onClick={onToggleCollapsed}
           aria-label="Open sidebar"
           aria-expanded={false}
-          className="text-muted-foreground"
+          className="text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow"
         >
           <PanelLeftOpen className="size-5" strokeWidth={1.5} />
         </Button>
@@ -205,7 +205,7 @@ export function SpriteCatalogBrowser({
             //
             // Hidden on a phone: collapsing the catalog there would reveal
             // nothing behind it, because the catalog is the whole screen.
-            className="-mr-1.5 ml-auto text-muted-foreground max-md:hidden"
+            className="-mr-1.5 ml-auto text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow max-md:hidden"
           >
             <PanelLeftClose className="size-5" strokeWidth={1.5} />
           </Button>
@@ -306,7 +306,7 @@ export function SpriteCatalogBrowser({
         <div className="flex flex-1 flex-col gap-3 px-4 pt-4 text-base">
           <p className="font-heading text-xl font-medium text-foreground">Sprite catalog unavailable</p>
           <p className="text-sm leading-relaxed text-muted-foreground">{error}</p>
-          <Button variant="outline" size="sm" data-slot="retry" onClick={reload} className="self-start">
+          <Button variant="ghost" size="sm" data-slot="retry" onClick={reload} className="material self-start rounded-full px-4 text-pop-ink hover:text-pop-ink">
             Retry
           </Button>
         </div>
