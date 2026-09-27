@@ -54,10 +54,14 @@ const PANEL = "rounded-2xl bg-muted shadow-[0_3px_0_rgb(20_28_74/0.5)]";
  * A section: a card panel holding a heading and its content. Every section
  * goes through here, so none can drift apart in padding or heading style.
  */
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, aside, children }: { title: string; aside?: string; children: React.ReactNode }) {
   return (
     <section className={cn(PANEL, "px-4 pt-4 pb-3")}>
-      <SectionLabel>{title}</SectionLabel>
+      <div className="flex items-baseline justify-between gap-3">
+        <SectionLabel>{title}</SectionLabel>
+        {/* A unit or qualifier for the whole section, set quieter than the title. */}
+        {aside && <span className="display-caps text-sm text-muted-foreground">{aside}</span>}
+      </div>
       <div className="mt-2">{children}</div>
     </section>
   );
@@ -74,14 +78,11 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Row({
   label,
   labelColor,
-  caps,
   value,
   muted,
 }: {
   label: string;
   labelColor?: string;
-  /** Anton caps, for a variant name, matching the catalog's tile captions. */
-  caps?: boolean;
   value: string;
   /** For a value the catalog doesn't have, so "unknown" never looks like data. */
   muted?: boolean;
@@ -89,7 +90,7 @@ function Row({
   return (
     <div className="flex items-baseline justify-between gap-4 py-1.5">
       <span
-        className={cn(caps ? "display-caps text-base" : "text-sm font-medium", !labelColor && "text-foreground")}
+        className={cn("text-sm font-medium", !labelColor && "text-foreground")}
         style={labelColor ? { color: labelColor } : undefined}
       >
         {label}
@@ -253,28 +254,42 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
         )}
       </Section>
 
-      <Section title="Summon cost — Sprite Dust">
-        {/* One row per variant in the catalog's slot order, its label set like
-            the tile captions (Anton caps in the variant's colour). A cost the
-            catalog doesn't have shows as unpublished; nothing is estimated. */}
-        <div data-slot="summon-costs">
-          {familyVariants.map((v) => (
-            <Row
-              key={v.id}
-              label={variantLabel(v.variant)}
-              caps
-              // The legible label colours the catalog captions use.
-              labelColor={variantKey(v.variant) === "normal" ? undefined : (variantLabelColor(v.variant) ?? undefined)}
-              value={
-                v.summonCostSpriteDust != null ? v.summonCostSpriteDust.toLocaleString() : "Not published"
-              }
-              muted={v.summonCostSpriteDust == null}
-            />
-          ))}
-        </div>
-        {noCostsPublished && (
-          <div className="mt-1">
-            <Empty>Epic hasn&rsquo;t published costs for this Sprite yet.</Empty>
+      <Section title="Resummon cost" aside="Sprite Dust">
+        {/* One chip per variant, in the catalog's slot order: the variant's
+            name in its caption colour, the cost in CTA yellow, on the tiles'
+            own recessed indigo with the ink outline and hard drop every
+            sticker wears. A cost the catalog doesn't have shows as a dash;
+            nothing is estimated. */}
+        {noCostsPublished ? (
+          <Empty>Epic hasn&rsquo;t published costs for this Sprite yet.</Empty>
+        ) : (
+          <div data-slot="summon-costs" className="flex flex-wrap gap-2 pt-1 pb-1.5">
+            {familyVariants.map((v) => {
+              const cost = v.summonCostSpriteDust;
+              return (
+                <span
+                  key={v.id}
+                  data-slot="summon-cost"
+                  className="inline-flex h-9 items-center gap-2.5 rounded-xl border-[3px] border-pop-ink bg-card px-3 shadow-[0_2px_0_var(--pop-ink)]"
+                  aria-label={`${variantLabel(v.variant)}: ${cost != null ? `${cost.toLocaleString()} Sprite Dust` : "not published"}`}
+                >
+                  <span
+                    className="display-caps text-base leading-none"
+                    style={{ color: variantLabelColor(v.variant) ?? undefined }}
+                  >
+                    {variantLabel(v.variant)}
+                  </span>
+                  <span
+                    className={cn(
+                      "display-caps text-base leading-none tabular-nums",
+                      cost != null ? "text-pop-yellow" : "text-muted-foreground/70"
+                    )}
+                  >
+                    {cost != null ? cost.toLocaleString() : "—"}
+                  </span>
+                </span>
+              );
+            })}
           </div>
         )}
       </Section>
