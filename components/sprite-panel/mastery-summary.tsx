@@ -43,7 +43,7 @@ export function MasterySummary() {
         // of the bar invisible.
         // Flat gold fill, no outer glow: the track is a flat ink-outlined
         // pill with the same hard drop shadow as the buttons, no inner shadow.
-        className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-indicator]]:rounded-full [&_[data-slot=progress-track]]:h-3.5 [&_[data-slot=progress-track]]:border-[3px] [&_[data-slot=progress-track]]:border-pop-ink [&_[data-slot=progress-track]]:bg-card [&_[data-slot=progress-track]]:shadow-[0_3px_0_var(--pop-ink)]"
+        className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-indicator]]:!h-2 [&_[data-slot=progress-indicator]]:rounded-[100px] [&_[data-slot=progress-track]]:h-3.5 [&_[data-slot=progress-track]]:border-[3px] [&_[data-slot=progress-track]]:border-pop-ink [&_[data-slot=progress-track]]:bg-card [&_[data-slot=progress-track]]:shadow-[0_3px_0_var(--pop-ink)]"
       >
         <ProgressLabel className="display-caps flex items-center gap-1.5 text-lg leading-none text-sprite-gold">
           {/* The same badge as a mastered tile: a gold disc, ink outline and
