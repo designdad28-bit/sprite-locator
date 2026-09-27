@@ -218,13 +218,21 @@ def main():
     def loops(mask):
         # Smooth the binary mask back into a field so the traced edge is a
         # clean curve, then trace every loop and simplify to ~0.3 cell.
-        field = ndi.gaussian_filter(np.pad(mask.astype(float), 2), 1.2)
+        # Sigma 3 cells (~3px at the screenshot's scale) irons out the
+        # screenshot's pixel stair-steps and compression wobble without losing
+        # the bays and puddles; two rounds of Chaikin then round the corners
+        # the simplifier leaves.
+        field = ndi.gaussian_filter(np.pad(mask.astype(float), 8), 3.0)
         out = []
         for c in measure.find_contours(field, 0.5):
-            c = measure.approximate_polygon(c, 0.3)
+            c = measure.approximate_polygon(c, 0.25)[:-1]
             if len(c) < 4:
                 continue
-            out.append([[round((x - 2 - P) / S, 4), round((y - 2 - P) / S, 4)] for y, x in c[:-1]])
+            for _ in range(2):
+                nxt = np.roll(c, -1, axis=0)
+                c = np.stack([0.75 * c + 0.25 * nxt, 0.25 * c + 0.75 * nxt], 1).reshape(-1, 2)
+            c = np.vstack([c, c[:1]])
+            out.append([[round((x - 8 - P) / S, 4), round((y - 8 - P) / S, 4)] for y, x in c[:-1]])
         return out
 
     layers = [("dark", loops(m_mid)), ("light", loops(m_light)), ("surf", loops(m_surf))]
