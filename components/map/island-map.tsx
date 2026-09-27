@@ -958,33 +958,29 @@ export default function IslandMap({
       </MapContainer>
 
       {/* 16px in from the edge and 24px up, the same insets as the other map
-          chrome, so the zoom stack's bottom lines up with Add Sprite Location's.
-          44px buttons with 20px glyphs (stroke 1.5 = the app's 1.25px ink): a
-          touch-sized target on a surface people use on tablets. */}
+          chrome. */}
       <div className="absolute right-4 bottom-6 z-[500] flex flex-col items-center gap-2">
-        {/* The Button component rather than hand-rolled elements. These three
-            previously re-implemented its sizing, hover and focus ring by hand
-            — and disagreed with it: a 2px ring at ring/50 where Button uses a
-            3px ring at ring/30 plus a border, so map controls focused
-            differently from every other control in the app. */}
+        {/* Compact: every control is exactly 32px wide outside, ink outline
+            included. Reset is a 32px disc; the zoom stack is a 32px pill
+            whose two 26px buttons sit inside its 3px outline. */}
         <Button
           variant="ghost"
           size="icon-lg"
           onClick={resetView}
           aria-label="Reset view"
-          className="material rounded-full text-pop-ink hover:text-pop-ink"
+          className="material size-8 rounded-full text-pop-ink hover:text-pop-ink"
         >
-          <RotateCcw className="size-5" strokeWidth={1.5} />
+          <RotateCcw className="size-3.5" />
         </Button>
-        <div className="material flex flex-col overflow-hidden rounded-full">
+        <div className="material flex w-8 flex-col overflow-hidden rounded-full">
           <Button
             variant="ghost"
             size="icon-lg"
             onClick={() => map?.zoomIn()}
             aria-label="Zoom in"
-            className="rounded-none text-pop-ink hover:!bg-pop-yellow hover:text-pop-ink focus-visible:ring-inset"
+            className="size-[26px] rounded-none text-pop-ink hover:!bg-pop-yellow hover:text-pop-ink focus-visible:ring-inset"
           >
-            <Plus className="size-5" strokeWidth={1.5} />
+            <Plus className="size-3.5" />
           </Button>
           <div className="h-[3px] w-full bg-pop-ink" />
           <Button
@@ -992,9 +988,9 @@ export default function IslandMap({
             size="icon-lg"
             onClick={() => map?.zoomOut()}
             aria-label="Zoom out"
-            className="rounded-none text-pop-ink hover:!bg-pop-yellow hover:text-pop-ink focus-visible:ring-inset"
+            className="size-[26px] rounded-none text-pop-ink hover:!bg-pop-yellow hover:text-pop-ink focus-visible:ring-inset"
           >
-            <Minus className="size-5" strokeWidth={1.5} />
+            <Minus className="size-3.5" />
           </Button>
         </div>
       </div>

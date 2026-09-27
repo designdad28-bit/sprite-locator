@@ -593,11 +593,8 @@ export function SpriteCatalogBrowser({
             );
             };
 
-            // One section per rarity run. `filtered` is already rarity-sorted
-            // and filtering never reorders it, so adjacent runs are the
-            // sections. Each is its own element so its header can be sticky
-            // for exactly as long as that rarity is on screen — a sticky
-            // element only sticks within its parent.
+            // One section per rarity run. `filtered` is already rarity-sorted,
+            // so adjacent runs are the sections.
             const sections: { rarity: string | null; groups: SpriteFamilyGroup[] }[] = [];
             filtered.forEach((group) => {
               const last = sections[sections.length - 1];
@@ -612,11 +609,11 @@ export function SpriteCatalogBrowser({
                 : "Unknown";
               return (
                 <section key={section.rarity ?? "unknown"} id={sectionId(section.rarity)} aria-label={`${label} Sprites`}>
-                  {/* Sticky rarity header: a solid --card strip with 16px above
-                      and below the band, so cards scroll cleanly under it. */}
+                  {/* Rarity header: the band with 16px above and below it,
+                      scrolling with its section. */}
                   <div
                     data-slot="rarity-header"
-                    className="sticky top-0 z-10 -mx-4 mt-3 [section:first-of-type_&]:mt-0 flex h-[68px] items-center px-4 py-4 bg-card"
+                    className="mt-3 flex h-[68px] items-center py-4 [section:first-of-type_&]:mt-0"
                   >
                     {/* The section divider: a rarity-coloured sticker band,
                         ink outline and hard drop shadow like every button. */}

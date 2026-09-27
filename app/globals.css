@@ -161,8 +161,7 @@
      scripts/trace-water-rings.py), out to the map's edge. */
   --pop-yellow: #ffc93c;
   --map-field: var(--card);
-  /* The panel washes are off: panels are flat, so the sticky rarity
-     container (solid --card) disappears into them exactly. */
+  /* The panel washes are off: panels are flat. */
   --wash-a: transparent;
   --wash-b: transparent;
   /* Collected BASE tile — and, since variantColor(null) reads this var, the
