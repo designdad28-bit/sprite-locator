@@ -593,7 +593,7 @@ export default function Home() {
               setAddKey((k) => k + 1);
               setAddOpen(true);
             }}
-            className={cn("pointer-events-auto h-12 gap-2 px-7 text-base shadow-lg", ADD_FINDING_STYLE)}
+            className={cn("pointer-events-auto h-12 gap-2 rounded-full px-7 text-base", ADD_FINDING_STYLE)}
           >
             Add Sprite Location
           </Button>
