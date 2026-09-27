@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type CSSProperties } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
 import { Logo } from "@/components/logo";
@@ -388,11 +388,12 @@ export function SpriteCatalogBrowser({
                           <span
                             className={cn(
                               // A sticker like every other control: ink outline and
-                              // hard ink drop. Hover lifts it off its shadow, press
-                              // sinks it in, keyboard focus rings it in yellow.
-                              "relative block aspect-square w-full overflow-clip rounded-md border-[3px] border-pop-ink shadow-[0_3px_0_var(--pop-ink)] transition-[transform,box-shadow] duration-150 ease-out",
-                              "group-hover:-translate-y-0.5 group-hover:shadow-[0_5px_0_var(--pop-ink)] group-active:translate-y-0.5 group-active:shadow-[0_1px_0_var(--pop-ink)]",
-                              "group-focus-visible:ring-3 group-focus-visible:ring-pop-yellow motion-reduce:transition-none motion-reduce:group-hover:translate-y-0",
+                              // hard ink drop. Hover zooms the whole tile (art and
+                              // all, as one piece), press squeezes it, keyboard
+                              // focus rings it in yellow.
+                              "relative block aspect-square w-full overflow-clip rounded-md border-[3px] border-pop-ink shadow-[0_3px_0_var(--pop-ink)] transition-[scale] duration-150 ease-out",
+                              "group-hover:scale-[1.06] group-active:scale-[0.97]",
+                              "group-focus-visible:ring-3 group-focus-visible:ring-pop-yellow motion-reduce:transition-none motion-reduce:group-hover:scale-100",
                               // Gold outline only for mastered: the top of the ladder.
                               status === "mastered" && "border-sprite-gold",
                               // Uncollected: the sidebar's own fill, a step below the card.
@@ -406,24 +407,16 @@ export function SpriteCatalogBrowser({
                                 src={v.icon}
                                 alt={displayName(v.name)}
                                 className={cn(
-                                  "absolute inset-0 size-full object-cover transition-all duration-150 group-hover:scale-110",
-                                  // Uncollected Sprites wear the indigo duotone and come
-                                  // up to full colour on hover.
-                                  !isColored && "sprite-unowned group-hover:[filter:none]"
+                                  // Every Sprite pops off its tile by default: the hard
+                                  // ink drop under the art, then a soft dark lift.
+                                  "absolute inset-0 size-full object-cover transition-[filter] duration-150 [filter:drop-shadow(0_3px_0_var(--pop-ink))_drop-shadow(0_6px_8px_rgb(0_0_0/0.35))]",
+                                  // Uncollected Sprites wear the indigo duotone (keeping
+                                  // the drop) and come up to full colour on hover.
+                                  !isColored &&
+                                    "[filter:url(#reef-duotone)_drop-shadow(0_3px_0_var(--pop-ink))_drop-shadow(0_6px_8px_rgb(0_0_0/0.35))] group-hover:[filter:drop-shadow(0_3px_0_var(--pop-ink))_drop-shadow(0_6px_8px_rgb(0_0_0/0.35))]"
                                 )}
-                                // Sized and centred per Sprite (lib/sprite-icon-metrics.ts);
-                                // composes with the hover's `scale` property.
-                                style={
-                                  isColored
-                                    ? ({
-                                        transform: spriteIconTransform(v.id),
-                                        // Pops off its backdrop: the site's hard ink drop
-                                        // under the art, plus a soft dark lift around it.
-                                        filter:
-                                          "drop-shadow(0 3px 0 var(--pop-ink)) drop-shadow(0 6px 8px rgb(0 0 0 / 0.35))",
-                                      } as CSSProperties)
-                                    : { transform: spriteIconTransform(v.id) }
-                                }
+                                // Sized and centred per Sprite (lib/sprite-icon-metrics.ts).
+                                style={{ transform: spriteIconTransform(v.id) }}
                               />
                             ) : (
                               <span className="absolute inset-0 bg-input/30" />
