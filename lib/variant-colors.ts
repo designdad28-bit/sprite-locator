@@ -73,7 +73,7 @@ export function variantGradient(variant: string | null): string | null {
 /**
  * A themed backdrop per variant, layered over its gradient, for a collected
  * tile. Each follows the effect Epic paints INSIDE that variant's Sprite art:
- *   base         clouds: soft white puffs in the base's sky blue
+ *   base         light greyish-blue sheen, the gold treatment in #c3caff
  *   gold         reflective gold: gentle bands of light and shadow sweeping
  *                across polished metal, with a soft specular
  *   cheat master Matrix code: streams of falling green glyphs down every
@@ -82,7 +82,7 @@ export function variantGradient(variant: string | null): string | null {
  *   loot hacker  purple checkerboard, lit from the top
  *   bounty       pink swirl: spiral arms turning round a glow behind the
  *                Sprite
- * The code rain, clouds and swirl need real shapes, so they're small generated
+ * The code rain and swirl need real shapes, so they're small generated
  * SVGs (deterministic, built once at load) rather than gradients.
  */
 const CHECKER = (color: string, size: number, offset = 0) =>
@@ -128,29 +128,6 @@ const MATRIX_RAIN = (() => {
   );
 })();
 
-const CLOUDS = (() => {
-  // Puffs of overlapping circles, each cloud drawn solid then faded as a
-  // group so the overlaps don't double up.
-  const cloud = (cx: number, cy: number, k: number, opacity: number) => {
-    const puffs = [
-      [0, 0, 11], [-12, 4, 8], [12, 4, 9], [-5, -7, 9], [6, -6, 8], [-20, 8, 5], [21, 8, 6],
-    ];
-    const circles = puffs
-      .map(([x, y, r]) => `<circle cx="${(cx + x * k).toFixed(1)}" cy="${(cy + y * k).toFixed(1)}" r="${(r * k).toFixed(1)}"/>`)
-      .join("");
-    const base = `<rect x="${(cx - 22 * k).toFixed(1)}" y="${cy.toFixed(1)}" width="${(44 * k).toFixed(1)}" height="${(10 * k).toFixed(1)}" rx="${(5 * k).toFixed(1)}"/>`;
-    return `<g opacity="${opacity}">${circles}${base}</g>`;
-  };
-  return svgUrl(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" fill="#ffffff">` +
-      cloud(24, 84, 1.25, 0.55) +
-      cloud(84, 72, 0.9, 0.4) +
-      cloud(74, 18, 0.7, 0.35) +
-      cloud(14, 28, 0.55, 0.28) +
-      `</svg>`
-  );
-})();
-
 const PINK_SWIRL = (() => {
   const cx = 50;
   const cy = 56;
@@ -176,7 +153,13 @@ const PINK_SWIRL = (() => {
 })();
 
 const VARIANT_PATTERN: Record<string, string> = {
-  base: `radial-gradient(circle at 50% 30%, rgb(255 255 255 / 0.3), transparent 55%), ${CLOUDS} center / cover no-repeat`,
+  // The mastery tracker's "/ 101" colour (--muted-foreground, #c3caff),
+  // swept with the same soft sheen as gold. Opaque, so it replaces the base
+  // blue on the tile only; pins and captions keep --sprite-base-collected.
+  base:
+    "radial-gradient(ellipse 45% 30% at 28% 22%, rgb(255 255 255 / 0.4), transparent 70%), " +
+    "linear-gradient(125deg, oklch(0.74 0.07 277) 0%, oklch(0.87 0.06 277) 20%, oklch(0.78 0.07 277) 36%, " +
+    "oklch(0.91 0.05 277) 50%, oklch(0.77 0.07 277) 64%, oklch(0.85 0.06 277) 80%, oklch(0.72 0.07 277) 100%)",
   gold:
     "radial-gradient(ellipse 45% 30% at 28% 22%, rgb(255 255 245 / 0.45), transparent 70%), " +
     "linear-gradient(125deg, oklch(0.66 0.13 80) 0%, oklch(0.82 0.13 90) 20%, oklch(0.7 0.13 82) 36%, " +
