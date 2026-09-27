@@ -660,7 +660,7 @@ export function SpriteCatalogBrowser({
                       style={{ background: accent.solid }}
                     >
                       <span className="display-caps text-xl leading-none text-pop-ink">{label}</span>
-                      <span className="display-caps ml-auto rounded-full border-[3px] border-pop-ink bg-card px-2 text-sm leading-4 tabular-nums text-white">
+                      <span className="display-caps ml-auto rounded-full border-[3px] border-pop-ink bg-pop-ink px-2 text-sm leading-4 tabular-nums text-white">
                         {section.groups.length}
                       </span>
                     </div>
