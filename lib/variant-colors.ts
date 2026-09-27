@@ -71,6 +71,44 @@ export function variantGradient(variant: string | null): string | null {
 }
 
 /**
+ * A themed backdrop per variant, layered over its gradient, for a collected
+ * tile. Inspired by the way fortnite.gg gives each variant its own texture,
+ * but our own set, each drawn from the variant's name, in CSS only:
+ *   base         spotlight: soft sunburst rays from behind the Sprite
+ *   gold         foil: two diagonal glints across a fine brushed grain
+ *   cheat master cheat grid: a level-editor pixel grid with a bright core
+ *   loot hacker  scanlines: CRT lines and one diagonal glitch band
+ *   bounty       target: concentric rings centred on the Sprite, vignetted
+ * Everything is white or black at low alpha, so each stays in its own hue.
+ */
+const VARIANT_PATTERN: Record<string, string> = {
+  base:
+    "radial-gradient(circle at 50% 58%, rgb(255 255 255 / 0.38), transparent 58%), " +
+    "repeating-conic-gradient(from 0deg at 50% 58%, rgb(255 255 255 / 0.13) 0deg 9deg, transparent 9deg 18deg)",
+  gold:
+    "linear-gradient(115deg, transparent 18%, rgb(255 255 255 / 0.5) 30%, transparent 38%, transparent 58%, rgb(255 255 255 / 0.28) 65%, transparent 71%), " +
+    "repeating-linear-gradient(90deg, rgb(255 255 255 / 0.07) 0 1px, transparent 1px 3px)",
+  cheatmaster:
+    "radial-gradient(circle at 50% 55%, rgb(255 255 255 / 0.32), transparent 55%), " +
+    "linear-gradient(rgb(0 40 0 / 0.16) 1px, transparent 1px) 0 0 / 8px 8px, " +
+    "linear-gradient(90deg, rgb(0 40 0 / 0.16) 1px, transparent 1px) 0 0 / 8px 8px",
+  hacker:
+    "linear-gradient(165deg, transparent 36%, rgb(140 210 255 / 0.35) 36% 43%, transparent 43%), " +
+    "repeating-linear-gradient(0deg, rgb(255 255 255 / 0.11) 0 1px, transparent 1px 4px)",
+  reaper:
+    "radial-gradient(circle at 50% 56%, transparent 45%, rgb(0 0 0 / 0.28)), " +
+    "repeating-radial-gradient(circle at 50% 56%, rgb(255 255 255 / 0.15) 0 2px, transparent 2px 11px)",
+};
+
+/** A collected tile's full background: the variant's pattern over its gradient. */
+export function variantBackdrop(variant: string | null): string | null {
+  const gradient = variantGradient(variant);
+  if (!gradient) return null;
+  const pattern = VARIANT_PATTERN[variant ? variantKey(variant) : "base"];
+  return pattern ? `${pattern}, ${gradient}` : gradient;
+}
+
+/**
  * The base/normal variant's accent: grey, because base Sprites — unlike the
  * four variants — share no colour to borrow (their artwork hues span the whole
  * wheel; see --sprite-base-collected in app/globals.css for the measurement).

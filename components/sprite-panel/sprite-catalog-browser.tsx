@@ -10,7 +10,7 @@ import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
 import { rarityAccent } from "@/lib/rarity";
 import { displayName } from "@/lib/sprite-name";
-import { VARIANT_SLOTS, variantGradient, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
+import { VARIANT_SLOTS, variantBackdrop, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { spriteIconScale } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
 import { MasterySummary } from "./mastery-summary";
@@ -508,7 +508,7 @@ export function SpriteCatalogBrowser({
                       }
                       const status = getStatus(v.id);
                       const label = variantLabel(v.variant);
-                      const accent = variantGradient(v.variant);
+                      const accent = variantBackdrop(v.variant);
                       const isColored = status !== "default";
                       return (
                         <button
@@ -583,6 +583,11 @@ export function SpriteCatalogBrowser({
                                   isColored
                                     ? ({
                                         transform: `scale(${spriteIconScale(v.id)})`,
+                                        // Pops off its backdrop like a die-cut sticker: a
+                                        // white keyline traced around the art, then the
+                                        // site's hard ink drop beneath it.
+                                        filter:
+                                          "drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff) drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff) drop-shadow(0 3px 0 var(--pop-ink))",
                                       } as CSSProperties)
                                     : { transform: `scale(${spriteIconScale(v.id)})` }
                                 }
