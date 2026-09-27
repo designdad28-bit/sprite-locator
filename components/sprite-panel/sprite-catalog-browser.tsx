@@ -311,7 +311,12 @@ export function SpriteCatalogBrowser({
 
             return (
               <motion.div key={group.family} variants={item}>
-                <div className="rounded-lg py-2">
+                {/* Each Sprite is its own lifted panel: one step lighter than
+                    the sidebar (--muted), rounded, and a soft ink drop under it
+                    at half strength, so the cards separate by surface and
+                    depth rather than by outlines. overflow-hidden clips the
+                    scrolling tile row to the panel's rounded corners. */}
+                <div className="mb-3 overflow-hidden rounded-2xl bg-muted px-3 py-2 shadow-[0_3px_0_rgb(20_28_74/0.5)]">
                   {/* Header: purely informational — not clickable/hoverable, per design. Only the Radar/Info icons act. */}
                   <div className="flex items-center justify-between py-1">
                     <span className="flex min-w-0 items-center">
@@ -454,7 +459,7 @@ export function SpriteCatalogBrowser({
                       the full CONTENT width; running the tiles to the screen
                       edge would leave them the only thing in the app not
                       aligned with the column above them. */}
-                  <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 py-2 max-md:overflow-x-visible">
+                  <div className="no-scrollbar -mx-3 flex items-center gap-2 overflow-x-auto px-3 py-2 max-md:overflow-x-visible">
                     {VARIANT_SLOTS.map((slot) => {
                       const v = group.variants.find((x) => variantKey(x.variant) === slot);
                       // Not every family ships all five variants (Mega Man has only

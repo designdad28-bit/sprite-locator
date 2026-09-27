@@ -39,7 +39,7 @@ import { cn } from "@/lib/utils";
 // is the cue; a whole one would read as the last one and hide that two more
 // follow. The row itself already scrolls (overflow-x-auto, scrollbar hidden)
 // — see the variant row in sprite-catalog-browser.tsx.
-const SIDEBAR_WIDTH = 322;
+const SIDEBAR_WIDTH = 350;
 
 /**
  * How far the sidebar can be dragged.
@@ -59,10 +59,12 @@ const SIDEBAR_WIDTH = 322;
  * Still capped at half the window as well, so a drag can never squeeze the map
  * into a sliver on a narrow screen.
  */
-// Min: 16px pad + 3 tiles and gaps (264) + half of HACKER (40) + the 2px border,
-// so the narrowest sidebar cuts the fourth tile down the middle.
-const SIDEBAR_MIN_WIDTH = 322;
-const SIDEBAR_MAX_WIDTH = 466;
+// Min: the sidebar's 16px pad + the card's 12px pad + 3 tiles and gaps (264)
+// + half of HACKER (40) puts the card's clipping edge through the middle of
+// the fourth tile at 332; + the 16px pad outside the card + the 2px border.
+// Max: every tile whole, 28 + 5 x 80 + 4 x 8 + 12 + 16 + 2.
+const SIDEBAR_MIN_WIDTH = 350;
+const SIDEBAR_MAX_WIDTH = 490;
 
 /** Remembers the dragged width between visits, like the collection state does. */
 const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
