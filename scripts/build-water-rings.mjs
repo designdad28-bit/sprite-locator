@@ -8,19 +8,18 @@
  *   rim    #26beef  ~2px, a bright line right on the sand
  *   light  #1395d8  out to ~30px from the beach
  *   dark   #0f5eb3  out to ~60px
- * Beyond that is the game's own background, not water. Both bands are offset
- * curves of the coastline: they follow every peninsula and bay, with convex
- * corners rounded and bays narrower than the offset filled in. The light band
- * hugs the coast closely; the dark band echoes it in broader scallops. Flat
- * colours, crisp edges, no randomness.
+ * Beyond that is the game's own background, not water. The two bands do NOT
+ * share a shape: each edge wanders on its own. The light band fills the bays
+ * and wavers; the dark band's outer edge is big smooth lobes, so the dark
+ * band is wide in some places and thin in others. Flat colours, crisp edges.
  *
  * How it's reproduced: the exact Euclidean distance from the land, blurred a
  * little (more for the dark band, so it's smoother), and each band is the
  * region within its distance, traced with marching squares into vector loops.
  * Traced here, once, rather than rendered as live SVG filters, because
  * browsers rasterise big blurs at low resolution and the edges stair-step
- * when zoomed. A noise term is still supported per layer (`noise`, `detail`)
- * but set to zero: Fortnite's bands don't wander.
+ * when zoomed. Each band gets its own seeded noise (`noise`,
+ * `detail`), which is what makes the two edges differ from each other.
  *
  * Deterministic (seeded noise), so re-running gives the same shapes. Re-run
  * whenever lib/map/land-outline.ts is re-traced:
@@ -40,19 +39,19 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
  * is fine wobble rather than big lobes.
  */
 const LAYERS = JSON.parse(process.env.WATER_LAYERS || "null") ?? [
-  // dark band: ~60px out in the screenshot; smoother, so it echoes the
-  // island's big shapes in broad scallops
-  // Recoloured by request to the surf rim's lighter #26beef (Fortnite's own
-  // is #0f5eb3), so it reads as a light outline around the #1395d8 shallows.
-  { name: "dark", color: "#1868DB", level: 0.062, smooth: 0.009, noise: 0 },
-  // light band: ~30px out; follows every peninsula and bay closely
-  { name: "light", color: "#26beef", level: 0.03, smooth: 0.005, noise: 0 },
+  // Outer band (Rare blue): big, smooth lobes of its own, low detail, like
+  // Fortnite's outermost water edge. Kept at least 0.012 beyond the next band.
+  { name: "dark", color: "#1868DB", level: 0.1, smooth: 0.045, noise: 0.045, detail: 0.08, minGap: 0.012 },
+  // Inner band (light blue): fills the bays and wavers more, with a finer
+  // wobble, so its edge runs independently of both the coast and the band
+  // outside it.
+  { name: "light", color: "#26beef", level: 0.048, smooth: 0.022, noise: 0.022, detail: 0.55 },
   // the thin bright rim on the sand
   { name: "surf", color: "#26beef", level: 0.0022, smooth: 0.0015, noise: 0 },
 ];
 
 /** Feature size of the noise, as a fraction of map width. */
-const NOISE_SCALE = Number(process.env.WATER_NOISE_SCALE || 0.09);
+const NOISE_SCALE = Number(process.env.WATER_NOISE_SCALE || 0.16);
 
 const S = 1024; // cells across the [0,1] map
 const P = 200; // padding, so the outermost lobes aren't clipped
@@ -274,13 +273,28 @@ function simplify(p, eps) {
 
 const toFraction = (p) => p.map(([x, y]) => [+((x - P) / S).toFixed(4), +((y - P) / S).toFixed(4)]);
 
-const layers = LAYERS.map((layer, i) => {
+const fields = LAYERS.map((layer, i) => {
   let g = blur(dist, (layer.smooth || 0) * S);
   if (layer.noise) {
     const n = noiseField(1234 + i * 101, layer.detail ?? 0.3);
     g = Float32Array.from(g, (v, j) => v + n[j] * layer.noise);
   }
-  const loops = contours(g, layer.level)
+  return g;
+});
+// Each band wanders on its own, so an outer band could thin to nothing where
+// the next band in bulges out. `minGap` keeps the outer band at least that
+// wide (fraction of map width) beyond the next band's edge, everywhere.
+// Innermost first, so a guarantee carries outward.
+for (let i = LAYERS.length - 2; i >= 0; i--) {
+  const gap = LAYERS[i].minGap;
+  if (!gap) continue;
+  const inner = fields[i + 1];
+  const shift = LAYERS[i].level - LAYERS[i + 1].level - gap;
+  fields[i] = Float32Array.from(fields[i], (v, j) => Math.min(v, inner[j] + shift));
+}
+
+const layers = LAYERS.map((layer, i) => {
+  const loops = contours(fields[i], layer.level)
     .map((l) => toFraction(simplify(l, 0.35)))
     .filter((l) => l.length >= 4);
   return { name: layer.name, color: layer.color, loops };
