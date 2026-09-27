@@ -134,7 +134,8 @@ const MATRIX_RAIN = (() => {
  *   - Swaths: low-frequency noise stretched along one axis, then rotated 25deg
  *     so it streaks diagonally; its dark end becomes deep brown, its bright end
  *     pale gold, both as alpha over the base.
- *   - Crinkle: fine turbulence used as a height map and lit from the top left
+ *   - Crinkle: fine, softened turbulence used as a shallow height map (kept
+ *     low so the foil reads smooth and flat, not lumpy), lit from the top left
  *     (feDiffuseLighting), then split into a pale highlight layer and a brown
  *     shadow layer, so the texture catches light without greying the gold.
  * SVG filters render once per image and are cached, so this costs nothing per
@@ -152,8 +153,8 @@ const GOLD_FOIL = svgUrl(
     `<feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 0.94  0 0 0 0 0.6  3.2 0 0 0 -1.8"/>` +
     `</filter>` +
     `<filter id="c" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">` +
-    `<feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" seed="7" result="n"/>` +
-    `<feDiffuseLighting in="n" surfaceScale="1.1" diffuseConstant="1" lighting-color="#fff" result="l">` +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7"/><feGaussianBlur stdDeviation="0.35" result="n"/>` +
+    `<feDiffuseLighting in="n" surfaceScale="0.45" diffuseConstant="1" lighting-color="#fff" result="l">` +
     `<feDistantLight azimuth="225" elevation="48"/></feDiffuseLighting>` +
     `<feColorMatrix in="l" type="matrix" result="hi" values="0 0 0 0 1  0 0 0 0 0.96  0 0 0 0 0.78  1.1 0 0 0 -0.8"/>` +
     `<feColorMatrix in="l" type="matrix" result="lo" values="0 0 0 0 0.2  0 0 0 0 0.12  0 0 0 0 0.02  -1 0 0 0 0.72"/>` +
