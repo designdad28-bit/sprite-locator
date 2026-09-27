@@ -19,7 +19,7 @@ export const ADD_FINDING_STYLE =
   // Sprite Scout's primary button: a yellow-to-amber pill in thick ink
   // outline with a hard drop shadow, labelled in the display caps. It sinks
   // into its shadow when pressed (see the pop utility in globals.css).
-  "pop display-caps bg-[linear-gradient(180deg,#ffd84d,#f5a623)] text-pop-ink text-lg hover:brightness-105 focus-visible:ring-pop-yellow/50";
+  "pop !rounded-full !shadow-[0_4px_0_var(--pop-ink)] active:!shadow-[0_1px_0_var(--pop-ink)] display-caps bg-[linear-gradient(180deg,#ffd84d,#f5a623)] text-pop-ink text-lg hover:brightness-105 focus-visible:ring-pop-yellow/50";
 
 /**
  * The stroke the primary action's icon takes, where the app's baseline is
