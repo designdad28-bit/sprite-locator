@@ -33,8 +33,8 @@ import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-con
 function islandFitBounds(worldSize: number, nativeZoom: number) {
   const cx = (ISLAND_BOUNDS.minX + ISLAND_BOUNDS.maxX) / 2;
   const cy = (ISLAND_BOUNDS.minY + ISLAND_BOUNDS.maxY) / 2;
-  // Plus the water rings' reach past the coast (half the widest ring's
-  // stroke), so the fitted view frames the rings too instead of cropping them.
+  // Plus the water's reach past the coast, so the fitted view frames the
+  // water too instead of cropping it.
   const ringReach = WATER_REACH;
   const halfW = (ISLAND_BOUNDS.maxX - ISLAND_BOUNDS.minX) / 2 / ISLAND_FIT_SCALE + ringReach;
   const halfH = (ISLAND_BOUNDS.maxY - ISLAND_BOUNDS.minY) / 2 / ISLAND_FIT_SCALE + ringReach;
@@ -491,14 +491,14 @@ const VOID_MASK_URL = (() => {
 })();
 
 /**
- * The water around the island, matched to Fortnite's own in-game map: a thin
- * cyan surf line on the sand, lumpy light shallows, a mid blue, and a deep
- * blue in big irregular lobes, each a flat colour with a crisp edge, with
- * uneven widths and small puddles of one colour inside the next.
+ * The water around the island, traced from Fortnite's own in-game map: a
+ * light band and a mid band whose edges swing in and out independently, with
+ * deep rounded bays, thin necks and small puddles of one colour inside the
+ * next, each a flat colour with a crisp edge.
  *
- * The shapes are generated vectors (lib/map/water-rings.ts, from
- * scripts/build-water-rings.mjs, where the colours and measurements are
- * documented), painted outermost first and filled even-odd so puddles and
+ * The shapes are vectors (lib/map/water-rings.ts, traced by
+ * scripts/trace-water-rings.py from a screenshot of the game's map, where
+ * the method and colours are documented), painted outermost first and filled even-odd so puddles and
  * holes show through. Vectors rather than live filters, which browsers
  * rasterise at low resolution. The void mask's hole hides whatever falls over
  * the land itself.

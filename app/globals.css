@@ -172,7 +172,7 @@
   --pop-ink: #141c4a;
   /* The primary action's yellow. The field around the island is the sidebar's
      own colour (--card), past the water bands (see
-     scripts/build-water-rings.mjs), out to the map's edge. */
+     scripts/trace-water-rings.py), out to the map's edge. */
   --pop-yellow: #ffc93c;
   --map-field: var(--card);
   /* Two washes of light off the top of each panel, the move that keeps a dark
