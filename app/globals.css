@@ -339,33 +339,21 @@
   display: inline-block;
   white-space: nowrap;
   transform: translate(-50%, -50%);
-  font-family: var(--font-heading);
-  font-weight: 700;
-  /* On the type scale rather than a 13px one-off. */
-  font-size: var(--text-sm);
-  /* Uppercase needs air that lowercase doesn't: caps have no ascenders or
-     descenders to separate them, so at 0.02em the words read as one block. */
-  letter-spacing: 0.07em;
+  /* The display face in caps, like the sprite names and headings. */
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-base);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--foreground);
-  /* A real stroke, not four offset copies of the text.
-     The previous rule faked an outline with shadows at the four diagonals,
-     which is why the labels looked hand-cut: that outline is double-weight at
-     the corners and thinnest along the flat edges of a letterform, so curves
-     come out lumpy and stepped. -webkit-text-stroke follows the glyph's own
-     outline at an even weight all the way round.
-     paint-order is what makes it usable: by default the stroke is painted
-     over the fill, and since a stroke straddles the outline it would eat half
-     the letter's own weight, thinning the type. Painting stroke first puts the
-     fill back on top, so only the outer half shows — which is also why the
-     width is 3px for a ~1.5px ring, matching the old weight at the corners.
-     Softened to 70% black rather than pure: at full strength a hard ring this
-     size reads as a sticker on top of the map instead of a label on it. */
-  -webkit-text-stroke: 3px rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  /* A bold ink outline in the site's own ink colour, like the sticker
+     buttons. paint-order puts the stroke under the fill, so only its outer
+     half shows: 5px of stroke reads as a 2.5px ring and the letters keep
+     their full weight. Then a hard ink drop, the same move as the buttons'
+     shadow, with no blur. */
+  -webkit-text-stroke: 5px var(--pop-ink);
   paint-order: stroke fill;
-  /* Depth only — the separation is the stroke's job now, so this is a soft
-     cast rather than the old hard 2px step. */
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  text-shadow: 0 2px 0 var(--pop-ink);
   -webkit-font-smoothing: antialiased;
   pointer-events: none;
   user-select: none;
