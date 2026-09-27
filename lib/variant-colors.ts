@@ -72,45 +72,97 @@ export function variantGradient(variant: string | null): string | null {
 
 /**
  * A themed backdrop per variant, layered over its gradient, for a collected
- * tile. Each one is drawn from what the variant does to the Sprite's own art:
+ * tile. Each follows the effect Epic paints INSIDE that variant's Sprite art:
  *   base         voxel floor: every Sprite is built from stepped pixel
  *                layers, so a pixel checker rises from the bottom and fades
- *   gold         molten gloss: the gold art is polished metal, so a big
- *                specular highlight, a warm pool below and a rim glint
- *   cheat master pixel dissolve: the cheat art breaks apart into loose
- *                green blocks at its base, so two offset pixel grids that
- *                thicken toward the bottom
- *   loot hacker  hologram glitch: the hacker art is striped with horizontal
- *                glitch bands, so uneven bands of light at odd heights
- *   bounty       ghost wisps: the bounty art swirls with pink streaks, so soft
- *                streaks fanning round a glow behind the Sprite
- * Tints are white, black or the variant's own hue at low alpha.
+ *   gold         reflective gold: chrome-style bands of light and shadow
+ *                sweeping across polished metal, with a hot specular
+ *   cheat master Matrix code: columns of falling green glyphs, each with a
+ *                bright head and a fading tail, over a darkened green
+ *   loot hacker  purple checkerboard, lit from the top
+ *   bounty       pink swirl: spiral arms turning round a glow behind the
+ *                Sprite
+ * The code rain and the swirl need real shapes, so they're small generated
+ * SVGs (deterministic, built once at load) rather than gradients.
  */
 const CHECKER = (color: string, size: number, offset = 0) =>
   `conic-gradient(${color} 25%, transparent 0 50%, ${color} 0 75%, transparent 0) ${offset}px ${offset}px / ${size}px ${size}px`;
+
+const svgUrl = (svg: string) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+
+/** Seeded so every render draws the same rain and swirl. */
+function seeded(seed: number) {
+  return () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+}
+
+const MATRIX_RAIN = (() => {
+  const rand = seeded(42);
+  // No < > or &: they would break the SVG markup.
+  const glyphs = "01ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄ0123456789Z:=+";
+  const size = 8.5;
+  let text = "";
+  for (let x = 3; x < 100; x += 8) {
+    // One falling stream per column: a head somewhere in the tile, a tail of
+    // 4-9 glyphs above it fading out, and sometimes a second, fainter stream.
+    for (let stream = 0; stream < (rand() < 0.45 ? 2 : 1); stream++) {
+      const head = 20 + rand() * 90;
+      const tail = 4 + Math.floor(rand() * 6);
+      const faint = stream === 1 ? 0.5 : 1;
+      for (let i = 0; i <= tail; i++) {
+        const y = head - i * size;
+        if (y < -2) break;
+        const ch = glyphs[Math.floor(rand() * glyphs.length)];
+        const fill = i === 0 ? "#eaffea" : "#7dff8a";
+        const opacity = (i === 0 ? 0.95 : 0.75 * (1 - i / (tail + 1))) * faint;
+        text += `<text x="${x}" y="${y.toFixed(1)}" fill="${fill}" fill-opacity="${opacity.toFixed(2)}">${ch}</text>`;
+      }
+    }
+  }
+  return svgUrl(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" font-family="Menlo,Consolas,monospace" font-size="${size}" font-weight="700">${text}</svg>`
+  );
+})();
+
+const PINK_SWIRL = (() => {
+  const cx = 50;
+  const cy = 56;
+  const arm = (start: number) => {
+    const pts: string[] = [];
+    for (let t = 0; t <= 9; t += 0.12) {
+      const r = 3 * Math.exp(0.36 * t);
+      if (r > 95) break;
+      const a = start + t;
+      pts.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+    }
+    return pts.join(" ");
+  };
+  let paths = "";
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    paths += `<polyline points="${arm(a)}" stroke="#ffd2fb" stroke-opacity="0.34" stroke-width="7"/>`;
+    paths += `<polyline points="${arm(a + Math.PI / 5)}" stroke="#5a0056" stroke-opacity="0.2" stroke-width="5"/>`;
+  }
+  return svgUrl(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" fill="none" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`
+  );
+})();
 
 const VARIANT_PATTERN: Record<string, string> = {
   base:
     "linear-gradient(to bottom, var(--sprite-base-collected-bottom) 25%, transparent 90%), " +
     CHECKER("rgb(255 255 255 / 0.16)", 12),
   gold:
-    "radial-gradient(ellipse 60% 38% at 30% 20%, rgb(255 253 235 / 0.8), transparent 70%), " +
-    "radial-gradient(circle at 82% 78%, rgb(255 246 190 / 0.45), transparent 22%), " +
-    "radial-gradient(ellipse 100% 55% at 50% 105%, oklch(0.5 0.12 70 / 0.75), transparent 70%)",
-  cheatmaster:
-    "linear-gradient(to bottom, oklch(0.817 0.234 140) 30%, transparent 92%), " +
-    CHECKER("rgb(0 70 0 / 0.35)", 16) +
-    ", " +
-    CHECKER("rgb(255 255 255 / 0.28)", 8, 4),
+    "radial-gradient(ellipse 45% 30% at 28% 22%, rgb(255 255 245 / 0.85), transparent 70%), " +
+    "linear-gradient(125deg, oklch(0.55 0.12 75) 0%, oklch(0.92 0.12 95) 18%, oklch(0.62 0.13 78) 34%, " +
+    "oklch(0.97 0.07 98) 48%, oklch(0.6 0.13 76) 62%, oklch(0.86 0.14 92) 78%, oklch(0.5 0.11 72) 100%)",
+  cheatmaster: `${MATRIX_RAIN} center / cover no-repeat, linear-gradient(rgb(0 35 5 / 0.55), rgb(0 35 5 / 0.3))`,
   hacker:
-    "linear-gradient(180deg, transparent 0 16%, rgb(175 155 255 / 0.5) 16% 21%, transparent 21% 45%, " +
-    "rgb(125 225 255 / 0.4) 45% 47.5%, transparent 47.5% 64%, rgb(175 155 255 / 0.32) 64% 73%, " +
-    "transparent 73% 87%, rgb(255 255 255 / 0.3) 87% 88.5%, transparent 88.5%), " +
-    "linear-gradient(90deg, transparent 0 58%, rgb(255 255 255 / 0.16) 58% 100%) 0 45% / 100% 10% no-repeat",
-  reaper:
-    "radial-gradient(circle at 50% 58%, rgb(255 205 255 / 0.5), transparent 48%), " +
-    "repeating-conic-gradient(from 15deg at 50% 58%, rgb(255 255 255 / 0.18) 0deg, transparent 20deg 40deg, rgb(255 255 255 / 0.18) 60deg), " +
-    "repeating-conic-gradient(from 40deg at 38% 70%, rgb(90 0 80 / 0.16) 0deg, transparent 25deg 50deg, rgb(90 0 80 / 0.16) 75deg)",
+    "linear-gradient(to bottom, rgb(255 255 255 / 0.2), transparent 65%), " +
+    CHECKER("rgb(205 150 255 / 0.32)", 16),
+  reaper: `radial-gradient(circle at 50% 56%, rgb(255 215 255 / 0.55), transparent 30%), ${PINK_SWIRL} center / cover no-repeat`,
 };
 
 /** A collected tile's full background: the variant's pattern over its gradient. */
