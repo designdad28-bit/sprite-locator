@@ -4,7 +4,7 @@ import { useMemo, useState, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
 import { Logo } from "@/components/logo";
-import { Info, Search, Ban, CrownSolid, X, PanelLeftClose, PanelLeftOpen } from "@/components/icons";
+import { Info, Search, Ban, CrownSolid, X, PanelLeftOpen } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
@@ -191,24 +191,6 @@ export function SpriteCatalogBrowser({
               appear flush. The crown, search field and tiles below are all
               flat-edged and stay at 12. */}
           <Logo className="text-lg max-md:text-xl" />
-          {/* ml-auto pins it to the row's right edge, opposite the logo. */}
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            data-slot="sidebar-toggle"
-            onClick={onToggleCollapsed}
-            aria-label="Collapse sidebar"
-            aria-expanded={true}
-            // -mr-1.5 pulls the button's own padding back so the GLYPH still
-            // lands on the 12px gutter, rather than the button box landing on
-            // it and the icon sitting inset from the edge.
-            //
-            // Hidden on a phone: collapsing the catalog there would reveal
-            // nothing behind it, because the catalog is the whole screen.
-            className="-mr-1.5 ml-auto text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow max-md:hidden"
-          >
-            <PanelLeftClose className="size-5" strokeWidth={1.5} />
-          </Button>
         </div>
 
         <div className="px-4 pb-[3px]">
