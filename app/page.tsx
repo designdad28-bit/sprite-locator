@@ -617,7 +617,7 @@ export default function Home() {
           // that is visibly distinct from the content layer; painting this bar
           // in the content's own colour left it reading as part of the list
           // rather than as a bar floating above it.
-          className="fixed inset-x-0 bottom-0 z-[650] border-t-2 border-border bg-muted px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
+          className="fixed inset-x-0 bottom-0 z-[650] border-t-[3px] border-pop-ink bg-muted px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
           style={{ minHeight: MOBILE_CTA_HEIGHT }}
         >
           <Button
