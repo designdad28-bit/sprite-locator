@@ -71,14 +71,15 @@ export interface AddFindingDialogProps {
  * Mount it with a `key` that changes on each open (see app/page.tsx) so every
  * open starts from a blank form without resetting state in an effect.
  */
-/** The dialog's pickers: the white sticker style of every secondary control,
- *  yellow on hover (see the material utility). !bg-white beats the trigger's
- *  own bg-input/50, which sits later in the stylesheet. */
 /** Field labels: Anton caps in the CTA yellow, the profile panel's heading style. */
 const LABEL_STYLE = "display-caps text-base leading-none text-pop-yellow max-md:text-base";
 
+/** The dialog's pickers: the white sticker style of every secondary control, but
+ *  with 10px corners, since fields are boxes and only buttons are pills;
+ *  yellow on hover (see the material utility). !bg-white beats the trigger's
+ *  own bg-input/50, which sits later in the stylesheet. */
 const PICKER_STYLE =
-  "material !bg-white w-full font-semibold text-pop-ink data-placeholder:text-pop-ink/60 [&_svg]:text-pop-ink";
+  "material !bg-white w-full rounded-[10px] font-semibold text-pop-ink data-placeholder:text-pop-ink/60 [&_svg]:text-pop-ink";
 
 export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, onConfirm }: AddFindingDialogProps) {
   const { sprites } = useSpriteCatalog();
