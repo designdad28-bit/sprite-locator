@@ -211,7 +211,9 @@ export function SpriteCatalogBrowser({
           </Button>
         </div>
 
-        <div className="px-4">
+        <div className="px-4 pb-[3px]">
+          {/* pb-[3px]: room for the bar's 3px hard shadow, which the rarity
+              container below would otherwise cover. */}
           <MasterySummary />
         </div>
       </div>
