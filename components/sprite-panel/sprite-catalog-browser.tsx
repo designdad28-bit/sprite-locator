@@ -234,6 +234,7 @@ export function SpriteCatalogBrowser({
 }: SpriteCatalogBrowserProps) {
   const { sprites, loading, error, reload } = useSpriteCatalog();
   const { getStatus, cycleStatus, hasAny } = useCollectionStatus();
+  const [scrolled, setScrolled] = useState(false);
 
   // Only Sprites the current season's live config actually makes obtainable
   // — vaulted/rotated-out/unreleased entries never show up in the browsable
@@ -280,7 +281,15 @@ export function SpriteCatalogBrowser({
     <div className="flex h-full flex-col">
       {/* Pinned header: the logo and the mastery count. px-4 matches the
           cards below, so everything in the sidebar shares one left edge. */}
-      <div className="shrink-0">
+      <div
+        className={cn(
+          // A 3px ink line along the bottom once the list scrolls under it,
+          // the same edge as the phone's bottom CTA bar. Transparent at rest
+          // so nothing shifts when it appears.
+          "shrink-0 border-b-[3px] pb-3",
+          scrolled ? "border-pop-ink" : "border-transparent"
+        )}
+      >
         <div className="flex items-center gap-2 px-4 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
           <Logo className="text-lg max-md:text-xl" />
         </div>
@@ -309,7 +318,10 @@ export function SpriteCatalogBrowser({
       </div>
 
       {/* Everything below the header scrolls. */}
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-4">
+      <div
+        className="no-scrollbar flex-1 overflow-y-auto px-4 pb-4"
+        onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
+      >
       {loading && (
         // The real layout, drawn before the data arrives: a rarity band, then
         // card panels in the catalog's exact proportions, so nothing jumps
