@@ -389,13 +389,10 @@ export function SpriteCatalogBrowser({
                             One dot per variant SLOT, in VARIANT_SLOTS order, so
                             a dot's position tells you which variant it stands
                             for: the second dot is always gold, the fifth
-                            always bounty hunter. That is why all five are
-                            always drawn, even for a family that doesn't have
-                            all five — dropping the missing ones would shift
-                            every dot after them onto the wrong variant. Slots
-                            the family has no variant for are dimmed instead,
-                            the same thing the dashed tile and its Ban icon say
-                            further down the card. */}
+                            always bounty hunter. Variants a family doesn't
+                            have get no dot at all (Mega Man shows just its
+                            base one); the dashed tiles below already say
+                            they don't exist. */}
                         <span
                           className="flex h-4 items-center gap-1"
                           role="img"
@@ -403,20 +400,18 @@ export function SpriteCatalogBrowser({
                         >
                           {VARIANT_SLOTS.map((slot) => {
                             const v = group.variants.find((x) => variantKey(x.variant) === slot);
-                            const mastered = v ? getStatus(v.id) === "mastered" : false;
+                            // Only variants that exist get a dot: Mega Man shows one.
+                            if (!v) return null;
+                            const mastered = getStatus(v.id) === "mastered";
                             return (
                               <span
                                 key={slot}
                                 data-slot="mastery-dot"
-                                data-state={!v ? "absent" : mastered ? "mastered" : "unmastered"}
+                                data-state={mastered ? "mastered" : "unmastered"}
                                 className={cn(
                                   "size-2 rounded-full",
-                                  mastered
-                                    ? "bg-sprite-gold"
-                                    : v
-                                      ? // Exactly the unselected tile's fill (bg-card, #232a7a).
-                                        "bg-card"
-                                      : "bg-card/40"
+                                  // Unmastered: exactly the unselected tile's fill (bg-card).
+                                  mastered ? "bg-sprite-gold" : "bg-card"
                                 )}
                               />
                             );
