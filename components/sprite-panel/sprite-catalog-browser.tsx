@@ -613,7 +613,7 @@ export function SpriteCatalogBrowser({
                                 aria-hidden
                                 className="absolute right-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full border-2 border-pop-ink bg-sprite-gold shadow-[0_2px_0_var(--pop-ink)]"
                               >
-                                <CrownSolid className="size-3 text-card" fill="currentColor" />
+                                <CrownSolid className="size-4 text-card" fill="currentColor" />
                               </span>
                             )}
                           </span>

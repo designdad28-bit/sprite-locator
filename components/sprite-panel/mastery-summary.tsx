@@ -52,7 +52,7 @@ export function MasterySummary() {
             aria-hidden
             className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-sprite-gold shadow-[0_2px_0_var(--pop-ink)]"
           >
-            <CrownSolid className="size-3 text-card" fill="currentColor" />
+            <CrownSolid className="size-4 text-card" fill="currentColor" />
           </span>
           Mastered
         </ProgressLabel>
