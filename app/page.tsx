@@ -59,7 +59,9 @@ const SIDEBAR_WIDTH = 322;
  * Still capped at half the window as well, so a drag can never squeeze the map
  * into a sliver on a narrow screen.
  */
-const SIDEBAR_MIN_WIDTH = 292;
+// Min: 16px pad + 3 tiles and gaps (264) + half of HACKER (40) + the 2px border,
+// so the narrowest sidebar cuts the fourth tile down the middle.
+const SIDEBAR_MIN_WIDTH = 322;
 const SIDEBAR_MAX_WIDTH = 466;
 
 /** Remembers the dragged width between visits, like the collection state does. */
