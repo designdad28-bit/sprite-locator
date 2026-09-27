@@ -11,7 +11,7 @@ import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
 import { rarityAccent } from "@/lib/rarity";
 import { displayName } from "@/lib/sprite-name";
 import { VARIANT_SLOTS, variantBackdrop, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
-import { spriteIconScale } from "@/lib/sprite-icon-metrics";
+import { spriteIconTransform } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
 import { MasterySummary } from "./mastery-summary";
 import { cn } from "@/lib/utils";
@@ -324,7 +324,7 @@ export function SpriteCatalogBrowser({
                           // Every icon is a 512x512 square, but the artwork inside fills
                           // 71%-92% of it depending on the Sprite — so equal boxes alone
                           // still render visibly unequal sprites. See scripts/measure-sprite-icons.py.
-                          style={{ transform: `scale(${spriteIconScale(baseVariant.id)})` }}
+                          style={{ transform: spriteIconTransform(baseVariant.id) }}
                         />
                       ) : (
                         <span className="size-14 md:size-16 shrink-0 rounded-md bg-input/30" />
@@ -582,13 +582,13 @@ export function SpriteCatalogBrowser({
                                 style={
                                   isColored
                                     ? ({
-                                        transform: `scale(${spriteIconScale(v.id)})`,
+                                        transform: spriteIconTransform(v.id),
                                         // Pops off its backdrop: the site's hard ink drop
                                         // under the art, plus a soft dark lift around it.
                                         filter:
                                           "drop-shadow(0 3px 0 var(--pop-ink)) drop-shadow(0 6px 8px rgb(0 0 0 / 0.35))",
                                       } as CSSProperties)
-                                    : { transform: `scale(${spriteIconScale(v.id)})` }
+                                    : { transform: spriteIconTransform(v.id) }
                                 }
                               />
                             ) : (

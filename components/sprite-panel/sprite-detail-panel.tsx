@@ -10,7 +10,7 @@ import { titleCase } from "@/lib/title-case";
 import { SPRITE_ABILITIES } from "@/lib/sprite-abilities";
 import { VARIANT_SLOTS, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { cn } from "@/lib/utils";
-import { spriteIconScale } from "@/lib/sprite-icon-metrics";
+import { spriteIconTransform } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
 import { RarityGem } from "@/components/rarity-gem";
 
@@ -200,7 +200,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
               src={sprite.icon}
               alt={displayName(sprite.name)}
               className="size-full object-contain drop-shadow-[0_18px_24px_rgb(0_0_0/0.45)]"
-              style={{ transform: `scale(${spriteIconScale(sprite.id)})` }}
+              style={{ transform: spriteIconTransform(sprite.id) }}
             />
           ) : (
             <span className="font-heading text-xl text-muted-foreground">?</span>

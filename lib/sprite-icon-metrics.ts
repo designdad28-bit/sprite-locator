@@ -62,3 +62,54 @@ export function spriteIconScale(id: string): number {
   const base = id.slice(prefix.length);
   return ICON_SCALE[BASE_ALIAS[base] ?? base] ?? 1;
 }
+
+/**
+ * How far each Sprite's art sits off-centre in its 512px canvas, as the shift
+ * (fraction of the canvas, x then y) that puts the art's opaque bounding box
+ * dead centre. Most are drawn 5-10px left of centre and 10-20px low, so
+ * without this they sat visibly off in their tiles. Measured 2026-09-27 on
+ * fortnite.gg's own origin (alpha > 8). Every variant matched its base
+ * Sprite's box to within 1px, so variants take the base's value, the same
+ * way they take its scale.
+ */
+const ICON_OFFSET: Record<string, readonly [number, number]> = {
+  "jonesy-sprite": [0.0195, -0.0332],
+  "adventure-sprite": [0.0244, -0.0137],
+  "bush-sprite": [-0.0049, 0.0088],
+  "sonic-sprite": [-0.0049, -0.0059],
+  "tails-sprite": [0.0059, -0.0068],
+  "shadow-sprite": [-0.0244, -0.0107],
+  "8-bit-sprite": [0.0264, -0.0254],
+  "jackrabbit-sprite": [0.0215, -0.0059],
+  "crown-sprite": [0.0137, -0.0107],
+  "killswitch-sprite": [0.0186, -0.0469],
+  "klombo-sprite": [-0.0156, 0.0020],
+  "mega-man-sprite": [-0.0166, 0.0029],
+  "overshield-sprite": [0.0273, -0.0010],
+  "x-ray-sprite": [0.0137, -0.0195],
+  "onigiri-sprite": [0.0244, -0.0225],
+  "storm-scout-sprite": [-0.0410, -0.0098],
+  "blinky-sprite": [0.0029, -0.0166],
+  "birthday-sprite": [-0.0264, 0.0186],
+  "crash-bandicoot-sprite": [0.0020, 0.0137],
+  "pond-sprite": [0.0049, -0.0029],
+  "morgana-sprite": [-0.0029, 0.0098],
+};
+
+function baseIdOf(id: string): string {
+  const prefix = VARIANT_PREFIXES.find((p) => id.startsWith(p));
+  const base = prefix ? id.slice(prefix.length) : id;
+  return BASE_ALIAS[base] ?? base;
+}
+
+/**
+ * The transform that sizes a Sprite's art to the shared visual size AND
+ * centres it in its box. The offset is scaled with the art, since the shift
+ * applies after scaling about the centre; translate percentages are of the
+ * image's own box, which is the tile.
+ */
+export function spriteIconTransform(id: string): string {
+  const scale = spriteIconScale(id);
+  const [dx, dy] = ICON_OFFSET[baseIdOf(id)] ?? [0, 0];
+  return `translate(${(dx * scale * 100).toFixed(2)}%, ${(dy * scale * 100).toFixed(2)}%) scale(${scale})`;
+}

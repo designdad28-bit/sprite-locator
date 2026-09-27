@@ -73,16 +73,16 @@ export function variantGradient(variant: string | null): string | null {
 /**
  * A themed backdrop per variant, layered over its gradient, for a collected
  * tile. Each follows the effect Epic paints INSIDE that variant's Sprite art:
- *   base         voxel floor: every Sprite is built from stepped pixel
- *                layers, so a pixel checker rises from the bottom and fades
- *   gold         reflective gold: chrome-style bands of light and shadow
- *                sweeping across polished metal, with a hot specular
- *   cheat master Matrix code: columns of falling green glyphs, each with a
- *                bright head and a fading tail, over a darkened green
+ *   base         clouds: soft white puffs in the base's sky blue
+ *   gold         reflective gold: gentle bands of light and shadow sweeping
+ *                across polished metal, with a soft specular
+ *   cheat master Matrix code: streams of falling green glyphs down every
+ *                column, top to bottom, each with a bright head and a fading
+ *                tail, over a darkened green
  *   loot hacker  purple checkerboard, lit from the top
  *   bounty       pink swirl: spiral arms turning round a glow behind the
  *                Sprite
- * The code rain and the swirl need real shapes, so they're small generated
+ * The code rain, clouds and swirl need real shapes, so they're small generated
  * SVGs (deterministic, built once at load) rather than gradients.
  */
 const CHECKER = (color: string, size: number, offset = 0) =>
@@ -102,27 +102,52 @@ const MATRIX_RAIN = (() => {
   const rand = seeded(42);
   // No < > or &: they would break the SVG markup.
   const glyphs = "01ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄ0123456789Z:=+";
-  const size = 8.5;
+  const size = 7.5;
   let text = "";
-  for (let x = 3; x < 100; x += 8) {
-    // One falling stream per column: a head somewhere in the tile, a tail of
-    // 4-9 glyphs above it fading out, and sometimes a second, fainter stream.
-    for (let stream = 0; stream < (rand() < 0.45 ? 2 : 1); stream++) {
-      const head = 20 + rand() * 90;
+  for (let x = 2; x < 100; x += 7) {
+    // Streams fall down the whole column, top to bottom: each a bright head
+    // with a tail of 4-9 glyphs fading out above it, then a short gap, then
+    // the next, so the rain fills the tile rather than a band of it.
+    let head = -rand() * 30;
+    while (head - 10 * size < 104) {
       const tail = 4 + Math.floor(rand() * 6);
-      const faint = stream === 1 ? 0.5 : 1;
+      const faint = rand() < 0.35 ? 0.55 : 1;
       for (let i = 0; i <= tail; i++) {
         const y = head - i * size;
-        if (y < -2) break;
+        if (y < -2 || y > 104) continue;
         const ch = glyphs[Math.floor(rand() * glyphs.length)];
         const fill = i === 0 ? "#eaffea" : "#7dff8a";
         const opacity = (i === 0 ? 0.95 : 0.75 * (1 - i / (tail + 1))) * faint;
         text += `<text x="${x}" y="${y.toFixed(1)}" fill="${fill}" fill-opacity="${opacity.toFixed(2)}">${ch}</text>`;
       }
+      head += (tail + 2 + Math.floor(rand() * 4)) * size;
     }
   }
   return svgUrl(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" font-family="Menlo,Consolas,monospace" font-size="${size}" font-weight="700">${text}</svg>`
+  );
+})();
+
+const CLOUDS = (() => {
+  // Puffs of overlapping circles, each cloud drawn solid then faded as a
+  // group so the overlaps don't double up.
+  const cloud = (cx: number, cy: number, k: number, opacity: number) => {
+    const puffs = [
+      [0, 0, 11], [-12, 4, 8], [12, 4, 9], [-5, -7, 9], [6, -6, 8], [-20, 8, 5], [21, 8, 6],
+    ];
+    const circles = puffs
+      .map(([x, y, r]) => `<circle cx="${(cx + x * k).toFixed(1)}" cy="${(cy + y * k).toFixed(1)}" r="${(r * k).toFixed(1)}"/>`)
+      .join("");
+    const base = `<rect x="${(cx - 22 * k).toFixed(1)}" y="${cy.toFixed(1)}" width="${(44 * k).toFixed(1)}" height="${(10 * k).toFixed(1)}" rx="${(5 * k).toFixed(1)}"/>`;
+    return `<g opacity="${opacity}">${circles}${base}</g>`;
+  };
+  return svgUrl(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" fill="#ffffff">` +
+      cloud(24, 84, 1.25, 0.55) +
+      cloud(84, 72, 0.9, 0.4) +
+      cloud(74, 18, 0.7, 0.35) +
+      cloud(14, 28, 0.55, 0.28) +
+      `</svg>`
   );
 })();
 
@@ -151,13 +176,11 @@ const PINK_SWIRL = (() => {
 })();
 
 const VARIANT_PATTERN: Record<string, string> = {
-  base:
-    "linear-gradient(to bottom, var(--sprite-base-collected-bottom) 25%, transparent 90%), " +
-    CHECKER("rgb(255 255 255 / 0.16)", 12),
+  base: `radial-gradient(circle at 50% 30%, rgb(255 255 255 / 0.3), transparent 55%), ${CLOUDS} center / cover no-repeat`,
   gold:
-    "radial-gradient(ellipse 45% 30% at 28% 22%, rgb(255 255 245 / 0.85), transparent 70%), " +
-    "linear-gradient(125deg, oklch(0.55 0.12 75) 0%, oklch(0.92 0.12 95) 18%, oklch(0.62 0.13 78) 34%, " +
-    "oklch(0.97 0.07 98) 48%, oklch(0.6 0.13 76) 62%, oklch(0.86 0.14 92) 78%, oklch(0.5 0.11 72) 100%)",
+    "radial-gradient(ellipse 45% 30% at 28% 22%, rgb(255 255 245 / 0.45), transparent 70%), " +
+    "linear-gradient(125deg, oklch(0.66 0.13 80) 0%, oklch(0.82 0.13 90) 20%, oklch(0.7 0.13 82) 36%, " +
+    "oklch(0.86 0.11 94) 50%, oklch(0.69 0.13 81) 64%, oklch(0.8 0.13 89) 80%, oklch(0.64 0.12 78) 100%)",
   cheatmaster: `${MATRIX_RAIN} center / cover no-repeat, linear-gradient(rgb(0 35 5 / 0.55), rgb(0 35 5 / 0.3))`,
   hacker:
     "linear-gradient(to bottom, rgb(255 255 255 / 0.2), transparent 65%), " +
