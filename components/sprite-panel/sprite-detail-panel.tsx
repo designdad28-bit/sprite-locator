@@ -149,8 +149,9 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
     >
       {/* The hero: full-bleed across the top of the panel (the -m cancels the
           scroll area's 16px padding), square-cornered, lit by a pool of its
-          rarity's colour, brightest where the Sprite stands. */}
-      <div data-slot="detail-header" className="relative -mx-4 -mt-4 shrink-0 overflow-hidden bg-muted">
+          rarity's colour, brightest where the Sprite stands. Closed along the
+          bottom by the same 3px ink line as the phone's bottom CTA bar. */}
+      <div data-slot="detail-header" className="relative -mx-4 -mt-4 shrink-0 overflow-hidden border-b-[3px] border-pop-ink bg-muted">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
