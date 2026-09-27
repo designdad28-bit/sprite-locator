@@ -72,32 +72,45 @@ export function variantGradient(variant: string | null): string | null {
 
 /**
  * A themed backdrop per variant, layered over its gradient, for a collected
- * tile. Inspired by the way fortnite.gg gives each variant its own texture,
- * but our own set, each drawn from the variant's name, in CSS only:
- *   base         spotlight: soft sunburst rays from behind the Sprite
- *   gold         foil: two diagonal glints across a fine brushed grain
- *   cheat master cheat grid: a level-editor pixel grid with a bright core
- *   loot hacker  scanlines: CRT lines and one diagonal glitch band
- *   bounty       target: concentric rings centred on the Sprite, vignetted
- * Everything is white or black at low alpha, so each stays in its own hue.
+ * tile. Each one is drawn from what the variant does to the Sprite's own art:
+ *   base         voxel floor: every Sprite is built from stepped pixel
+ *                layers, so a pixel checker rises from the bottom and fades
+ *   gold         molten gloss: the gold art is polished metal, so a big
+ *                specular highlight, a warm pool below and a rim glint
+ *   cheat master pixel dissolve: the cheat art breaks apart into loose
+ *                green blocks at its base, so two offset pixel grids that
+ *                thicken toward the bottom
+ *   loot hacker  hologram glitch: the hacker art is striped with horizontal
+ *                glitch bands, so uneven bands of light at odd heights
+ *   bounty       ghost wisps: the bounty art swirls with pink streaks, so soft
+ *                streaks fanning round a glow behind the Sprite
+ * Tints are white, black or the variant's own hue at low alpha.
  */
+const CHECKER = (color: string, size: number, offset = 0) =>
+  `conic-gradient(${color} 25%, transparent 0 50%, ${color} 0 75%, transparent 0) ${offset}px ${offset}px / ${size}px ${size}px`;
+
 const VARIANT_PATTERN: Record<string, string> = {
   base:
-    "radial-gradient(circle at 50% 58%, rgb(255 255 255 / 0.38), transparent 58%), " +
-    "repeating-conic-gradient(from 0deg at 50% 58%, rgb(255 255 255 / 0.13) 0deg 9deg, transparent 9deg 18deg)",
+    "linear-gradient(to bottom, var(--sprite-base-collected-bottom) 25%, transparent 90%), " +
+    CHECKER("rgb(255 255 255 / 0.16)", 12),
   gold:
-    "linear-gradient(115deg, transparent 18%, rgb(255 255 255 / 0.5) 30%, transparent 38%, transparent 58%, rgb(255 255 255 / 0.28) 65%, transparent 71%), " +
-    "repeating-linear-gradient(90deg, rgb(255 255 255 / 0.07) 0 1px, transparent 1px 3px)",
+    "radial-gradient(ellipse 60% 38% at 30% 20%, rgb(255 253 235 / 0.8), transparent 70%), " +
+    "radial-gradient(circle at 82% 78%, rgb(255 246 190 / 0.45), transparent 22%), " +
+    "radial-gradient(ellipse 100% 55% at 50% 105%, oklch(0.5 0.12 70 / 0.75), transparent 70%)",
   cheatmaster:
-    "radial-gradient(circle at 50% 55%, rgb(255 255 255 / 0.32), transparent 55%), " +
-    "linear-gradient(rgb(0 40 0 / 0.16) 1px, transparent 1px) 0 0 / 8px 8px, " +
-    "linear-gradient(90deg, rgb(0 40 0 / 0.16) 1px, transparent 1px) 0 0 / 8px 8px",
+    "linear-gradient(to bottom, oklch(0.817 0.234 140) 30%, transparent 92%), " +
+    CHECKER("rgb(0 70 0 / 0.35)", 16) +
+    ", " +
+    CHECKER("rgb(255 255 255 / 0.28)", 8, 4),
   hacker:
-    "linear-gradient(165deg, transparent 36%, rgb(140 210 255 / 0.35) 36% 43%, transparent 43%), " +
-    "repeating-linear-gradient(0deg, rgb(255 255 255 / 0.11) 0 1px, transparent 1px 4px)",
+    "linear-gradient(180deg, transparent 0 16%, rgb(175 155 255 / 0.5) 16% 21%, transparent 21% 45%, " +
+    "rgb(125 225 255 / 0.4) 45% 47.5%, transparent 47.5% 64%, rgb(175 155 255 / 0.32) 64% 73%, " +
+    "transparent 73% 87%, rgb(255 255 255 / 0.3) 87% 88.5%, transparent 88.5%), " +
+    "linear-gradient(90deg, transparent 0 58%, rgb(255 255 255 / 0.16) 58% 100%) 0 45% / 100% 10% no-repeat",
   reaper:
-    "radial-gradient(circle at 50% 56%, transparent 45%, rgb(0 0 0 / 0.28)), " +
-    "repeating-radial-gradient(circle at 50% 56%, rgb(255 255 255 / 0.15) 0 2px, transparent 2px 11px)",
+    "radial-gradient(circle at 50% 58%, rgb(255 205 255 / 0.5), transparent 48%), " +
+    "repeating-conic-gradient(from 15deg at 50% 58%, rgb(255 255 255 / 0.18) 0deg, transparent 20deg 40deg, rgb(255 255 255 / 0.18) 60deg), " +
+    "repeating-conic-gradient(from 40deg at 38% 70%, rgb(90 0 80 / 0.16) 0deg, transparent 25deg 50deg, rgb(90 0 80 / 0.16) 75deg)",
 };
 
 /** A collected tile's full background: the variant's pattern over its gradient. */

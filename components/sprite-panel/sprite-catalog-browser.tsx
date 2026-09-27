@@ -583,11 +583,10 @@ export function SpriteCatalogBrowser({
                                   isColored
                                     ? ({
                                         transform: `scale(${spriteIconScale(v.id)})`,
-                                        // Pops off its backdrop like a die-cut sticker: a
-                                        // white keyline traced around the art, then the
-                                        // site's hard ink drop beneath it.
+                                        // Pops off its backdrop: the site's hard ink drop
+                                        // under the art, plus a soft dark lift around it.
                                         filter:
-                                          "drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff) drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff) drop-shadow(0 3px 0 var(--pop-ink))",
+                                          "drop-shadow(0 3px 0 var(--pop-ink)) drop-shadow(0 6px 8px rgb(0 0 0 / 0.35))",
                                       } as CSSProperties)
                                     : { transform: `scale(${spriteIconScale(v.id)})` }
                                 }
