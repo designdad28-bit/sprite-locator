@@ -171,12 +171,28 @@ const VARIANT_PATTERN: Record<string, string> = {
   reaper: `radial-gradient(circle at 50% 56%, rgb(255 215 255 / 0.55), transparent 30%), ${PINK_SWIRL} center / cover no-repeat`,
 };
 
-/** A collected tile's full background: the variant's pattern over its gradient. */
+/**
+ * The soft sheen gold and base are built from, as a light-only overlay for
+ * the patterned variants: the same diagonal bands and corner glint, but
+ * white at low alpha, laid on top so the code rain, checkerboard and swirl
+ * all still show through.
+ */
+const SHEEN =
+  "radial-gradient(ellipse 45% 30% at 28% 22%, rgb(255 255 255 / 0.22), transparent 70%), " +
+  "linear-gradient(125deg, transparent 4%, rgb(255 255 255 / 0.1) 20%, transparent 34%, " +
+  "rgb(255 255 255 / 0.14) 50%, transparent 64%, rgb(255 255 255 / 0.08) 80%, transparent 96%)";
+
+/** Gold and base are a sheen already; the rest get SHEEN on top. */
+const HAS_OWN_SHEEN = new Set(["base", "gold"]);
+
+/** A collected tile's full background: sheen, then the variant's pattern, over its gradient. */
 export function variantBackdrop(variant: string | null): string | null {
   const gradient = variantGradient(variant);
   if (!gradient) return null;
-  const pattern = VARIANT_PATTERN[variant ? variantKey(variant) : "base"];
-  return pattern ? `${pattern}, ${gradient}` : gradient;
+  const key = variant ? variantKey(variant) : "base";
+  const pattern = VARIANT_PATTERN[key];
+  if (!pattern) return gradient;
+  return HAS_OWN_SHEEN.has(key) ? `${pattern}, ${gradient}` : `${SHEEN}, ${pattern}, ${gradient}`;
 }
 
 /**
