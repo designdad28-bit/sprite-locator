@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Layers, FlaskConical } from "@/components/icons";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
+import { CheckIcon, Layers, FlaskConical } from "@/components/icons";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,50 +21,28 @@ import { usePois } from "@/hooks/use-pois";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { displayName } from "@/lib/sprite-name";
 import { AddFindingDialog, type AddFindingValues } from "@/components/add-finding-dialog";
+import { Logo } from "@/components/logo";
 import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
 import { buildDemoFindings } from "@/lib/demo-findings";
 import { ADD_FINDING_STYLE } from "@/lib/cta";
 import { cn } from "@/lib/utils";
 
-// The open sidebar's width. The map lives in its own container to the right of
-// it (see the map wrapper below), so the island is fitted and centered in the
-// space the sidebar doesn't cover, rather than padded around the panel.
+// The open sidebar's width. The map lives in its own container to the right
+// of it, so the island is fitted and centred in the space the sidebar doesn't
+// cover.
 //
-// Sized to cut the variant row mid-tile, so the row visibly continues past the
-// panel edge and invites the horizontal scroll rather than looking complete:
-// the row's 16px left pad + 3 tiles x 80px + 3 gaps x 8px + half of the
-// fourth tile = 320, plus the 2px border on the map-facing edge = 322.
+// The default and the drag floor are the same width, chosen so each sprite
+// card's edge cuts the fourth tile (HACKER) down the middle: the sidebar's
+// 16px pad + the card's 12px pad + 3 tiles and gaps (264) + half a tile (40)
+// = 332 to the card's edge, then the 16px pad outside the card and the 3px
+// ink border = 351. A half-tile is the cue that the row scrolls; a whole one
+// would read as the last.
 //
-// Deliberately not 466, which is what all five tiles need to fit. A half-tile
-// is the cue; a whole one would read as the last one and hide that two more
-// follow. The row itself already scrolls (overflow-x-auto, scrollbar hidden)
-// — see the variant row in sprite-catalog-browser.tsx.
-const SIDEBAR_WIDTH = 350;
-
-/**
- * How far the sidebar can be dragged.
- *
- * The floor is 292, chosen so the third variant tile lands whole and the
- * fourth still peeks: the 16px left pad + 3 tiles x 80 + 2 gaps x 8 puts the
- * third tile's right edge at 272 and the fourth's left edge at 280, leaving a
- * 12px sliver of it (10px of tile inside the 2px border). Narrower than this
- * and the third tile itself gets cut, which reads as a broken card rather
- * than as a row that scrolls.
- *
- * The ceiling is the width at which the row finally completes: the 16px left
- * pad + 5 tiles x 80 + 4 gaps x 8 + a matching 16px on the right = 464, plus
- * the 2px border on the map-facing edge. Dragging past that would only add
- * empty panel, since the row has nothing left to reveal.
- *
- * Still capped at half the window as well, so a drag can never squeeze the map
- * into a sliver on a narrow screen.
- */
-// Min: the sidebar's 16px pad + the card's 12px pad + 3 tiles and gaps (264)
-// + half of HACKER (40) puts the card's clipping edge through the middle of
-// the fourth tile at 332; + the 16px pad outside the card + the 2px border.
-// Max: every tile whole, 28 + 5 x 80 + 4 x 8 + 12 + 16 + 2.
-const SIDEBAR_MIN_WIDTH = 350;
-const SIDEBAR_MAX_WIDTH = 490;
+// The ceiling is where every tile fits: 28 + 5 x 80 + 4 x 8 + 12 + 16 + 3.
+// Still capped at half the window too, so a drag never squeezes the map.
+const SIDEBAR_WIDTH = 351;
+const SIDEBAR_MIN_WIDTH = 351;
+const SIDEBAR_MAX_WIDTH = 491;
 
 /** Remembers the dragged width between visits, like the collection state does. */
 const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
@@ -122,6 +100,29 @@ function useIsMobile() {
   return useSyncExternalStore(subscribeToWidth, isMobileWidth, () => false);
 }
 
+const noSubscription = () => () => {};
+
+/**
+ * False on the server and during hydration, true from the first client render
+ * after it. The layout depends on the window's width, which the server can't
+ * know, so until this is true the app shows AppSplash rather than guessing:
+ * guessing desktop painted phones a broken desktop layout for as long as the
+ * JS took to load.
+ */
+function useHydrated() {
+  return useSyncExternalStore(noSubscription, () => true, () => false);
+}
+
+/** The first paint on every device: the wordmark on the app's own indigo. */
+function AppSplash() {
+  return (
+    <div className="flex h-dvh w-full items-center justify-center bg-card" aria-busy="true">
+      <Logo className="text-3xl motion-safe:animate-pulse" />
+      <span className="sr-only" role="status">Loading Sprite Radar…</span>
+    </div>
+  );
+}
+
 /** Height the mobile Add finding bar occupies, which the catalog pads clear of. */
 const MOBILE_CTA_HEIGHT = 72;
 
@@ -150,18 +151,19 @@ const ALL_VARIANTS = "all";
 /**
  * Stands in for a variant's artwork on the "All variants" row, which has no
  * one variant to show. Sized like a SpriteThumb so every label in the list
- * starts on the same edge.
+ * starts on the same edge. Takes the text colour it sits in: ink on the white
+ * trigger, white in the indigo list.
  */
 function AllVariantsThumb() {
   return (
     <span className="flex size-6 shrink-0 items-center justify-center">
-      <Layers className="size-4 text-muted-foreground" strokeWidth={1.875} />
+      <Layers className="size-4" />
     </span>
   );
 }
 
-/** The border each panel draws on its map-facing edge (border-r-2 / border-l-2). */
-const PANEL_BORDER = 2;
+/** The ink border each panel draws on its map-facing edge (border-r-3 / border-l-3). */
+const PANEL_BORDER = 3;
 
 export default function Home() {
   const { findings: savedFindings, addFinding } = useFindings();
@@ -199,6 +201,7 @@ export default function Home() {
    * stored value is applied just after, in the effect.
    */
   const isMobile = useIsMobile();
+  const hydrated = useHydrated();
   const [storedDemoMode, setDemoMode] = useState(false);
   // Never on in production, however the stored value was left.
   const demoMode = DEMO_AVAILABLE && storedDemoMode;
@@ -419,9 +422,15 @@ export default function Home() {
     window.setTimeout(() => setLastAdded(null), 1800);
   }
 
+  if (!hydrated) return <AppSplash />;
+
   return (
     // h-dvh, not h-screen: 100vh can resolve to a stale or oversized height
     // (browser UI, zoom), which leaves the shell not matching the window.
+    // reducedMotion="user": every Framer animation in the app (the load-in,
+    // the card stagger, the panel slides) drops to a fade or nothing when the
+    // OS asks for reduced motion.
+    <MotionConfig reducedMotion="user">
     <div className="relative flex h-dvh w-full overflow-hidden bg-card">
       {/* Pinned to the window's left edge, outside the map's container below. */}
       <motion.aside
@@ -432,15 +441,15 @@ export default function Home() {
           // Flush to the window: no margin, no radius. The border only runs
           // along edges that face the map — on the window's own edges it
           // would just draw a line around the screen.
-          "panel-wash absolute top-0 left-0 z-[600] flex flex-col overflow-hidden border-border bg-card",
+          "panel-wash absolute top-0 left-0 z-[600] flex flex-col overflow-hidden border-pop-ink bg-card",
           // Open: the full-height 280px panel. Collapsed: no width or height of
           // its own, so it hugs its open button in the corner; it then needs
           // a bottom edge too, since the map sits below it.
-          sidebarOpen ? "bottom-0" : "w-auto border-b-2",
+          sidebarOpen ? "bottom-0" : "w-auto border-b-[3px]",
           // On a phone the catalog IS the app: full width, and no right border
           // because there is no map beside it for one to divide. The padding
           // keeps the last card clear of the Add finding bar below.
-          isMobile ? "w-full" : "border-r-2"
+          isMobile ? "w-full" : "border-r-[3px]"
         )}
         // From the same state the map container reserves, so the two can't
         // drift apart. Left off entirely on a phone, so the w-full class above
@@ -474,7 +483,7 @@ export default function Home() {
             tabIndex={0}
             onPointerDown={startResize}
             onKeyDown={nudgeResize}
-            className="absolute inset-y-0 right-0 z-10 w-[5px] translate-x-[2px] cursor-col-resize touch-none bg-transparent transition-colors hover:bg-ring/60 focus-visible:bg-ring/60 focus-visible:outline-none"
+            className="absolute inset-y-0 right-0 z-10 w-[5px] translate-x-[3px] cursor-col-resize touch-none bg-transparent transition-colors hover:bg-ring/60 focus-visible:bg-ring/60 focus-visible:outline-none"
           />
         )}
       </motion.aside>
@@ -633,14 +642,6 @@ export default function Home() {
             // for a phone this session.
             className={cn("h-12 w-full gap-2 text-base", ADD_FINDING_STYLE)}
           >
-            {/* 2.2, where every other 16px icon in the app runs 1.875. The
-                app's rule is one ink weight everywhere; this is the one
-                deliberate exception. A stroke barely suffers the polarity
-                thinning that glyphs do — measured at 1.1% — so this is not
-                compensation, it is pairing: beside 500-weight text on the
-                primary action, a baseline-weight icon reads thin. Both the
-                label and the icon sit one step above the app baseline because
-                this is the one thing the page asks you to do. */}
             Add Sprite Location
           </Button>
         </div>
@@ -663,8 +664,13 @@ export default function Home() {
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               // Above the Add finding button below it, which now occupies the
               // bottom-centre this used to have to itself.
-              className="pointer-events-none absolute bottom-24 left-1/2 z-[500] -translate-x-1/2 material rounded-full px-5 py-2.5 text-sm font-semibold text-pop-ink"
+              role="status"
+              className="material pointer-events-none absolute bottom-24 left-1/2 z-[500] flex -translate-x-1/2 items-center gap-2 rounded-full py-2 pr-5 pl-2 text-sm font-semibold whitespace-nowrap text-pop-ink"
             >
+              {/* The same yellow sticker disc as the mastered badge, with a tick. */}
+              <span aria-hidden className="flex size-6 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow">
+                <CheckIcon className="size-3.5" />
+              </span>
               Sprite location added — {displayName(getSprite(lastAdded)?.name)}
             </motion.div>
           )}
@@ -687,8 +693,8 @@ export default function Home() {
             // Flush to the window like the left sidebar: no margin, no radius,
             // and a border only on the edge that faces the map.
             className={cn(
-              "panel-wash flex flex-col overflow-hidden border-border bg-card",
-              isMobile ? "fixed inset-0 z-[700] w-full" : "shrink-0 border-l-2"
+              "panel-wash flex flex-col overflow-hidden border-pop-ink bg-card",
+              isMobile ? "fixed inset-0 z-[700] w-full" : "shrink-0 border-l-[3px]"
             )}
           >
             {/* Fixed width, so the panel's contents don't reflow while the
@@ -710,5 +716,6 @@ export default function Home() {
         )}
       </AnimatePresence>
     </div>
+    </MotionConfig>
   );
 }

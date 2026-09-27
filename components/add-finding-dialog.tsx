@@ -74,6 +74,9 @@ export interface AddFindingDialogProps {
 /** The dialog's pickers: the white sticker style of every secondary control,
  *  yellow on hover (see the material utility). !bg-white beats the trigger's
  *  own bg-input/50, which sits later in the stylesheet. */
+/** Field labels: Anton caps in the CTA yellow, the profile panel's heading style. */
+const LABEL_STYLE = "display-caps text-base leading-none text-pop-yellow max-md:text-base";
+
 const PICKER_STYLE =
   "material !bg-white w-full font-semibold text-pop-ink data-placeholder:text-pop-ink/60 [&_svg]:text-pop-ink";
 
@@ -136,7 +139,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
 
         <div className="grid gap-5">
           <div className="grid gap-2">
-            <Label htmlFor="finding-sprite">Sprite</Label>
+            <Label htmlFor="finding-sprite" className={LABEL_STYLE}>Sprite</Label>
             <Select
               value={spriteId}
               onValueChange={(value) => {
@@ -183,7 +186,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
               restating the row above it. */}
           {spriteId && (
           <div className="grid gap-2">
-            <Label htmlFor="finding-variant">Variant</Label>
+            <Label htmlFor="finding-variant" className={LABEL_STYLE}>Variant</Label>
             <Select value={variant} onValueChange={(value) => setVariant(value as string | null)}>
               <SelectTrigger id="finding-variant" className={PICKER_STYLE}>
                 <SelectValue>
@@ -217,7 +220,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
           )}
 
           <div className="grid gap-2">
-            <Label htmlFor="finding-location">Location</Label>
+            <Label htmlFor="finding-location" className={LABEL_STYLE}>Location</Label>
             <Select value={poiId} onValueChange={(value) => setPoiId(value as string | null)}>
               <SelectTrigger id="finding-location" className={PICKER_STYLE}>
                 <SelectValue>{(value: string | null) => (value ? poiName(value) : "Choose a location")}</SelectValue>
@@ -237,7 +240,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="finding-loot-source">Loot source</Label>
+            <Label htmlFor="finding-loot-source" className={LABEL_STYLE}>Loot source</Label>
             <Select value={source} onValueChange={(value) => setLootSource(value as string | null)}>
               <SelectTrigger id="finding-loot-source" className={PICKER_STYLE}>
                 <SelectValue>
@@ -270,8 +273,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
           </div>
         </div>
 
-        {/* Full-bleed divider above a full-width confirm, as in the reference. */}
-        <DialogFooter className="-mx-6 -mb-6 border-t border-border px-6 py-5">
+        <DialogFooter>
           <Button
             // h-12 / text-base at every size: the same as the primary
             // action over the map and on the phone's bottom bar, so the

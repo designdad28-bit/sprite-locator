@@ -33,7 +33,8 @@ function DialogOverlay({
       className={cn(
         // z-[1100], not shadcn's z-50: the app's sidebar sits at z-[600] and the
         // map's marker/popup panes reach 700, so a z-50 dialog opened behind them.
-        "fixed inset-0 isolate z-[1100] bg-black/30 duration-100 supports-backdrop-filter:backdrop-blur-sm data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        // Tinted with the ink rather than black, so the dimmed app stays indigo.
+        "fixed inset-0 isolate z-[1100] bg-pop-ink/55 duration-150 supports-backdrop-filter:backdrop-blur-sm data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className
       )}
       {...props}
@@ -55,7 +56,9 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-[1100] grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-4xl bg-popover p-6 text-sm text-popover-foreground shadow-xl ring-1 ring-foreground/5 duration-100 outline-none sm:max-w-md dark:ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 max-md:text-base",
+          // The sticker card: the same ink outline and hard ink drop as every
+          // button, on the lifted panel colour. No soft shadow, no ring.
+          "fixed top-1/2 left-1/2 z-[1100] grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-3xl border-[3px] border-pop-ink bg-popover p-6 text-sm text-popover-foreground shadow-[0_6px_0_var(--pop-ink)] duration-150 outline-none sm:max-w-md data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 max-md:text-base",
           // On a phone this is a sheet, not a centred dialog: anchored to the
           // bottom edge, full width, square along the bottom, and sliding up
           // from the edge it is attached to rather than zooming from the
@@ -63,7 +66,7 @@ function DialogContent({
           // instead of running off the top of the screen, and padded past the
           // home indicator. zoom-in-100/out-100 neutralise the desktop scale
           // animation without having to restate the whole class list.
-          "max-md:top-auto max-md:bottom-0 max-md:left-0 max-md:max-h-[85dvh] max-md:max-w-none max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-y-auto max-md:rounded-b-none max-md:pb-[max(1.5rem,env(safe-area-inset-bottom))] max-md:data-open:zoom-in-100 max-md:data-open:slide-in-from-bottom max-md:data-closed:zoom-out-100 max-md:data-closed:slide-out-to-bottom",
+          "max-md:top-auto max-md:bottom-0 max-md:left-0 max-md:max-h-[85dvh] max-md:max-w-none max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-y-auto max-md:rounded-b-none max-md:border-x-0 max-md:border-b-0 max-md:shadow-none max-md:pb-[max(1.5rem,env(safe-area-inset-bottom))] max-md:data-open:zoom-in-100 max-md:data-open:slide-in-from-bottom max-md:data-closed:zoom-out-100 max-md:data-closed:slide-out-to-bottom",
           className
         )}
         {...props}
@@ -79,7 +82,7 @@ function DialogContent({
         <div
           data-slot="dialog-grabber"
           aria-hidden
-          className="absolute inset-x-0 top-2 mx-auto h-1 w-9 rounded-full bg-muted-foreground/40 md:hidden"
+          className="absolute inset-x-0 top-2 mx-auto h-1.5 w-10 rounded-full bg-pop-ink/60 md:hidden"
         />
         {children}
         {showCloseButton && (
@@ -132,7 +135,7 @@ function DialogFooter({
     >
       {children}
       {showCloseButton && (
-        <DialogPrimitive.Close render={<Button variant="outline" />}>
+        <DialogPrimitive.Close render={<Button variant="ghost" className="material rounded-full text-pop-ink hover:text-pop-ink" />}>
           Close
         </DialogPrimitive.Close>
       )}
@@ -145,10 +148,9 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
     <DialogPrimitive.Title
       data-slot="dialog-title"
       className={cn(
-        // 600, not shadcn's 500. The app's other Rajdhani titles carry their
-        // weight at 18px (sidebar cards) and 24px (detail panel); at the
-        // dialog's 16px the same 500 reads noticeably lighter than they do.
-        "font-heading text-base leading-none font-semibold",
+        // Anton caps like every other heading. Anton has one weight, so no
+        // font-semibold (the browser would fake a bold).
+        "display-caps text-xl leading-none",
         className
       )}
       {...props}

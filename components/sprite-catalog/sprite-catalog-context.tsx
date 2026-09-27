@@ -22,10 +22,10 @@ export function SpriteCatalogProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 
+  // Loading starts true, and a retry resets it in the handler below (not
+  // here), so the effect only ever sets state from the fetch's callbacks.
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
     loadSpriteCatalog()
       .then((data) => {
@@ -56,7 +56,11 @@ export function SpriteCatalogProvider({ children }: { children: ReactNode }) {
     loading,
     error,
     getSprite: (id) => lookup.get(id),
-    reload: () => setNonce((n) => n + 1),
+    reload: () => {
+      setLoading(true);
+      setError(null);
+      setNonce((n) => n + 1);
+    },
   };
 
   return <SpriteCatalogContext.Provider value={value}>{children}</SpriteCatalogContext.Provider>;

@@ -12,32 +12,20 @@ import { VARIANT_SLOTS, variantKey, variantLabel, variantLabelColor } from "@/li
 import { cn } from "@/lib/utils";
 import { spriteIconTransform } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
-import { RarityGem } from "@/components/rarity-gem";
 
 /**
- * The Sprite detail panel.
+ * The Sprite detail panel, built from the same parts as the catalog opposite:
+ * lifted card panels (--muted, rounded, a half-strength ink drop) instead of
+ * hairline dividers, Anton caps for every heading and label, Inter for
+ * sentences and values, and the rarity as the same sticker as the rarity bands.
  *
- * ONE type scale, shared with the catalog sidebar opposite so the two panels
- * read as one product rather than two screens:
+ *   name       Anton 30px caps
+ *   headings   Anton 16px caps, CTA yellow
+ *   labels     Inter 14px medium, or Anton caps in a variant's colour
+ *   values     Inter 14px, tabular
+ *   body       Inter 16px, relaxed
  *
- *   name     font-heading 24px medium   — one step up from a catalog card's 20px
- *   value    14px medium                — anything the reader is here to find out
- *   body     16px regular, relaxed      — sentences
- *   label    12px semibold uppercase    — section headings
- *   meta     14px muted                 — asides and empty states
- *
- * The same sizes on desktop and phone (see the scale in globals.css).
- *
- * Nothing else. The previous version used seven sizes, three weights and two
- * different muted greys, and rendered the same role — a section's one value —
- * at 18px semibold in one place, 14px muted in another and 11px chips in a
- * third, which is what made it read as unfinished.
- *
- * Spacing is just as deliberate: a 16px gutter, matching the catalog sidebar's
- * px-4 exactly so content in both panels starts on the same line, and every
- * section built by the same Section component below rather than by hand. The
- * old file set six different top margins (mt-1, 1.5, 2, 2.5, 3) between a
- * heading and its content; here there is one, because there is one component.
+ * Same 16px gutter as the catalog, so both panels' content starts on one line.
  */
 
 export interface SpriteDetailPanelProps {
@@ -54,24 +42,23 @@ const AVAILABILITY_LABEL: Record<string, string> = {
   unknown: "Availability unknown",
 };
 
-/** The one section heading treatment. Same size and weight as the catalog's variant captions. */
+/** The one section heading treatment: Anton caps in the CTA yellow. */
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <h3 className="display-caps text-base text-pop-yellow">{children}</h3>
-  );
+  return <h3 className="display-caps text-base text-pop-yellow">{children}</h3>;
 }
 
+/** The lifted card panel every block sits on, the same as a catalog card. */
+const PANEL = "rounded-2xl bg-muted shadow-[0_3px_0_rgb(20_28_74/0.5)]";
+
 /**
- * A section: heading, then content, separated from its neighbour by a rule.
- *
- * Every section on the panel goes through here, so none of them can drift
- * apart in padding or heading style — the drift was the actual defect.
+ * A section: a card panel holding a heading and its content. Every section
+ * goes through here, so none can drift apart in padding or heading style.
  */
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border-t border-border/60 px-4 py-5 first:border-t-0">
+    <section className={cn(PANEL, "px-4 pt-4 pb-3")}>
       <SectionLabel>{title}</SectionLabel>
-      <div className="mt-3">{children}</div>
+      <div className="mt-2">{children}</div>
     </section>
   );
 }
@@ -87,11 +74,14 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Row({
   label,
   labelColor,
+  caps,
   value,
   muted,
 }: {
   label: string;
   labelColor?: string;
+  /** Anton caps, for a variant name, matching the catalog's tile captions. */
+  caps?: boolean;
   value: string;
   /** For a value the catalog doesn't have, so "unknown" never looks like data. */
   muted?: boolean;
@@ -99,7 +89,7 @@ function Row({
   return (
     <div className="flex items-baseline justify-between gap-4 py-1.5">
       <span
-        className={cn("text-sm font-medium", !labelColor && "text-foreground")}
+        className={cn(caps ? "display-caps text-base" : "text-sm font-medium", !labelColor && "text-foreground")}
         style={labelColor ? { color: labelColor } : undefined}
       >
         {label}
@@ -154,16 +144,11 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
       initial={{ opacity: 0, x: 16 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="no-scrollbar flex h-full flex-col overflow-y-auto"
+      className="no-scrollbar flex h-full flex-col gap-3 overflow-y-auto p-4"
     >
-      {/* The same grey as the catalog sidebar's header strip (logo + mastery),
-          so the two panels' headers read as one system. Full-bleed — the
-          panel's own overflow-hidden clips it to its corners. */}
-      <div data-slot="detail-header" className="relative shrink-0 overflow-hidden bg-muted p-4">
-        {/* The rarity as light: a soft pool of its colour behind the art,
-            brightest where the Sprite stands and gone before the edges, like
-            a spotlight on a stage floor. Same colour the list's section
-            header casts, so opening a card carries its section with it. */}
+      {/* The hero: the Sprite on a card panel lit by a pool of its rarity's
+          colour, brightest where it stands, like a spotlight on a stage. */}
+      <div data-slot="detail-header" className={cn(PANEL, "relative shrink-0 overflow-hidden")}>
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
@@ -178,20 +163,17 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           aria-label="Close"
           className="material absolute top-3 right-3 z-10 rounded-full text-pop-ink hover:text-pop-ink max-md:size-11"
         >
-          <X strokeWidth={1.5} />
+          <X />
         </Button>
 
-        {/* No frame, fill or glow: the art sits straight on the header grey.
-            A square that tracks the panel's width rather than a fixed 240px,
-            since the sidebar is draggable — at 418px the old fixed size left a
-            band of empty grey either side of it. Scaled per sprite like the
-            catalog headings, because each icon's art fills a different share
-            of its 512px canvas. */}
+        {/* A square that tracks the panel's width (the sidebar is draggable),
+            sized and centred per Sprite like every other piece of art. It
+            wears the tiles' pop too: a hard ink drop, then a soft lift. */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mx-auto flex aspect-square w-full items-center justify-center"
+          initial={{ opacity: 0, scale: 0.9, y: 8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
+          className="relative mx-auto flex aspect-square w-full items-center justify-center p-4"
         >
           {sprite.icon ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -199,59 +181,36 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
               data-slot="detail-image"
               src={sprite.icon}
               alt={displayName(sprite.name)}
-              className="size-full object-contain drop-shadow-[0_18px_24px_rgb(0_0_0/0.45)]"
+              className="size-full object-contain [filter:drop-shadow(0_5px_0_var(--pop-ink))_drop-shadow(0_18px_20px_rgb(0_0_0/0.35))]"
               style={{ transform: spriteIconTransform(sprite.id) }}
             />
           ) : (
-            <span className="font-heading text-xl text-muted-foreground">?</span>
+            <span className="display-caps text-3xl text-muted-foreground">?</span>
           )}
         </motion.div>
       </div>
 
-      <div className="h-[0.5px] w-full shrink-0 bg-border" />
-
-      {/* Identity sits outside Section: it is the panel's subject, not one of
-          its facts, so it carries the name at hero size and no heading. */}
-      <div className="px-4 pt-5 pb-5">
-        {/* Name and rarity share one row, the badge pinned to the right edge.
-            items-start rather than centred so the badge stays on the FIRST
-            line if a long name wraps, instead of drifting to the middle of the
-            block. min-w-0 lets the name wrap rather than push the badge past
-            the gutter.
-
-            mt-px is an optical correction, measured not guessed. Centring the
-            badge in the heading's LINE BOX (23px, so a centre at 11.5) sits it
-            low, because the line box includes descender space the capitals
-            never use. The name's optical centre is the middle of its cap-height
-            band: cap height 12.86px on a baseline 17.5px down, so a centre at
-            11.07px. A 20px badge therefore wants its top at 1.07px — 1px, not
-            the 2px that line-box centring gives.
-
-            Baseline alignment is not the answer here either: the badge's own
-            vertical padding puts its text baseline 14.5px down its 20px box,
-            which would drop its top to 3px — further out than where it
-            started. */}
+      {/* Identity sits on the panel's own ground, not a card: it is the
+          subject, not one of its facts. Name and rarity share a row, the
+          sticker pinned right and kept on the first line if the name wraps. */}
+      <div className="px-1 pt-2 pb-1">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="min-w-0 display-caps text-3xl leading-[1.1] text-foreground">
+          <h2 className="display-caps min-w-0 text-3xl leading-[1.1] text-foreground">
             {displayName(sprite.name)}
           </h2>
-
-          {/* The same gem as the list's section headers — the rarity reads
-              as the same object in both places rather than as a pill here
-              and a header there. */}
-          <span data-slot="rarity-badge" className="mt-1.5 flex shrink-0 items-center gap-2">
-            <RarityGem color={accent.solid} />
-            <span className="text-sm font-semibold text-foreground">
-              {sprite.rarity ? sprite.rarity.charAt(0).toUpperCase() + sprite.rarity.slice(1) : "Unknown"}
-            </span>
+          {/* The same sticker as the catalog's rarity band, in miniature. */}
+          <span
+            data-slot="rarity-badge"
+            className="display-caps mt-0.5 flex h-7 shrink-0 items-center rounded-full border-[3px] border-pop-ink px-3 text-sm leading-none text-pop-ink shadow-[0_2px_0_var(--pop-ink)]"
+            style={{ background: accent.solid }}
+          >
+            {sprite.rarity ?? "Unknown"}
           </span>
         </div>
 
-        {/* Its own line below, not beside the badge: it only appears for a
-            Sprite this season doesn't offer, and that is a sentence about
-            availability rather than a second label on the name row. */}
+        {/* Only for a Sprite this season doesn't offer. */}
         {!sprite.currentlyLive && (
-          <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <p className="display-caps mt-2 text-sm text-muted-foreground">
             {AVAILABILITY_LABEL[sprite.availability] ?? "Unavailable"}
           </p>
         )}
@@ -263,10 +222,6 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
         )}
       </div>
 
-      {/* Sightings and likely areas were two sections asking the same question
-          from opposite ends, one of them a heading over the words "Coming
-          soon". Folded into one, so a placeholder costs a row rather than a
-          whole section. */}
       <Section title="Locations">
         <Row
           label={sightingCount === 1 ? "Sighting logged" : "Sightings logged"}
@@ -294,24 +249,21 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           <Empty>Not documented</Empty>
         )}
         {sprite.acquisitionHint && (
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{sprite.acquisitionHint}</p>
+          <p className="mt-2 mb-1 text-sm leading-relaxed text-muted-foreground">{sprite.acquisitionHint}</p>
         )}
       </Section>
 
       <Section title="Summon cost — Sprite Dust">
-        {/* One row per variant in the catalog's slot order, its label in that
-            variant's own colour so the column matches the tiles opposite. Base
-            has no hue of its own, so it takes the default. A cost the catalog
-            doesn't have shows as unpublished; nothing is estimated. */}
+        {/* One row per variant in the catalog's slot order, its label set like
+            the tile captions (Anton caps in the variant's colour). A cost the
+            catalog doesn't have shows as unpublished; nothing is estimated. */}
         <div data-slot="summon-costs">
           {familyVariants.map((v) => (
             <Row
               key={v.id}
               label={variantLabel(v.variant)}
-              // variantLabelColor, not variantColor: the fill colours are
-              // tuned for tiles, and as 14px text on --card the hacker
-              // indigo measured 2.19:1. The label colours are the same
-              // hues lifted for legibility — the catalog captions use them.
+              caps
+              // The legible label colours the catalog captions use.
               labelColor={variantKey(v.variant) === "normal" ? undefined : (variantLabelColor(v.variant) ?? undefined)}
               value={
                 v.summonCostSpriteDust != null ? v.summonCostSpriteDust.toLocaleString() : "Not published"
@@ -320,12 +272,16 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
             />
           ))}
         </div>
-        {noCostsPublished && <Empty>Epic hasn&rsquo;t published costs for this Sprite yet.</Empty>}
+        {noCostsPublished && (
+          <div className="mt-1">
+            <Empty>Epic hasn&rsquo;t published costs for this Sprite yet.</Empty>
+          </div>
+        )}
       </Section>
 
       {sprite.boons.length > 0 && (
         <Section title="Boons">
-          <ul className="space-y-2">
+          <ul className="space-y-2 pb-1">
             {sprite.boons.map((boon) => (
               <li key={boon.id} className="text-base leading-relaxed text-foreground">
                 {boon.description}

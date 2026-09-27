@@ -5,34 +5,25 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* THE TYPE SCALE. Every size in the app is one of these, at every
-     breakpoint — desktop no longer steps down a size from mobile:
+  /* THE TYPE SCALE. Two faces: Anton (--font-display) for every heading and
+     label, always in caps via the display-caps utility, and Inter
+     (--font-sans) for sentences and values. Sizes:
 
-       display   font-heading 24px (text-2xl)   detail panel's Sprite name
-       title     font-heading 20px (text-xl)    catalog card names
-       body-lg   16px (text-base)               sentences, primary rows
-       body      14px (text-sm)                 values, controls, list rows
-       label     12px (text-xs) semibold caps   section headings, captions
-       micro     11px (text-2xs)                the floor; tile captions only
+       30px  text-3xl   the detail panel's Sprite name
+       20px  text-xl    rarity bands, catalog card names
+       18px  text-lg    the logo, the mastery label and count
+       16px  text-base  section and form labels (Anton); body copy (Inter)
+       14px  text-sm    tile captions (Anton); values and rows (Inter)
 
-     The floor used to be 10px, and desktop dropped every panel a full step
-     (14->12 values, 12->10 labels) to fit more in a 290px sidebar. That is
-     what made the product read undersized: density bought with legibility.
-     11px uppercase at 0.08em tracking is the smallest size that still reads
-     as type rather than texture on a dark ground. */
+     Anton ships one weight (400), so it is never given font-medium or
+     font-semibold: the browser would fake a bold and smear the letters. */
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1rem;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  /* xAI DESIGN.md: display type is a geometric sans at weight 400 with
-     tight negative tracking, not a display/script face. Repointed at Inter
-     (the documented substitute for xAI's proprietary Universal Sans) rather
-     than the app's previous Rajdhani, which read as a gaming wordmark, not
-     an engineered-cosmic one. The SpriteRadar mark itself is a logo image
-     (public/brand/logo-lockup.svg), so this only affects in-app headings. */
+  /* font-heading is the display face too, for any shadcn part that asks for it. */
   --font-heading: var(--font-display);
   --color-pop-ink: var(--pop-ink);
   --color-pop-yellow: var(--pop-yellow);
@@ -74,10 +65,7 @@
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
-  /* xAI's own card radius (DESIGN.md {rounded.sm}) is 8px; --radius-4xl is
-     what every pill-shaped button in this app already rounds with, so it's
-     the lever for "every interactive element is a pill" (DESIGN.md's other
-     rule) — set well past half of any real button/input height. */
+  /* The pill radius every button and picker rounds with. */
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
@@ -105,9 +93,7 @@
   --chart-3: oklch(0.45 0.017 213.2);
   --chart-4: oklch(0.378 0.015 216);
   --chart-5: oklch(0.275 0.011 216.9);
-  /* 8px — xAI's own card radius (DESIGN.md {rounded.sm}), down from 10px.
-     Every radius step above is a multiple of this one, so the whole scale
-     tightens with it rather than needing retuning card-by-card. */
+  /* 8px. Every radius step above is a multiple of this one. */
   --radius: 0.5rem;
   --sidebar: oklch(0.987 0.002 197.1);
   --sidebar-foreground: oklch(0.148 0.004 228.8);
@@ -175,18 +161,10 @@
      scripts/trace-water-rings.py), out to the map's edge. */
   --pop-yellow: #ffc93c;
   --map-field: var(--card);
-  /* Two washes of light off the top of each panel, the move that keeps a dark
-     ground from reading heavy. Alpha so they layer over --card; applied via
-     .panel-wash below. A deeper blue and a cyan, set either side of the
-     ground's own hue, so the top of a panel shifts temperature rather than
-     only getting brighter. */
-  /* Neutralised: xAI has no atmospheric backdrop or panel glow ("There is
-     no gradient hero, no atmospheric backdrop" — DESIGN.md's Overview).
-     .panel-wash keeps being applied at its two call sites so nothing else
-     has to change, but with both stops transparent it now paints nothing —
-     the panel is flat --card with a hairline border doing the separation. */
+  /* The panel washes are off: panels are flat, so the sticky rarity
+     container (solid --card) disappears into them exactly. */
   --wash-a: transparent;
-  --wash-b: transparent; /* flat sidebar: the sticky rarity container must match it exactly */
+  --wash-b: transparent;
   /* Collected BASE tile — and, since variantColor(null) reads this var, the
      base map pin and the BASE caption too.
      NOT taken from the artwork: measured across all 21 families, base Sprites'
@@ -364,8 +342,8 @@
   border: none !important;
 }
 
-/* The map pin: a solid teardrop in the variant's colour with the Sprite's
-   art in its head, standing on a ground ring. Drawn in a 60x80 SVG box so it
+/* The map pin: a yellow teardrop with the Sprite's art in its head,
+   standing on a ground ring. Drawn in a 60x80 SVG box so it
    scales as one piece when co-located pins shrink (see markerSize). */
 .sprite-pin {
   position: relative;
@@ -389,13 +367,13 @@
 .sprite-pin__body {
   /* The CTA's gradient (lib/cta.ts), defined in each pin's own <defs>. */
   fill: url(#pin-cta);
-  /* A white keyline, not a dark one: the marker's own colour is the only
-     colour inside it too now (see .sprite-pin__art below), so the outline
-     is what still separates the pin from terrain of its own colour. The
-     drop shadow does the rest of the lifting off the island. */
-  stroke: #ffc93c;
-  stroke-width: 1.5;
-  filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.5));
+  /* Dressed like the CTA it's filled with: an ink outline and a hard ink
+     drop, so the yellow pin reads as the same sticker as the button, and
+     separates cleanly from sand and snow that a yellow keyline vanished
+     into. */
+  stroke: var(--pop-ink);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 2.5px 0 var(--pop-ink));
 }
 
 .sprite-pin__ground {
@@ -418,8 +396,6 @@
   animation-iteration-count: 3;
 }
 
-/* The art sits in the head: a circle of radius 21 centred at (30, 28) of the
-   60x80 box, i.e. 70% of the width, starting 15% in and 8.75% down. */
 .sprite-pin__art {
   position: absolute;
   /* The head is a circle of radius 26 centred at (30, 28) of the 60x80 box
@@ -432,10 +408,6 @@
   aspect-ratio: 1;
   border-radius: 9999px;
   overflow: hidden;
-  /* The marker's own colour, and nothing else: no darker shade behind the
-     art, no white ring around it — the pin's colour is the only colour that
-     shows, whether that's the art itself or the sliver of gutter around a
-     non-square icon. */
   background: transparent;
   /* Leaflet's own leaflet.css sets `.leaflet-map-pane svg { z-index: 200; }`
      for ITS vector-overlay panes — but that selector is just "any svg inside
@@ -465,9 +437,7 @@
   }
 }
 
-/* The ember washes, shared by the sidebar and the detail panel. Pinned to the
-   top corners and gone by 60%, so the lower two-thirds of a long scrolling
-   list stays flat and legible. */
+/* Panel washes: currently transparent (see --wash-a / --wash-b). */
 @utility panel-wash {
   background-image:
     radial-gradient(125% 55% at 0% 0%, var(--wash-a), transparent 60%),
@@ -476,31 +446,20 @@
   background-attachment: local;
 }
 
-/* Uncollected Sprite art: a Reef duotone rather than a flat greyscale.
-   Greyscale left the one part of the UI outside the palette — a grey sprite on
-   a teal panel read as a different material. This maps luminance onto the same
-   ramp everything else uses: hue 256, from #1E2F44 in the shadows to #BED3EF
-   in the highlights.
-   The shadow end sits a step above the panel (--card, #051F3F) so a dark sprite
-   still separates from what's behind it, and the light end stops well short of
-   white so the tile still reads as "not collected yet" beside a collected one.
-   Applied through an SVG filter because CSS's own filters can't place both ends
-   of a duotone — grayscale/sepia/hue-rotate only swings the midtones. */
+/* Uncollected Sprite art: an indigo duotone rather than a flat greyscale, so
+   a not-yet-collected Sprite reads as part of the palette, not a grey cut-out
+   pasted onto it. Luminance maps onto the sidebar's own indigo-to-lavender
+   ramp (the filter is defined once in app/layout.tsx). */
 @utility sprite-unowned {
   filter: url("#reef-duotone");
 }
 
 /* ---------------------------------------------------------------------------
-   THE MATERIAL. One flat surface for everything that floats over content:
-   map controls, the detail panel's close button. Opaque --card with a
-   translucent-white hairline border, xAI's own outline-pill treatment
-   (DESIGN.md's button-outline-on-dark) — no blur, no frosted glass, no drop
-   shadow. Elevation is the hairline, not a glow (see DESIGN.md's Don'ts:
-   "hairline borders carry elevation").
+   THE MATERIAL. The secondary sticker-button: map controls, pickers, the
+   close buttons, the toast. White, ink outline, hard ink drop; turns the CTA
+   yellow on hover and sinks into its shadow when pressed.
    --------------------------------------------------------------------------- */
 @utility material {
-  /* Sprite Scout's secondary button: a white pill with the pop ink outline
-     and hard shadow, ink-coloured content. */
   background-color: #ffffff;
   color: var(--pop-ink);
   border: 3px solid var(--pop-ink);
@@ -528,13 +487,22 @@
   animation: skeleton-shimmer 1.4s ease-in-out infinite;
 }
 
+/* The same shimmer for placeholders sitting ON a --muted card panel, where
+   the default one would match the panel and vanish. */
+@utility skeleton-dark {
+  background: linear-gradient(90deg, var(--card) 30%, color-mix(in oklch, var(--card), white 6%) 50%, var(--card) 70%);
+  background-size: 300% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
 @keyframes skeleton-shimmer {
   from { background-position: 100% 0; }
   to { background-position: 0 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .skeleton {
+  .skeleton,
+  .skeleton-dark {
     animation: none;
   }
 }
