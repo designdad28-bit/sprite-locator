@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Layers, FlaskConical } from "lucide-react";
+import { Layers, FlaskConical } from "@/components/icons";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +23,7 @@ import { displayName } from "@/lib/sprite-name";
 import { AddFindingDialog, type AddFindingValues } from "@/components/add-finding-dialog";
 import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
 import { buildDemoFindings } from "@/lib/demo-findings";
-import { ADD_FINDING_STYLE, ADD_FINDING_ICON_STROKE } from "@/lib/cta";
+import { ADD_FINDING_STYLE } from "@/lib/cta";
 import { cn } from "@/lib/utils";
 
 // The open sidebar's width. The map lives in its own container to the right of
@@ -39,7 +39,7 @@ import { cn } from "@/lib/utils";
 // is the cue; a whole one would read as the last one and hide that two more
 // follow. The row itself already scrolls (overflow-x-auto, scrollbar hidden)
 // — see the variant row in sprite-catalog-browser.tsx.
-const SIDEBAR_WIDTH = 322;
+const SIDEBAR_WIDTH = 350;
 
 /**
  * How far the sidebar can be dragged.
@@ -59,8 +59,12 @@ const SIDEBAR_WIDTH = 322;
  * Still capped at half the window as well, so a drag can never squeeze the map
  * into a sliver on a narrow screen.
  */
-const SIDEBAR_MIN_WIDTH = 292;
-const SIDEBAR_MAX_WIDTH = 466;
+// Min: the sidebar's 16px pad + the card's 12px pad + 3 tiles and gaps (264)
+// + half of HACKER (40) puts the card's clipping edge through the middle of
+// the fourth tile at 332; + the 16px pad outside the card + the 2px border.
+// Max: every tile whole, 28 + 5 x 80 + 4 x 8 + 12 + 16 + 2.
+const SIDEBAR_MIN_WIDTH = 350;
+const SIDEBAR_MAX_WIDTH = 490;
 
 /** Remembers the dragged width between visits, like the collection state does. */
 const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
@@ -518,7 +522,10 @@ export default function Home() {
           >
             <SelectTrigger
               aria-label="Filter the map by variant"
-              className="material pointer-events-auto h-11 gap-2 rounded-xl px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-card dark:bg-transparent"
+              // !bg-white: SelectTrigger's own bg-input/50 sits later in the generated
+              // stylesheet than the material utility's background-color, so it wins
+              // the cascade at equal specificity without this override.
+              className="material !bg-white pointer-events-auto h-11 gap-2 rounded-full px-4 py-2 text-sm font-semibold text-pop-ink"
             >
               <SelectValue>
                 {(value: string) => {
@@ -564,12 +571,12 @@ export default function Home() {
               production entirely. */}
           {DEMO_AVAILABLE && (
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={toggleDemoMode}
             aria-pressed={demoMode}
             className={cn(
-              "material pointer-events-auto h-11 rounded-xl hover:bg-card dark:bg-transparent",
-              demoMode ? "border-sprite-gold/60 text-sprite-gold" : "text-muted-foreground"
+              "material pointer-events-auto h-11 rounded-full hover:text-pop-ink",
+              demoMode ? "!bg-pop-yellow text-pop-ink" : "text-pop-ink"
             )}
           >
             <FlaskConical strokeWidth={1.875} />
@@ -590,9 +597,8 @@ export default function Home() {
               setAddKey((k) => k + 1);
               setAddOpen(true);
             }}
-            className={cn("pointer-events-auto h-12 gap-2 px-7 text-base shadow-lg", ADD_FINDING_STYLE)}
+            className={cn("pointer-events-auto h-12 gap-2 rounded-full px-7 text-base", ADD_FINDING_STYLE)}
           >
-            <MapPin className="size-4" strokeWidth={ADD_FINDING_ICON_STROKE} />
             Add Sprite Location
           </Button>
         </div>
@@ -635,7 +641,6 @@ export default function Home() {
                 primary action, a baseline-weight icon reads thin. Both the
                 label and the icon sit one step above the app baseline because
                 this is the one thing the page asks you to do. */}
-            <MapPin className="size-4" strokeWidth={ADD_FINDING_ICON_STROKE} />
             Add Sprite Location
           </Button>
         </div>
@@ -658,7 +663,7 @@ export default function Home() {
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               // Above the Add finding button below it, which now occupies the
               // bottom-centre this used to have to itself.
-              className="pointer-events-none absolute bottom-24 left-1/2 z-[500] -translate-x-1/2 material rounded-full px-5 py-2.5 text-sm font-semibold text-foreground"
+              className="pointer-events-none absolute bottom-24 left-1/2 z-[500] -translate-x-1/2 material rounded-full px-5 py-2.5 text-sm font-semibold text-pop-ink"
             >
               Sprite location added — {displayName(getSprite(lastAdded)?.name)}
             </motion.div>

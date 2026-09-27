@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Inter, Rajdhani } from "next/font/google";
+import { Anton, Geist_Mono, Inter, Rajdhani } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,14 @@ const rajdhani = Rajdhani({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
   variable: "--font-heading",
+});
+
+// The display face: tall, condensed, heavy caps, for headings and button
+// labels — the chunky poster type of the Sprite Scout reference.
+const anton = Anton({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-display",
 });
 
 const geistMono = Geist_Mono({
@@ -33,6 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         "dark",
         geistMono.variable,
         rajdhani.variable,
+        anton.variable,
         "font-sans",
         inter.variable
       )}

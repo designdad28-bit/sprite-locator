@@ -71,6 +71,12 @@ export interface AddFindingDialogProps {
  * Mount it with a `key` that changes on each open (see app/page.tsx) so every
  * open starts from a blank form without resetting state in an effect.
  */
+/** The dialog's pickers: the white sticker style of every secondary control,
+ *  yellow on hover (see the material utility). !bg-white beats the trigger's
+ *  own bg-input/50, which sits later in the stylesheet. */
+const PICKER_STYLE =
+  "material !bg-white w-full font-semibold text-pop-ink data-placeholder:text-pop-ink/60 [&_svg]:text-pop-ink";
+
 export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, onConfirm }: AddFindingDialogProps) {
   const { sprites } = useSpriteCatalog();
   const [poiId, setPoiId] = useState<string | null>(null);
@@ -140,7 +146,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
                 setVariant(null);
               }}
             >
-              <SelectTrigger id="finding-sprite" className="w-full">
+              <SelectTrigger id="finding-sprite" className={PICKER_STYLE}>
                 <SelectValue>
                   {(value: string | null) => {
                     const chosen = value ? sprites.find((s) => s.id === value) : null;
@@ -179,7 +185,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
           <div className="grid gap-2">
             <Label htmlFor="finding-variant">Variant</Label>
             <Select value={variant} onValueChange={(value) => setVariant(value as string | null)}>
-              <SelectTrigger id="finding-variant" className="w-full">
+              <SelectTrigger id="finding-variant" className={PICKER_STYLE}>
                 <SelectValue>
                   {(value: string | null) => {
                     const chosen = value ? variants.find((v) => v.slot === value) : null;
@@ -213,7 +219,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
           <div className="grid gap-2">
             <Label htmlFor="finding-location">Location</Label>
             <Select value={poiId} onValueChange={(value) => setPoiId(value as string | null)}>
-              <SelectTrigger id="finding-location" className="w-full">
+              <SelectTrigger id="finding-location" className={PICKER_STYLE}>
                 <SelectValue>{(value: string | null) => (value ? poiName(value) : "Choose a location")}</SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -233,7 +239,7 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
           <div className="grid gap-2">
             <Label htmlFor="finding-loot-source">Loot source</Label>
             <Select value={source} onValueChange={(value) => setLootSource(value as string | null)}>
-              <SelectTrigger id="finding-loot-source" className="w-full">
+              <SelectTrigger id="finding-loot-source" className={PICKER_STYLE}>
                 <SelectValue>
                   {(value: string | null) => {
                     const chosen = lootSourceById(value);

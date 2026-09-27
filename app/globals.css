@@ -27,7 +27,16 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-heading);
+  /* xAI DESIGN.md: display type is a geometric sans at weight 400 with
+     tight negative tracking, not a display/script face. Repointed at Inter
+     (the documented substitute for xAI's proprietary Universal Sans) rather
+     than the app's previous Rajdhani, which read as a gaming wordmark, not
+     an engineered-cosmic one. The SpriteRadar mark itself is a logo image
+     (public/brand/logo-lockup.svg), so this only affects in-app headings. */
+  --font-heading: var(--font-display);
+  --color-pop-ink: var(--pop-ink);
+  --color-pop-yellow: var(--pop-yellow);
+  --color-map-field: var(--map-field);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -65,6 +74,10 @@
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
+  /* xAI's own card radius (DESIGN.md {rounded.sm}) is 8px; --radius-4xl is
+     what every pill-shaped button in this app already rounds with, so it's
+     the lever for "every interactive element is a pill" (DESIGN.md's other
+     rule) — set well past half of any real button/input height. */
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
@@ -92,7 +105,10 @@
   --chart-3: oklch(0.45 0.017 213.2);
   --chart-4: oklch(0.378 0.015 216);
   --chart-5: oklch(0.275 0.011 216.9);
-  --radius: 0.625rem;
+  /* 8px — xAI's own card radius (DESIGN.md {rounded.sm}), down from 10px.
+     Every radius step above is a multiple of this one, so the whole scale
+     tightens with it rather than needing retuning card-by-card. */
+  --radius: 0.5rem;
   --sidebar: oklch(0.987 0.002 197.1);
   --sidebar-foreground: oklch(0.148 0.004 228.8);
   --sidebar-primary: oklch(0.218 0.008 223.9);
@@ -104,7 +120,7 @@
   --sprite-base-collected: var(--input);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
-  --sprite-gold: #EED12B;
+  --sprite-gold: #ffc93c;
   /* Radar active: the Sprite's findings are pinned on the map. Marks one thing
      — showing on the map — and is deliberately not a rarity or mastery hue, so
      it can't be read as either. Tailwind's own blue-500, referenced rather than
@@ -114,44 +130,63 @@
 }
 
 .dark {
-  --background: oklch(0.175 0.055 256);
-  --foreground: oklch(0.975 0.015 256);
-  --card: oklch(0.24 0.070 256);
-  --card-foreground: oklch(0.975 0.015 256);
-  --popover: oklch(0.24 0.070 256);
-  --popover-foreground: oklch(0.975 0.015 256);
-  --primary: oklch(0.925 0.02 256);
-  --primary-foreground: oklch(0.24 0.070 256);
-  --secondary: oklch(0.3 0.085 256);
-  --secondary-foreground: oklch(0.975 0.015 256);
-  --muted: oklch(0.3 0.085 256);
-  --muted-foreground: oklch(0.74 0.045 256);
-  --accent: oklch(0.3 0.085 256);
-  --accent-foreground: oklch(0.975 0.015 256);
+  /* --------------------------------------------------------------------
+     SPRITE SCOUT palette (the Instinct reference): deep indigo-navy panels,
+     a sky-blue ocean around the island, pure-white type, and one ink colour
+     — a near-black navy — for every chunky outline and hard drop shadow.
+     Rarity, variant, gold and radar colours stay untouched: they carry
+     meaning, and the reference's own pins are colour-coded the same way.
+     -------------------------------------------------------------------- */
+  --background: #1b2266;
+  --foreground: #ffffff;
+  --card: #232a7a;
+  --card-foreground: #ffffff;
+  --popover: #2d3591;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #141c4a;
+  --secondary: #2d3591;
+  --secondary-foreground: #ffffff;
+  --muted: #2d3591;
+  --muted-foreground: #c3caff;
+  --accent: #2d3591;
+  --accent-foreground: #ffffff;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.58 0.07 256);
+  --border: oklch(1 0 0 / 16%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: #ffc93c;
   --chart-1: oklch(0.872 0.03 256);
   --chart-2: oklch(0.58 0.07 256);
   --chart-3: oklch(0.45 0.09 256);
   --chart-4: oklch(0.378 0.095 256);
   --chart-5: oklch(0.3 0.085 256);
-  --sidebar: oklch(0.24 0.070 256);
-  --sidebar-foreground: oklch(0.975 0.015 256);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-accent: oklch(0.3 0.085 256);
-  --sidebar-accent-foreground: oklch(0.975 0.015 256);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.58 0.07 256);
+  --sidebar: #232a7a;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #141c4a;
+  --sidebar-accent: #2d3591;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: oklch(1 0 0 / 16%);
+  --sidebar-ring: #ffc93c;
+  /* The ink every pop outline and hard shadow is drawn in. */
+  --pop-ink: #141c4a;
+  /* The primary action's yellow. The field around the island is the sidebar's
+     own colour (--card), past the water bands (see
+     scripts/trace-water-rings.py), out to the map's edge. */
+  --pop-yellow: #ffc93c;
+  --map-field: var(--card);
   /* Two washes of light off the top of each panel, the move that keeps a dark
      ground from reading heavy. Alpha so they layer over --card; applied via
      .panel-wash below. A deeper blue and a cyan, set either side of the
      ground's own hue, so the top of a panel shifts temperature rather than
      only getting brighter. */
-  --wash-a: rgba(35, 73, 147, 0.34);
-  --wash-b: rgba(0, 73, 100, 0.30);
+  /* Neutralised: xAI has no atmospheric backdrop or panel glow ("There is
+     no gradient hero, no atmospheric backdrop" — DESIGN.md's Overview).
+     .panel-wash keeps being applied at its two call sites so nothing else
+     has to change, but with both stops transparent it now paints nothing —
+     the panel is flat --card with a hairline border doing the separation. */
+  --wash-a: transparent;
+  --wash-b: transparent; /* flat sidebar: the sticky rarity container must match it exactly */
   /* Collected BASE tile — and, since variantColor(null) reads this var, the
      base map pin and the BASE caption too.
      NOT taken from the artwork: measured across all 21 families, base Sprites'
@@ -191,7 +226,7 @@
   --sprite-base-collected-bottom: oklch(0.79 0.133 225);
   /* Mastery gold: Atlassian Yellow300. Marks one thing — mastered — across the
      crowns, the tile ring, the family counts and the mastery card. */
-  --sprite-gold: #EED12B;
+  --sprite-gold: #ffc93c;
   /* Radar active: the Sprite's findings are pinned on the map. Marks one thing
      — showing on the map — and is deliberately not a rarity or mastery hue, so
      it can't be read as either. Tailwind's own blue-500, referenced rather than
@@ -304,33 +339,21 @@
   display: inline-block;
   white-space: nowrap;
   transform: translate(-50%, -50%);
-  font-family: var(--font-heading);
-  font-weight: 700;
-  /* On the type scale rather than a 13px one-off. */
-  font-size: var(--text-sm);
-  /* Uppercase needs air that lowercase doesn't: caps have no ascenders or
-     descenders to separate them, so at 0.02em the words read as one block. */
-  letter-spacing: 0.07em;
+  /* The display face in caps, like the sprite names and headings. */
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-base);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--foreground);
-  /* A real stroke, not four offset copies of the text.
-     The previous rule faked an outline with shadows at the four diagonals,
-     which is why the labels looked hand-cut: that outline is double-weight at
-     the corners and thinnest along the flat edges of a letterform, so curves
-     come out lumpy and stepped. -webkit-text-stroke follows the glyph's own
-     outline at an even weight all the way round.
-     paint-order is what makes it usable: by default the stroke is painted
-     over the fill, and since a stroke straddles the outline it would eat half
-     the letter's own weight, thinning the type. Painting stroke first puts the
-     fill back on top, so only the outer half shows — which is also why the
-     width is 3px for a ~1.5px ring, matching the old weight at the corners.
-     Softened to 70% black rather than pure: at full strength a hard ring this
-     size reads as a sticker on top of the map instead of a label on it. */
-  -webkit-text-stroke: 3px rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  /* A bold ink outline in the site's own ink colour, like the sticker
+     buttons. paint-order puts the stroke under the fill, so only its outer
+     half shows: 5px of stroke reads as a 2.5px ring and the letters keep
+     their full weight. Then a hard ink drop, the same move as the buttons'
+     shadow, with no blur. */
+  -webkit-text-stroke: 5px var(--pop-ink);
   paint-order: stroke fill;
-  /* Depth only — the separation is the stroke's job now, so this is a soft
-     cast rather than the old hard 2px step. */
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  text-shadow: 0 2px 0 var(--pop-ink);
   -webkit-font-smoothing: antialiased;
   pointer-events: none;
   user-select: none;
@@ -341,101 +364,107 @@
   border: none !important;
 }
 
-.sprite-marker {
+/* The map pin: a solid teardrop in the variant's colour with the Sprite's
+   art in its head, standing on a ground ring. Drawn in a 60x80 SVG box so it
+   scales as one piece when co-located pins shrink (see markerSize). */
+.sprite-pin {
   position: relative;
   display: block;
-  /* Set per pin: co-located pins shrink to make room for each other
-     (see markerSize in components/map/island-map.tsx). */
-  width: var(--marker-size, 60px);
-  height: var(--marker-size, 60px);
+  transform-origin: 50% 90%;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.sprite-marker__dot {
-  position: absolute;
-  inset: calc(var(--marker-size, 60px) * 0.3167);
-  border-radius: 9999px;
-  background: var(--marker-ring);
-  /* White hairline, then the dark ring outside it — same treatment as the
-     badge below, so an icon-less pin reads as the same object. */
-  box-shadow: 0 0 0 1px #fff, 0 0 8px 1px var(--marker-ring), 0 0 0 3px rgba(0, 0, 0, 0.6);
-  transition: transform 0.15s ease;
+.sprite-pin:hover {
+  transform: scale(1.12);
 }
 
-.sprite-marker__badge {
+.sprite-pin__svg {
   position: absolute;
   inset: 0;
-  border-radius: 9999px;
-  overflow: hidden;
-  /* One solid fill in the variant's colour, ringed by a white hairline.
-     Opaque, so no map terrain bleeds through.
-     The ring is white rather than the fill's own colour: the fills are now
-     variant colours spanning most of the wheel, and any one of them lands on
-     terrain somewhere that shares it. White belongs to no variant, so it
-     separates every pin from the island without competing with the colour it
-     is outlining. */
-  background: var(--marker-fill);
-  outline: 1px solid #fff;
-  /* Negative offset keeps the outline inside the badge's box, so the icon
-     footprint Leaflet positions against stays exactly --marker-size. */
-  outline-offset: -1px;
-  box-shadow: 0 0 10px 1px var(--marker-fill), 0 2px 6px rgba(0, 0, 0, 0.6);
-  transition: transform 0.15s ease;
-  /* Just enough to keep the art off the edge; the sprite fills the rest.
-     Proportional, so shrunken co-located pins keep the same ratio
-     (3px at the 60px base). */
-  padding: calc(var(--marker-size, 60px) * 0.05);
-}
-
-.sprite-marker__badge img {
   width: 100%;
   height: 100%;
-  border-radius: 9999px;
-  object-fit: cover;
+  overflow: visible;
 }
 
-.sprite-marker__ping {
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  background: var(--marker-ring);
-  opacity: 0.55;
+.sprite-pin__body {
+  /* The CTA's gradient (lib/cta.ts), defined in each pin's own <defs>. */
+  fill: url(#pin-cta);
+  /* A white keyline, not a dark one: the marker's own colour is the only
+     colour inside it too now (see .sprite-pin__art below), so the outline
+     is what still separates the pin from terrain of its own colour. The
+     drop shadow does the rest of the lifting off the island. */
+  stroke: #ffc93c;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.5));
+}
+
+.sprite-pin__ground {
+  fill: color-mix(in oklch, #ffc93c 35%, transparent);
+  stroke: #ffc93c;
+  stroke-width: 4;
+}
+
+.sprite-pin__ping {
+  fill: none;
+  stroke: #ffc93c;
+  stroke-width: 4;
+  transform-box: fill-box;
+  transform-origin: center;
   animation: sprite-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
-.sprite-marker--new .sprite-marker__ping {
+.sprite-pin--new .sprite-pin__ping {
   animation-duration: 1.1s;
   animation-iteration-count: 3;
 }
 
-.sprite-marker:hover .sprite-marker__dot,
-.sprite-marker:hover .sprite-marker__badge {
-  transform: scale(1.15);
+/* The art sits in the head: a circle of radius 21 centred at (30, 28) of the
+   60x80 box, i.e. 70% of the width, starting 15% in and 8.75% down. */
+.sprite-pin__art {
+  position: absolute;
+  /* The head is a circle of radius 26 centred at (30, 28) of the 60x80 box
+     (see .sprite-pin__body's path) — 86.7% of the pin's width. This sits
+     just inside that at 80%, leaving a slight 2px ring of the pin's own
+     colour showing at the head's rim rather than filling it edge to edge. */
+  left: 10%;
+  top: 5%;
+  width: 80%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  overflow: hidden;
+  /* The marker's own colour, and nothing else: no darker shade behind the
+     art, no white ring around it — the pin's colour is the only colour that
+     shows, whether that's the art itself or the sliver of gutter around a
+     non-square icon. */
+  background: transparent;
+  /* Leaflet's own leaflet.css sets `.leaflet-map-pane svg { z-index: 200; }`
+     for ITS vector-overlay panes — but that selector is just "any svg inside
+     the map pane", so it also caught our decorative .sprite-pin__svg (which
+     never declared a z-index of its own). At 200 it painted above this art
+     layer, hiding the Sprite's face completely behind the solid teardrop —
+     not a missing image, an invisible one. 201 clears it; nothing else in
+     the pin stack sets a z-index this high. */
+  z-index: 201;
 }
 
-/* The ping pulses forever, which is exactly the motion reduce-motion asks to
-   stop. The pin itself carries the information; the ring is emphasis only. */
-@media (prefers-reduced-motion: reduce) {
-  .sprite-marker__ping {
-    animation: none;
-    opacity: 0;
-  }
-  .sprite-marker__dot,
-  .sprite-marker__badge {
-    transition: none;
-  }
+.sprite-pin__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 @keyframes sprite-ping {
   0% {
-    transform: scale(0.6);
-    opacity: 0.55;
+    transform: scale(1);
+    opacity: 0.8;
   }
   75%,
   100% {
-    transform: scale(2.4);
+    transform: scale(2.2);
     opacity: 0;
   }
 }
+
 /* The ember washes, shared by the sidebar and the detail panel. Pinned to the
    top corners and gone by 60%, so the lower two-thirds of a long scrolling
    list stays flat and legible. */
@@ -462,44 +491,34 @@
 }
 
 /* ---------------------------------------------------------------------------
-   THE MATERIAL. One frosted surface for everything that floats over content:
-   the sticky rarity headers, every control over the map, the detail panel's
-   close button, popovers. The list or the island stays faintly visible
-   through it, so floating chrome reads as a layer above the content rather
-   than a hole cut in it. A 1px top highlight catches "light" the way a glass
-   edge does; the hairline border keeps it defined on busy terrain.
-   Solid fallback where backdrop-filter is unsupported.
+   THE MATERIAL. One flat surface for everything that floats over content:
+   map controls, the detail panel's close button. Opaque --card with a
+   translucent-white hairline border, xAI's own outline-pill treatment
+   (DESIGN.md's button-outline-on-dark) — no blur, no frosted glass, no drop
+   shadow. Elevation is the hairline, not a glow (see DESIGN.md's Don'ts:
+   "hairline borders carry elevation").
    --------------------------------------------------------------------------- */
 @utility material {
-  background-color: color-mix(in oklch, var(--card) 72%, transparent);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid color-mix(in oklch, white 9%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklch, white 10%, transparent),
-    0 8px 24px -8px rgb(0 0 0 / 0.55),
-    0 2px 6px -2px rgb(0 0 0 / 0.4);
-  @supports not (backdrop-filter: blur(1px)) {
-    background-color: var(--card);
+  /* Sprite Scout's secondary button: a white pill with the pop ink outline
+     and hard shadow, ink-coloured content. */
+  background-color: #ffffff;
+  color: var(--pop-ink);
+  border: 3px solid var(--pop-ink);
+  box-shadow: 0 4px 0 var(--pop-ink);
+  transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  /* Every secondary button turns the CTA yellow on hover and sinks into its
+     shadow when pressed. Only interactive elements: a material wrapper (the
+     zoom stack) stays white while the buttons inside it light up. */
+  &:where(button, a, [role="button"], [role="combobox"]):hover {
+    background-color: var(--pop-yellow) !important;
   }
-}
-
-/* Gold as light, not paint: the mastery fill and the primary action share a
-   top-lit gradient with a slow sheen that crosses once on load, so the one
-   colour that means "earned / do this" is also the one surface that glints. */
-@utility gold-light {
-  background-image:
-    linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.45) 50%, transparent 65%),
-    linear-gradient(180deg, color-mix(in oklch, var(--sprite-gold), white 22%), var(--sprite-gold) 55%, color-mix(in oklch, var(--sprite-gold), black 12%));
-  background-size: 250% 100%, 100% 100%;
-  background-position: 130% 0, 0 0;
-  background-repeat: no-repeat;
-  animation: gold-sheen 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.6s 1 both;
-}
-
-@keyframes gold-sheen {
-  from { background-position: 130% 0, 0 0; }
-  to { background-position: -30% 0, 0 0; }
+  &:where(button, a, [role="button"], [role="combobox"]):active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--pop-ink);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 /* Skeleton shimmer for loading states: the real layout, drawn in advance. */
@@ -515,8 +534,34 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gold-light,
   .skeleton {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   POP. The Sprite Scout button: a thick ink outline and a hard, unblurred
+   drop shadow straight down, so it reads as a physical sticker-button.
+   Pressing sinks it into its own shadow.
+   --------------------------------------------------------------------------- */
+@utility pop {
+  border: 3px solid var(--pop-ink);
+  box-shadow: 0 4px 0 var(--pop-ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.15s ease;
+  &:where(button, [role="button"], [role="combobox"]):active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--pop-ink);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* The display face for chunky caps labels (headings, button text). */
+@utility display-caps {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 400;
+}
+

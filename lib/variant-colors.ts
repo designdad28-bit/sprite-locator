@@ -49,10 +49,10 @@ const VARIANT_COLOR: Record<string, string> = {
  * on borders and text where a gradient is not a valid value.
  */
 const VARIANT_GRADIENT: Record<string, string> = {
-  gold: "linear-gradient(to bottom, oklch(0.636 0.130 86), oklch(0.816 0.149 86))",
-  cheatmaster: "linear-gradient(to bottom, oklch(0.637 0.205 140), oklch(0.817 0.234 140))",
-  hacker: "linear-gradient(to bottom, oklch(0.395 0.245 276.9), oklch(0.575 0.236 276.9))",
-  reaper: "linear-gradient(to bottom, oklch(0.546 0.265 318), oklch(0.726 0.223 318))",
+  gold: "linear-gradient(to top, oklch(0.636 0.130 86), oklch(0.816 0.149 86))",
+  cheatmaster: "linear-gradient(to top, oklch(0.637 0.205 140), oklch(0.817 0.234 140))",
+  hacker: "linear-gradient(to top, oklch(0.395 0.245 276.9), oklch(0.575 0.236 276.9))",
+  reaper: "linear-gradient(to top, oklch(0.546 0.265 318), oklch(0.726 0.223 318))",
 };
 
 /**
@@ -62,12 +62,137 @@ const VARIANT_GRADIENT: Record<string, string> = {
  * likely to be retuned.
  */
 const BASE_VARIANT_GRADIENT =
-  "linear-gradient(to bottom, var(--sprite-base-collected-top), var(--sprite-base-collected-bottom))";
+  "linear-gradient(to top, var(--sprite-base-collected-top), var(--sprite-base-collected-bottom))";
 
 /** The tile fill for a variant: its colour shaded dark-to-light, top to bottom. */
 export function variantGradient(variant: string | null): string | null {
   if (!variant) return BASE_VARIANT_GRADIENT;
   return VARIANT_GRADIENT[variantKey(variant)] ?? null;
+}
+
+/**
+ * A themed backdrop per variant, layered over its gradient, for a collected
+ * tile. Each follows the effect Epic paints INSIDE that variant's Sprite art:
+ *   base         light greyish-blue sheen, the gold treatment in #c3caff
+ *   gold         reflective gold: gentle bands of light and shadow sweeping
+ *                across polished metal, with a soft specular
+ *   cheat master Matrix code: streams of falling green glyphs down every
+ *                column, top to bottom, each with a bright head and a fading
+ *                tail, over a darkened green
+ *   loot hacker  purple checkerboard, lit from the top
+ *   bounty       pink swirl: spiral arms turning round a glow behind the
+ *                Sprite
+ * The code rain and swirl need real shapes, so they're small generated
+ * SVGs (deterministic, built once at load) rather than gradients.
+ */
+const CHECKER = (color: string, size: number, offset = 0) =>
+  `conic-gradient(${color} 25%, transparent 0 50%, ${color} 0 75%, transparent 0) ${offset}px ${offset}px / ${size}px ${size}px`;
+
+const svgUrl = (svg: string) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+
+/** Seeded so every render draws the same rain and swirl. */
+function seeded(seed: number) {
+  return () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+}
+
+const MATRIX_RAIN = (() => {
+  const rand = seeded(42);
+  // No < > or &: they would break the SVG markup.
+  const glyphs = "01ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄ0123456789Z:=+";
+  const size = 7.5;
+  let text = "";
+  for (let x = 2; x < 100; x += 7) {
+    // Streams fall down the whole column, top to bottom: each a bright head
+    // with a tail of 4-9 glyphs fading out above it, then a short gap, then
+    // the next, so the rain fills the tile rather than a band of it.
+    let head = -rand() * 30;
+    while (head - 10 * size < 104) {
+      const tail = 4 + Math.floor(rand() * 6);
+      const faint = rand() < 0.35 ? 0.55 : 1;
+      for (let i = 0; i <= tail; i++) {
+        const y = head - i * size;
+        if (y < -2 || y > 104) continue;
+        const ch = glyphs[Math.floor(rand() * glyphs.length)];
+        const fill = i === 0 ? "#eaffea" : "#7dff8a";
+        const opacity = (i === 0 ? 0.95 : 0.75 * (1 - i / (tail + 1))) * faint;
+        text += `<text x="${x}" y="${y.toFixed(1)}" fill="${fill}" fill-opacity="${opacity.toFixed(2)}">${ch}</text>`;
+      }
+      head += (tail + 2 + Math.floor(rand() * 4)) * size;
+    }
+  }
+  return svgUrl(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" font-family="Menlo,Consolas,monospace" font-size="${size}" font-weight="700">${text}</svg>`
+  );
+})();
+
+const PINK_SWIRL = (() => {
+  const cx = 50;
+  const cy = 56;
+  const arm = (start: number) => {
+    const pts: string[] = [];
+    for (let t = 0; t <= 9; t += 0.12) {
+      const r = 3 * Math.exp(0.36 * t);
+      if (r > 95) break;
+      const a = start + t;
+      pts.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+    }
+    return pts.join(" ");
+  };
+  let paths = "";
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    paths += `<polyline points="${arm(a)}" stroke="#ffd2fb" stroke-opacity="0.34" stroke-width="7"/>`;
+    paths += `<polyline points="${arm(a + Math.PI / 5)}" stroke="#5a0056" stroke-opacity="0.2" stroke-width="5"/>`;
+  }
+  return svgUrl(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" fill="none" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`
+  );
+})();
+
+const VARIANT_PATTERN: Record<string, string> = {
+  // The mastery tracker's "/ 101" colour (--muted-foreground, #c3caff),
+  // swept with the same soft sheen as gold. Opaque, so it replaces the base
+  // blue on the tile only; pins and captions keep --sprite-base-collected.
+  base:
+    "radial-gradient(ellipse 45% 30% at 28% 22%, rgb(255 255 255 / 0.4), transparent 70%), " +
+    "linear-gradient(125deg, oklch(0.74 0.07 277) 0%, oklch(0.87 0.06 277) 20%, oklch(0.78 0.07 277) 36%, " +
+    "oklch(0.91 0.05 277) 50%, oklch(0.77 0.07 277) 64%, oklch(0.85 0.06 277) 80%, oklch(0.72 0.07 277) 100%)",
+  gold:
+    "radial-gradient(ellipse 45% 30% at 28% 22%, rgb(255 255 245 / 0.45), transparent 70%), " +
+    "linear-gradient(125deg, oklch(0.66 0.13 80) 0%, oklch(0.82 0.13 90) 20%, oklch(0.7 0.13 82) 36%, " +
+    "oklch(0.86 0.11 94) 50%, oklch(0.69 0.13 81) 64%, oklch(0.8 0.13 89) 80%, oklch(0.64 0.12 78) 100%)",
+  cheatmaster: `${MATRIX_RAIN} center / cover no-repeat, linear-gradient(rgb(0 35 5 / 0.55), rgb(0 35 5 / 0.3))`,
+  hacker:
+    "linear-gradient(to bottom, rgb(255 255 255 / 0.2), transparent 65%), " +
+    CHECKER("rgb(205 150 255 / 0.32)", 16),
+  reaper: `radial-gradient(circle at 50% 56%, rgb(255 215 255 / 0.55), transparent 30%), ${PINK_SWIRL} center / cover no-repeat`,
+};
+
+/**
+ * The soft sheen gold and base are built from, as a light-only overlay for
+ * the patterned variants: the same diagonal bands and corner glint, but
+ * white at low alpha, laid on top so the code rain, checkerboard and swirl
+ * all still show through.
+ */
+const SHEEN =
+  "radial-gradient(ellipse 45% 30% at 28% 22%, rgb(255 255 255 / 0.22), transparent 70%), " +
+  "linear-gradient(125deg, transparent 4%, rgb(255 255 255 / 0.1) 20%, transparent 34%, " +
+  "rgb(255 255 255 / 0.14) 50%, transparent 64%, rgb(255 255 255 / 0.08) 80%, transparent 96%)";
+
+/** Gold and base are a sheen already; the rest get SHEEN on top. */
+const HAS_OWN_SHEEN = new Set(["base", "gold"]);
+
+/** A collected tile's full background: sheen, then the variant's pattern, over its gradient. */
+export function variantBackdrop(variant: string | null): string | null {
+  const gradient = variantGradient(variant);
+  if (!gradient) return null;
+  const key = variant ? variantKey(variant) : "base";
+  const pattern = VARIANT_PATTERN[key];
+  if (!pattern) return gradient;
+  return HAS_OWN_SHEEN.has(key) ? `${pattern}, ${gradient}` : `${SHEEN}, ${pattern}, ${gradient}`;
 }
 
 /**

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { X } from "lucide-react";
+import { X } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { Finding } from "@/lib/findings";
 import { rarityAccent } from "@/lib/rarity";
@@ -10,7 +10,7 @@ import { titleCase } from "@/lib/title-case";
 import { SPRITE_ABILITIES } from "@/lib/sprite-abilities";
 import { VARIANT_SLOTS, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 import { cn } from "@/lib/utils";
-import { spriteIconScale } from "@/lib/sprite-icon-metrics";
+import { spriteIconTransform } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
 import { RarityGem } from "@/components/rarity-gem";
 
@@ -57,7 +57,7 @@ const AVAILABILITY_LABEL: Record<string, string> = {
 /** The one section heading treatment. Same size and weight as the catalog's variant captions. */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{children}</h3>
+    <h3 className="display-caps text-base text-pop-yellow">{children}</h3>
   );
 }
 
@@ -129,7 +129,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 px-4 text-center">
         <p className="text-base text-muted-foreground">Sprite not found in the catalog.</p>
-        <Button variant="outline" size="sm" onClick={onBack}>
+        <Button variant="ghost" size="sm" onClick={onBack} className="material rounded-full px-4 text-pop-ink hover:text-pop-ink">
           Close
         </Button>
       </div>
@@ -176,7 +176,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           size="icon-sm"
           onClick={onBack}
           aria-label="Close"
-          className="material absolute top-3 right-3 z-10 rounded-full text-muted-foreground hover:bg-card hover:text-foreground max-md:size-11 dark:bg-transparent"
+          className="material absolute top-3 right-3 z-10 rounded-full text-pop-ink hover:text-pop-ink max-md:size-11"
         >
           <X strokeWidth={1.5} />
         </Button>
@@ -200,7 +200,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
               src={sprite.icon}
               alt={displayName(sprite.name)}
               className="size-full object-contain drop-shadow-[0_18px_24px_rgb(0_0_0/0.45)]"
-              style={{ transform: `scale(${spriteIconScale(sprite.id)})` }}
+              style={{ transform: spriteIconTransform(sprite.id) }}
             />
           ) : (
             <span className="font-heading text-xl text-muted-foreground">?</span>
@@ -232,7 +232,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
             which would drop its top to 3px — further out than where it
             started. */}
         <div className="flex items-start justify-between gap-3">
-          <h2 className="min-w-0 font-heading text-2xl font-medium leading-[1.15] text-foreground">
+          <h2 className="min-w-0 display-caps text-3xl leading-[1.1] text-foreground">
             {displayName(sprite.name)}
           </h2>
 

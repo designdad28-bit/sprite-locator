@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Crown } from "lucide-react";
+import { CrownSolid } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress";
@@ -41,30 +41,26 @@ export function MasterySummary() {
         // The track is bg-card, not the component's default bg-muted: the header
         // strip behind it is itself --muted, so the default left the empty part
         // of the bar invisible.
-        className="gap-1.5 [&_[data-slot=progress-indicator]]:gold-light [&_[data-slot=progress-indicator]]:rounded-full [&_[data-slot=progress-indicator]]:shadow-[0_0_10px_var(--sprite-gold)] [&_[data-slot=progress-track]]:h-1.5 [&_[data-slot=progress-track]]:bg-card [&_[data-slot=progress-track]]:shadow-[inset_0_1px_2px_rgb(0_0_0/0.5)]"
+        // Flat gold fill, no outer glow: the track is a flat ink-outlined
+        // pill with the same hard drop shadow as the buttons, no inner shadow.
+        className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-indicator]]:!h-2 [&_[data-slot=progress-indicator]]:rounded-[100px] [&_[data-slot=progress-track]]:h-3.5 [&_[data-slot=progress-track]]:border-[3px] [&_[data-slot=progress-track]]:border-pop-ink [&_[data-slot=progress-track]]:bg-card [&_[data-slot=progress-track]]:shadow-[0_3px_0_var(--pop-ink)]"
       >
-        <ProgressLabel className="flex items-center gap-1 text-base leading-none text-sprite-gold md:text-sm">
-          <Crown
+        <ProgressLabel className="display-caps flex items-center gap-1.5 text-lg leading-none text-sprite-gold">
+          {/* The same badge as a mastered tile: a gold disc, ink outline and
+              hard drop shadow, holding a solid crown in the sidebar's colour. */}
+          <span
             aria-hidden
-            // Inherits the label's gold via currentColor. Nudged down 1px:
-            // hiding the base bar leaves the remaining shape sitting high in
-            // the 24-unit box, so box-centering alone reads as too high.
-            // Stroke set in CSS, not as the attribute, because this is the one
-            // icon whose SIZE is responsive — 16px beside the desktop label,
-            // 20px beside the phone one. A single strokeWidth would therefore
-            // render two different weights. CSS wins over the presentation
-            // attribute, so each breakpoint gets the value that lands on the
-            // app's one weight: 1.25px of ink.
-            className="size-4 shrink-0 translate-y-px [stroke-width:1.875] [&>path:last-child]:hidden max-md:size-5 max-md:[stroke-width:1.5]"
-            fill="currentColor"
-          />
+            className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-sprite-gold shadow-[0_2px_0_var(--pop-ink)]"
+          >
+            <CrownSolid className="size-4 text-card" fill="currentColor" />
+          </span>
           Mastered
         </ProgressLabel>
         {/* Children is a render fn; the default would print the percentage,
             but the count is what belongs here. */}
         {/* Only the count you've earned is gold (matching the bar and the tile
             crowns); the total stays muted so it reads as the denominator. */}
-        <ProgressValue className="text-base font-medium leading-none text-muted-foreground md:text-sm">
+        <ProgressValue className="display-caps text-lg leading-none text-muted-foreground">
           {() => (
             <>
               <span className="text-sprite-gold">{mastered}</span> / {total}

@@ -2,18 +2,17 @@
 
 import { useMemo, useState, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Radar, Info, Search, Ban, Crown, X, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
+import { Logo } from "@/components/logo";
+import { Info, Search, Ban, CrownSolid, X, PanelLeftOpen } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
 import { rarityAccent } from "@/lib/rarity";
 import { displayName } from "@/lib/sprite-name";
-import { VARIANT_SLOTS, variantGradient, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
-import { spriteIconScale } from "@/lib/sprite-icon-metrics";
+import { VARIANT_SLOTS, variantBackdrop, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
+import { spriteIconTransform } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
-import { RarityGem } from "@/components/rarity-gem";
-import { Input } from "@/components/ui/input";
-import { BorderBeam } from "border-beam";
 import { MasterySummary } from "./mastery-summary";
 import { cn } from "@/lib/utils";
 
@@ -22,10 +21,6 @@ const RARITY_PILLS = ["Rare", "Epic", "Legendary", "Mythic"];
 /** Flip to true to bring the rarity filter row back. */
 const SHOW_RARITY_TABS = false;
 const RARITY_ORDER = ["common", "uncommon", "rare", "epic", "legendary", "mythic", "special"];
-
-function prefersReducedMotion() {
-  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
 
 /**
  * A light that runs around a tile's edge while it's hovered. The full
@@ -48,42 +43,11 @@ function HoverBeam({
   /** Let a focus ring show outside the beam's box (the library clips it). */
   overflowVisible?: boolean;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const on = !prefersReducedMotion() && (hovered || (whileFocused && focused));
-  return (
-    <BorderBeam
-      size="md"
-      colorVariant="colorful"
-      theme="dark"
-      strength={1}
-      // The beam is a 1px ring plus glow tuned for card-sized surfaces; on an
-      // 80px tile at default settings it read as a faint corner smudge. More
-      // light and a wider halo make the travelling highlight legible here.
-      brightness={2.2}
-      glowSize={1.6}
-      // The library multiplies its fixed layer opacities (stroke 0.26, inner
-      // 0.42, bloom 0.24) by these hooks; tripling them makes the travelling
-      // edge clearly visible against the saturated tile fills.
-      style={
-        {
-          "--beam-stroke-opacity": 3,
-          "--beam-inner-opacity": 1.8,
-          "--beam-bloom-opacity": 3,
-          ...(overflowVisible && { overflow: "visible" }),
-        } as CSSProperties
-      }
-      active={on}
-      className={className}
-      onPointerEnter={() => setHovered(true)}
-      onPointerLeave={() => setHovered(false)}
-      // React's focus events bubble, so these catch the field inside.
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-    >
-      {children}
-    </BorderBeam>
-  );
+  // Sprite Scout has no glows or inner light, so the beam is retired; the
+  // wrapper stays so the call sites (and their sizing) don't change.
+  void whileFocused;
+  void overflowVisible;
+  return <div className={className}>{children}</div>;
 }
 
 /** DOM id of a rarity's section, for the header scrubber to scroll to. */
@@ -159,7 +123,7 @@ export function SpriteCatalogBrowser({
   collapsed,
   onToggleCollapsed,
 }: SpriteCatalogBrowserProps) {
-  const [query, setQuery] = useState("");
+  const query: string = ""; // search was removed; the filter below still reads it
   const [rarityPill, setRarityPill] = useState<string | null>(null); // null = no filter = show all (the default view)
   const { sprites, loading, error, reload } = useSpriteCatalog();
   const { getStatus, cycleStatus } = useCollectionStatus();
@@ -201,7 +165,7 @@ export function SpriteCatalogBrowser({
           onClick={onToggleCollapsed}
           aria-label="Open sidebar"
           aria-expanded={false}
-          className="text-muted-foreground"
+          className="text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow"
         >
           <PanelLeftOpen className="size-5" strokeWidth={1.5} />
         </Button>
@@ -214,11 +178,10 @@ export function SpriteCatalogBrowser({
       {/* Pinned header, lifted one step off the panel (--muted, the same fill the
           sprite tiles use) so it reads as its own section. Full-bleed — the
           sidebar's own overflow-hidden clips it to the rounded corners. */}
-      <div className="shrink-0 bg-muted">
+      <div className="shrink-0">
         {/* px-4 matches the search and sprite cards, so everything in the
             sidebar shares one left edge. */}
         <div className="flex items-center gap-2 px-4 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           {/* Pulled 2px left of the 12px everything else sits on, so the mark
               looks level rather than measuring level. Two reasons it read as
               inset: the lockup carries 3px of its own transparent padding
@@ -227,79 +190,19 @@ export function SpriteCatalogBrowser({
               back from it, so it needs to overhang a flat edge slightly to
               appear flush. The crown, search field and tiles below are all
               flat-edged and stay at 12. */}
-          <img
-            src="/brand/logo-lockup.svg"
-            alt="SpriteRadar"
-            // Scaled up on a phone with the rest of the layout. The optical
-            // pullback scales with it: -2px at 18px tall, -3px at 24px.
-            className="-ml-[2px] h-[18px] w-auto object-contain max-md:-ml-[3px] max-md:h-6"
-          />
-          {/* ml-auto pins it to the row's right edge, opposite the logo. */}
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            data-slot="sidebar-toggle"
-            onClick={onToggleCollapsed}
-            aria-label="Collapse sidebar"
-            aria-expanded={true}
-            // -mr-1.5 pulls the button's own padding back so the GLYPH still
-            // lands on the 12px gutter, rather than the button box landing on
-            // it and the icon sitting inset from the edge.
-            //
-            // Hidden on a phone: collapsing the catalog there would reveal
-            // nothing behind it, because the catalog is the whole screen.
-            className="-mr-1.5 ml-auto text-muted-foreground max-md:hidden"
-          >
-            <PanelLeftClose className="size-5" strokeWidth={1.5} />
-          </Button>
+          <Logo className="text-lg max-md:text-xl" />
         </div>
 
-        <div className="px-4 pb-4">
+        <div className="px-4 pb-[3px]">
+          {/* pb-[3px]: room for the bar's 3px hard shadow, which the rarity
+              container below would otherwise cover. */}
           <MasterySummary />
         </div>
       </div>
 
-      {/* Separates the pinned header from everything that scrolls. Full-bleed,
-          unlike the in-card dividers, because it divides two regions of the
-          sidebar rather than sections of one card. */}
-      <div className="h-[0.5px] w-full shrink-0 bg-border" />
-
       {/* Only the logo and the mastery count stay pinned; the search scrolls
           away with the list below it. */}
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pt-4 pb-4">
-        {/* pb-1.5, not pb-3: each sprite card carries 6px of its own leading padding
-            (py-0.5 here plus py-1 on its header), so 6px here lands the first
-            sprite 12px below the field — matching the 12px above it. */}
-        <div className="relative pb-1.5">
-          {/* Same beam as the tiles, and also lit while the field has focus.
-              overflowVisible: the beam's layers clip themselves to the pill,
-              and the field's focus ring has to show outside it. */}
-          <HoverBeam whileFocused overflowVisible className="w-full rounded-3xl">
-          <Input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search sprites…"
-            disabled={liveSprites.length === 0}
-            // bg-card: the same fill as the mastery bar's track in the header
-            // above — the darkest of the panel's blues, where the default
-            // --input is white at 15% alpha and composites lighter than
-            // anything else in the sidebar.
-            //
-            // The border is not optional with this fill. Input defaults to
-            // `border-transparent` and only colours it on focus, which works
-            // when the field is lighter than its surroundings; bg-card is
-            // exactly the sidebar's own background, so with no border the
-            // field would have no edge at all at rest.
-            className="border-border bg-card pl-11 [&::-webkit-search-cancel-button]:appearance-none"
-          />
-          </HoverBeam>
-          {/* After the beam in the DOM so it paints above the beam's glow. */}
-          <Search
-            className="pointer-events-none absolute top-5 left-4 z-10 size-4 max-md:top-[22px] -translate-y-1/2 text-muted-foreground"
-            strokeWidth={1.875}
-          />
-        </div>
+      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-4">
         {/* Also scrolls: the four hugging pills total ~293px, which no longer
             fits the 252px of content width at a 280px sidebar. */}
         {/* -mx-4 px-4: full-bleed to the panel edge so the row clips there rather
@@ -385,7 +288,7 @@ export function SpriteCatalogBrowser({
         <div className="flex flex-1 flex-col gap-3 px-4 pt-4 text-base">
           <p className="font-heading text-xl font-medium text-foreground">Sprite catalog unavailable</p>
           <p className="text-sm leading-relaxed text-muted-foreground">{error}</p>
-          <Button variant="outline" size="sm" data-slot="retry" onClick={reload} className="self-start">
+          <Button variant="ghost" size="sm" data-slot="retry" onClick={reload} className="material self-start rounded-full px-4 text-pop-ink hover:text-pop-ink">
             Retry
           </Button>
         </div>
@@ -408,7 +311,12 @@ export function SpriteCatalogBrowser({
 
             return (
               <motion.div key={group.family} variants={item}>
-                <div className="rounded-lg py-0.5">
+                {/* Each Sprite is its own lifted panel: one step lighter than
+                    the sidebar (--muted), rounded, and a soft ink drop under it
+                    at half strength, so the cards separate by surface and
+                    depth rather than by outlines. overflow-hidden clips the
+                    scrolling tile row to the panel's rounded corners. */}
+                <div className="mb-3 overflow-hidden rounded-2xl bg-muted px-3 py-2 shadow-[0_3px_0_rgb(20_28_74/0.5)]">
                   {/* Header: purely informational — not clickable/hoverable, per design. Only the Radar/Info icons act. */}
                   <div className="flex items-center justify-between py-1">
                     <span className="flex min-w-0 items-center">
@@ -421,7 +329,7 @@ export function SpriteCatalogBrowser({
                           // Every icon is a 512x512 square, but the artwork inside fills
                           // 71%-92% of it depending on the Sprite — so equal boxes alone
                           // still render visibly unequal sprites. See scripts/measure-sprite-icons.py.
-                          style={{ transform: `scale(${spriteIconScale(baseVariant.id)})` }}
+                          style={{ transform: spriteIconTransform(baseVariant.id) }}
                         />
                       ) : (
                         <span className="size-14 md:size-16 shrink-0 rounded-md bg-input/30" />
@@ -467,9 +375,9 @@ export function SpriteCatalogBrowser({
                             // the ::after extends the hit area 10px each way to
                             // 43px — clearing the accessibility minimum the
                             // visible box alone could not.
-                            className="relative size-[23px] text-muted-foreground after:absolute after:-inset-2.5 after:content-['']"
+                            className="relative size-[23px] text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow after:absolute after:-inset-2.5 after:content-['']"
                           >
-                            <Info className="size-3" strokeWidth={2.5} />
+                            <Info className="size-4" strokeWidth={2.5} />
                           </Button>
                         </span>
                         {/* The rarity badge that lived here is gone — rarity is
@@ -481,13 +389,10 @@ export function SpriteCatalogBrowser({
                             One dot per variant SLOT, in VARIANT_SLOTS order, so
                             a dot's position tells you which variant it stands
                             for: the second dot is always gold, the fifth
-                            always bounty hunter. That is why all five are
-                            always drawn, even for a family that doesn't have
-                            all five — dropping the missing ones would shift
-                            every dot after them onto the wrong variant. Slots
-                            the family has no variant for are dimmed instead,
-                            the same thing the dashed tile and its Ban icon say
-                            further down the card. */}
+                            always bounty hunter. Variants a family doesn't
+                            have get no dot at all (Mega Man shows just its
+                            base one); the dashed tiles below already say
+                            they don't exist. */}
                         <span
                           className="flex h-4 items-center gap-1"
                           role="img"
@@ -495,19 +400,18 @@ export function SpriteCatalogBrowser({
                         >
                           {VARIANT_SLOTS.map((slot) => {
                             const v = group.variants.find((x) => variantKey(x.variant) === slot);
-                            const mastered = v ? getStatus(v.id) === "mastered" : false;
+                            // Only variants that exist get a dot: Mega Man shows one.
+                            if (!v) return null;
+                            const mastered = getStatus(v.id) === "mastered";
                             return (
                               <span
                                 key={slot}
                                 data-slot="mastery-dot"
-                                data-state={!v ? "absent" : mastered ? "mastered" : "unmastered"}
+                                data-state={mastered ? "mastered" : "unmastered"}
                                 className={cn(
                                   "size-2 rounded-full",
-                                  mastered
-                                    ? "bg-sprite-gold"
-                                    : v
-                                      ? "bg-muted-foreground/40"
-                                      : "bg-muted-foreground/15"
+                                  // Unmastered: exactly the unselected tile's fill (bg-card).
+                                  mastered ? "bg-sprite-gold" : "bg-card"
                                 )}
                               />
                             );
@@ -530,14 +434,12 @@ export function SpriteCatalogBrowser({
                             ? `Hide ${group.family} findings on the map`
                             : `Show ${group.family} findings on the map`
                         }
-                        className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
+                        className={cn("max-md:-my-1.5 max-md:-mr-1.5 max-md:size-11 -mr-1.5", "hover:!bg-transparent hover:!text-pop-yellow", isShown ? "text-sprite-radar-active" : "text-muted-foreground")}
                       >
-                        <Radar className="size-5" strokeWidth={1.5} />
+                        <Radar className="size-6" strokeWidth={2} />
                       </Button>
                     </span>
                   </div>
-
-                  <div className="h-[0.5px] w-full bg-border" />
 
                   {/* Two behaviours, because the two widths want opposite things.
 
@@ -553,7 +455,7 @@ export function SpriteCatalogBrowser({
                       the full CONTENT width; running the tiles to the screen
                       edge would leave them the only thing in the app not
                       aligned with the column above them. */}
-                  <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 py-2 max-md:overflow-x-visible">
+                  <div className="no-scrollbar -mx-3 flex items-center gap-2 overflow-x-auto px-3 py-2 max-md:overflow-x-visible">
                     {VARIANT_SLOTS.map((slot) => {
                       const v = group.variants.find((x) => variantKey(x.variant) === slot);
                       // Not every family ships all five variants (Mega Man has only
@@ -574,13 +476,13 @@ export function SpriteCatalogBrowser({
                                 dashed border and Ban icon below already say
                                 the variant doesn't exist. */}
                             <span
-                              className="text-xs font-medium leading-5"
+                              className="display-caps text-sm leading-5"
                               style={{ color: variantLabelColor(slot === "normal" ? null : slot) ?? undefined }}
                             >
                               {variantLabel(slot)}
                             </span>
                             <span
-                              className="relative flex aspect-square w-full items-center justify-center rounded-sm border-[0.5px] border-dashed border-border bg-muted/40"
+                              className="relative flex aspect-square w-full items-center justify-center rounded-md border-[3px] border-dashed border-pop-ink/40 bg-card"
                               aria-label={`${group.family} has no ${variantLabel(slot).toLowerCase()} variant`}
                             >
                               {/* Opaque, not muted-foreground/50. The Ban glyph
@@ -607,7 +509,7 @@ export function SpriteCatalogBrowser({
                       }
                       const status = getStatus(v.id);
                       const label = variantLabel(v.variant);
-                      const accent = variantGradient(v.variant);
+                      const accent = variantBackdrop(v.variant);
                       const isColored = status !== "default";
                       return (
                         <button
@@ -626,7 +528,7 @@ export function SpriteCatalogBrowser({
                               slots above stay dimmed — a family with no such
                               variant has no fill to match. */}
                           <span
-                            className="text-xs font-medium leading-5"
+                            className="display-caps text-sm leading-5"
                             style={{ color: variantLabelColor(v.variant) ?? undefined }}
                           >
                             {label}
@@ -637,28 +539,16 @@ export function SpriteCatalogBrowser({
                               // outline, not border: outlines paint outside the box and
                               // take no layout space, so thickening one on hover can't
                               // nudge the tile's contents (the crown especially).
-                              "relative block aspect-square w-full overflow-clip rounded-sm outline -outline-offset-1 transition-all duration-200 ease-out",
+                              "relative block aspect-square w-full overflow-clip rounded-md border-[3px] border-pop-ink shadow-[0_3px_0_var(--pop-ink)] transition-all duration-200 ease-out",
                               // No outline change on hover — hover is conveyed by the
                               // image coming to full color and scaling up. The gold
                               // outline is reserved for mastered, so it reads as the
                               // top of the ladder rather than just "collected".
-                              status === "mastered"
-                                ? "outline-2 outline-sprite-gold"
-                                : "outline-[0.5px] outline-border",
-                              // Collected tiles cast a shadow so they sit above
-                              // the panel rather than flush in it — the fill
-                              // alone reads as a swatch painted on the surface.
-                              // Two layers: a tight one for the contact edge
-                              // and a wider, softer one for the cast. Both are
-                              // black rather than a tinted shadow, because the
-                              // panel is already dark and a coloured shadow
-                              // muddies into it instead of darkening it.
-                              isColored &&
-                                "shadow-[0_1px_2px_rgba(0,0,0,0.55),0_6px_14px_-4px_rgba(0,0,0,0.65)]",
+                              status === "mastered" && "border-sprite-gold",
                               // Uncollected tiles share the empty-slot fill (see the
                               // variant-slot-empty branch above), so "nothing here yet"
                               // and "not collected yet" read as the same weight.
-                              !isColored && "bg-muted/40"
+                              !isColored && "bg-card"
                             )}
                             style={isColored ? { background: accent ?? undefined } : undefined}
                           >
@@ -693,29 +583,27 @@ export function SpriteCatalogBrowser({
                                 style={
                                   isColored
                                     ? ({
-                                        transform: `scale(${spriteIconScale(v.id) * 0.92})`,
-                                        WebkitBoxReflect:
-                                          "below -13px linear-gradient(transparent 52%, rgb(255 255 255 / 0.4))",
+                                        transform: spriteIconTransform(v.id),
+                                        // Pops off its backdrop: the site's hard ink drop
+                                        // under the art, plus a soft dark lift around it.
+                                        filter:
+                                          "drop-shadow(0 3px 0 var(--pop-ink)) drop-shadow(0 6px 8px rgb(0 0 0 / 0.35))",
                                       } as CSSProperties)
-                                    : { transform: `scale(${spriteIconScale(v.id)})` }
+                                    : { transform: spriteIconTransform(v.id) }
                                 }
                               />
                             ) : (
                               <span className="absolute inset-0 bg-input/30" />
                             )}
                             {status === "mastered" && (
-                              // Sits over the sprite's head rather than in a corner badge.
-                              // The drop shadow keeps it legible on the lighter variant
-                              // backgrounds (gold especially).
-                              <Crown
+                              // A gold disc in the tile's bottom-right, holding a crown in
+                              // the sidebar's own background colour (--card).
+                              <span
                                 aria-hidden
-                                // Lucide's Crown ships two paths: the crown itself and a
-                                // separate base bar ("M5 21h14"). Hide the bar rather than
-                                // hand-authoring a trimmed copy of the icon.
-                                className="absolute top-1 left-1/2 size-5 -translate-x-1/2 text-sprite-gold drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)] [&>path:last-child]:hidden"
-                                strokeWidth={1.5}
-                                fill="currentColor"
-                              />
+                                className="absolute right-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full border-2 border-pop-ink bg-sprite-gold shadow-[0_2px_0_var(--pop-ink)]"
+                              >
+                                <CrownSolid className="size-4 text-card" fill="currentColor" />
+                              </span>
                             )}
                           </span>
                           </HoverBeam>
@@ -747,73 +635,35 @@ export function SpriteCatalogBrowser({
                 : "Unknown";
               return (
                 <section key={section.rarity ?? "unknown"} id={sectionId(section.rarity)} aria-label={`${label} Sprites`}>
-                  {/* An iOS-style sticky section header, in the app's own
-                      material: the list's surface frosted behind it, tinted
-                      from the rarity's colour at the leading edge and fading
-                      out across the row, so the colour reads as light cast
-                      on the header rather than paint on a bar.
+                  {/* An iOS-style sticky section header — flat, solid --card,
+                      one hairline border along the bottom. No blur, no
+                      gradient wash: xAI's surfaces carry elevation with a
+                      hairline, never a glow (see DESIGN.md's Don'ts).
 
                       -mx-4 px-4 runs it edge to edge while the label keeps
                       the list's 16px line. top-[-16px] cancels the pane's
                       own pt-4 so it pins flush to the pane's top edge.
 
-                      The rarity's colour lives in three places, each doing
-                      one job: the gem (identity), the wash (which section
-                      you are in, even at a glance while scrolling), and a
-                      hairline along the bottom (where the header ends and
-                      the list begins). The label itself stays foreground —
-                      colour carries the category, type carries the name. */}
+                      The label stays foreground; the rarity's colour lives
+                      only on the scrubber's gems now — colour marks identity
+                      there, type carries the name here. */}
                   <div
                     data-slot="rarity-header"
-                    className="sticky top-[-16px] z-10 -mx-4 mt-4 mb-2 flex h-11 items-center gap-2.5 px-4 backdrop-blur-xl backdrop-saturate-150"
-                    style={{
-                      backgroundImage: `linear-gradient(90deg, color-mix(in oklch, ${accent.solid} 38%, transparent), color-mix(in oklch, ${accent.solid} 10%, transparent) 55%, transparent)`,
-                      backgroundColor: "color-mix(in oklch, var(--card) 78%, transparent)",
-                      boxShadow: `inset 0 -1px 0 color-mix(in oklch, ${accent.solid} 55%, transparent)`,
-                    }}
+                    // Solid container with 16px above and below the band. Cards scroll
+                    // under it; the container ends above the first card.
+                    className="sticky top-0 z-10 -mx-4 mt-3 [section:first-of-type_&]:mt-0 flex h-[68px] items-center px-4 py-4 bg-card"
                   >
-                    <span className="text-sm font-semibold tracking-[0.02em] text-foreground">{label}</span>
-                    <span className="text-xs font-medium tabular-nums text-muted-foreground">
-                      {section.groups.length}
-                    </span>
-
-                    {/* The scrubber. Every section's header carries a stop
-                        for every rarity, with its own lit — and since only
-                        the header of the section on screen is pinned, the
-                        lit gem always marks where you are. Tapping another
-                        glides the list to that section. One row: where you
-                        are, where else there is, and the way there. */}
-                    <nav aria-label="Jump to rarity" className="-mr-2 ml-auto flex items-center">
-                      {sections.map((other) => {
-                        const otherLabel = other.rarity
-                          ? other.rarity.charAt(0).toUpperCase() + other.rarity.slice(1)
-                          : "Unknown";
-                        const here = other.rarity === section.rarity;
-                        return (
-                          <button
-                            key={other.rarity ?? "unknown"}
-                            type="button"
-                            aria-label={`Jump to ${otherLabel}`}
-                            aria-current={here ? "location" : undefined}
-                            onClick={() =>
-                              document
-                                .getElementById(sectionId(other.rarity))
-                                ?.scrollIntoView({
-                                  behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-                                    ? "auto"
-                                    : "smooth",
-                                  block: "start",
-                                })
-                            }
-                            className="group/gem flex size-8 items-center justify-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/30 max-md:size-11"
-                          >
-                            <span className="flex transition-transform duration-200 group-hover/gem:scale-125">
-                              <RarityGem color={rarityAccent(other.rarity).solid} dim={!here} />
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </nav>
+                    {/* The section divider: a rarity-coloured sticker band,
+                        ink outline and hard drop shadow like every button. */}
+                    <div
+                      className="flex h-9 w-full items-center gap-2.5 rounded-full border-[3px] border-pop-ink pr-1 pl-[9px] shadow-[0_3px_0_var(--pop-ink)]"
+                      style={{ background: accent.solid }}
+                    >
+                      <span className="display-caps text-xl leading-none text-pop-ink">{label}</span>
+                      <span className="display-caps ml-auto rounded-full border-[3px] border-pop-ink bg-pop-ink px-2 text-sm leading-4 tabular-nums text-white">
+                        {section.groups.length}
+                      </span>
+                    </div>
                   </div>
                   {section.groups.map((group) => renderCard(group))}
                 </section>

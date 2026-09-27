@@ -16,10 +16,10 @@
  * mastered tile ring, the mastery bar), so it marks two things.
  */
 export const ADD_FINDING_STYLE =
-  // gold-light (globals.css): top-lit gradient and a one-time sheen. The glow
-  // beneath is the button's own gold, so it reads as lit rather than shadowed.
-  // Press scales down a touch, the way a physical key gives.
-  "gold-light bg-sprite-gold text-card shadow-[0_10px_28px_-10px_var(--sprite-gold)] hover:brightness-[1.06] hover:shadow-[0_12px_32px_-8px_var(--sprite-gold)] active:scale-[0.97] focus-visible:ring-sprite-gold/40";
+  // Sprite Scout's primary button: a yellow-to-amber pill in thick ink
+  // outline with a hard drop shadow, labelled in the display caps. It sinks
+  // into its shadow when pressed (see the pop utility in globals.css).
+  "pop !rounded-full !shadow-[0_4px_0_var(--pop-ink)] active:!shadow-[0_1px_0_var(--pop-ink)] display-caps bg-[linear-gradient(180deg,#ffd84d,#f5a623)] text-pop-ink text-lg hover:brightness-105 focus-visible:ring-pop-yellow/50";
 
 /**
  * The stroke the primary action's icon takes, where the app's baseline is

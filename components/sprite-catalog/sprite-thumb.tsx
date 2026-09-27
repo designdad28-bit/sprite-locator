@@ -1,4 +1,4 @@
-import { spriteIconScale } from "@/lib/sprite-icon-metrics";
+import { spriteIconTransform } from "@/lib/sprite-icon-metrics";
 
 /**
  * A Sprite's icon at list size, for dropdown rows and triggers.
@@ -21,7 +21,7 @@ export function SpriteThumb({ id, icon }: { id: string; icon: string | null }) {
       src={icon}
       alt=""
       className="size-6 shrink-0 object-contain"
-      style={{ transform: `scale(${spriteIconScale(id)})` }}
+      style={{ transform: spriteIconTransform(id) }}
     />
   );
 }

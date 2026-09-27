@@ -9,7 +9,7 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import L, { CRS } from "leaflet";
-import { Plus, Minus, RotateCcw } from "lucide-react";
+import { Plus, Minus, RotateCcw } from "@/components/icons";
 import {
   ACTIVE_MAP_PROVIDER,
   ISLAND_BOUNDS,
@@ -18,7 +18,9 @@ import {
 } from "./map-provider";
 import { Finding } from "@/lib/findings";
 import { Poi } from "@/lib/map/pois";
-import { ISLAND_OUTLINE, isOnIsland } from "@/lib/map/island-outline";
+import { isOnIsland } from "@/lib/map/island-outline";
+import { LAND_OUTLINE } from "@/lib/map/land-outline";
+import { WATER_LAYERS, WATER_REACH } from "@/lib/map/water-rings";
 import { Button } from "@/components/ui/button";
 import { variantColor } from "@/lib/variant-colors";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
@@ -31,8 +33,11 @@ import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-con
 function islandFitBounds(worldSize: number, nativeZoom: number) {
   const cx = (ISLAND_BOUNDS.minX + ISLAND_BOUNDS.maxX) / 2;
   const cy = (ISLAND_BOUNDS.minY + ISLAND_BOUNDS.maxY) / 2;
-  const halfW = (ISLAND_BOUNDS.maxX - ISLAND_BOUNDS.minX) / 2 / ISLAND_FIT_SCALE;
-  const halfH = (ISLAND_BOUNDS.maxY - ISLAND_BOUNDS.minY) / 2 / ISLAND_FIT_SCALE;
+  // Plus the water's reach past the coast, so the fitted view frames the
+  // water too instead of cropping it.
+  const ringReach = WATER_REACH;
+  const halfW = (ISLAND_BOUNDS.maxX - ISLAND_BOUNDS.minX) / 2 / ISLAND_FIT_SCALE + ringReach;
+  const halfH = (ISLAND_BOUNDS.maxY - ISLAND_BOUNDS.minY) / 2 / ISLAND_FIT_SCALE + ringReach;
   return L.latLngBounds(
     CRS.Simple.pointToLatLng(L.point((cx - halfW) * worldSize, (cy + halfH) * worldSize), nativeZoom),
     CRS.Simple.pointToLatLng(L.point((cx + halfW) * worldSize, (cy - halfH) * worldSize), nativeZoom)
@@ -86,8 +91,12 @@ function PoiLabels({ pois, worldSize, nativeZoom }: { pois: Poi[]; worldSize: nu
  * shrink as the ring grows so the cluster stays roughly the size of a single
  * pin. All of this is screen-space: a cluster looks the same at every zoom.
  */
-const MARKER_BASE_SIZE = 60;
-const MARKER_MIN_SIZE = 26;
+// 46, not the old round marker's 60: the pin is a 60x80 box (see makeIcon),
+// so 60 here made an 80px-tall pin — visibly bigger than the marker it
+// replaced even though it was meant to read at the same scale. 46 gives a
+// 46x61 pin, closer to the old marker's footprint.
+const MARKER_BASE_SIZE = 46;
+const MARKER_MIN_SIZE = 22;
 /** Clear space between neighbouring pins in a ring. */
 const MARKER_GAP = 3;
 /**
@@ -351,21 +360,31 @@ function makeIcon(
   size: number,
   offset: [number, number]
 ) {
-  const inner = icon
-    ? `<span class="sprite-marker__badge"><img src="${icon}" alt="" /></span>`
-    : `<span class="sprite-marker__dot"></span>`;
+  // A location pin, drawn in a 60x80 box: a solid teardrop in the variant's
+  // colour, the Sprite's art in a circle in its head, and a ground ring under
+  // the tip — the ring is where the pin touches the island, so the tip (not
+  // the head) is what sits on the coordinate. The ring carries the ping.
+  const height = Math.round((size * 80) / 60);
+  const art = icon
+    ? `<span class="sprite-pin__art"><img src="${icon}" alt="" /></span>`
+    : "";
   return L.divIcon({
     className: "sprite-marker-wrapper",
     html: `
-      <span class="sprite-marker ${isNew ? "sprite-marker--new" : ""}" style="--marker-fill:${accent};--marker-ring:${accent};--marker-size:${size}px">
-        <span class="sprite-marker__ping"></span>
-        ${inner}
+      <span class="sprite-pin ${isNew ? "sprite-pin--new" : ""}" style="--pin-color:${accent};width:${size}px;height:${height}px">
+        <svg class="sprite-pin__svg" viewBox="0 0 60 80" aria-hidden="true">
+          <defs><linearGradient id="pin-cta" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd84d"/><stop offset="1" stop-color="#f5a623"/></linearGradient></defs>
+          <ellipse class="sprite-pin__ping" cx="30" cy="72" rx="20" ry="6.5" />
+          <ellipse class="sprite-pin__ground" cx="30" cy="72" rx="20" ry="6.5" />
+          <path class="sprite-pin__body" d="M30 72C30 72 4 46 4 28A26 26 0 1 1 56 28C56 46 30 72 30 72Z" />
+        </svg>
+        ${art}
       </span>
     `,
-    iconSize: [size, size],
-    // The anchor is the point in the icon pinned to the coordinate, so shifting
-    // it the other way slides the pin out to its place in the ring.
-    iconAnchor: [size / 2 - offset[0], size / 2 - offset[1]],
+    iconSize: [size, height],
+    // The tip, at (30, 72) of the 60x80 box, is pinned to the coordinate;
+    // shifting the anchor the other way slides the pin to its cluster slot.
+    iconAnchor: [size / 2 - offset[0], (height * 72) / 80 - offset[1]],
   });
 }
 
@@ -426,33 +445,6 @@ function clusterFindings(
  * filter default is linearRGB, which makes the falloff look bitten-into
  * rather than soft.
  */
-const COASTLINE_FEATHER = 0.020;
-
-/**
- * Pulls the cover further over the coast, so no raw void survives at the edge.
- *
- * A plain blur is symmetric about the traced outline: half the ramp lies
- * outside the coast, where the cover is what we want, and half lies inside it,
- * where the cover is only partly opaque and fortnite.gg's grey still shows
- * through as a thin ring. Tracing tighter would fix that but also eat into the
- * glow their tiles draw around the island, which is worth keeping.
- *
- * So rather than move the outline, the alpha ramp is re-mapped: alpha' =
- * slope * alpha + intercept, clamped. Solving slope * t + intercept = 0.5 puts
- * the ramp's halfway point at t = 0.115 of the original — that is, the cover
- * reaches to where the blur had only faded to 11.5%, well inside the coast.
- *
- * The intercept MUST stay at or below zero. It is added to every pixel, so a
- * positive one lifts fully transparent pixels off zero too: at slope 3.4 the
- * intercept came out at +0.11 and the island wore an 11% veil of the water
- * colour, measured as alpha 28 of 255 at its centre. Solving for the same
- * halfway point with a steeper slope keeps the intercept negative and the hole
- * a real hole. Steeper also means a harder edge, which is why the feather went
- * up alongside it — softness is roughly feather / slope.
- * The slope also steepens the ramp, which is why FEATHER above went up to
- * compensate: the visible softness is roughly feather / slope.
- */
-const COASTLINE_TIGHTEN = { slope: 4.35, intercept: 0 };
 
 /**
  * How far the mask image extends past the tile square, as a fraction of it.
@@ -466,17 +458,28 @@ const COASTLINE_TIGHTEN = { slope: 4.35, intercept: 0 };
  * that distinction matters: scaling the mask up would drag the coastline hole
  * out with it and open a ring of void around the island. Widening the viewBox
  * leaves the hole exactly where it belongs and pads opaque white around it.
+ *
+ * 0.2 rather than the few percent the overhang alone needs: the cover also
+ * carries the water layers, whose outermost lobes reach well past the tile
+ * square, and anything outside the cover's box would be clipped.
  */
-const VOID_COVER_BLEED = 0.06;
+const VOID_COVER_BLEED = 0.2;
+
+/**
+ * The cover's edge now follows LAND_OUTLINE (the beach), not ISLAND_OUTLINE
+ * (the outside of fortnite.gg's dark shoreline water), so their water is
+ * hidden and our rings meet the sand. Only a hairline of softening, in
+ * viewBox units, so the stair-stepped trace doesn't show as jaggies.
+ */
+const LAND_EDGE_FEATHER = 0.0012;
 
 const VOID_MASK_URL = (() => {
-  const island = ISLAND_OUTLINE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("") + "Z";
+  const island = LAND_OUTLINE.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("") + "Z";
   const B = VOID_COVER_BLEED;
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${1 + 2 * B} ${1 + 2 * B}" preserveAspectRatio="none">` +
     `<filter id="f" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">` +
-    `<feGaussianBlur stdDeviation="${COASTLINE_FEATHER}"/>` +
-    `<feComponentTransfer><feFuncA type="linear" slope="${COASTLINE_TIGHTEN.slope}" intercept="${COASTLINE_TIGHTEN.intercept}"/></feComponentTransfer>` +
+    `<feGaussianBlur stdDeviation="${LAND_EDGE_FEATHER}"/>` +
     `</filter>` +
     // The outer rectangle runs past the viewBox on every side. Drawn flush to
     // it, the blur feathers ITS edges too, so the cover turned semi-transparent
@@ -484,6 +487,33 @@ const VOID_MASK_URL = (() => {
     // the side of the map. Pushing it out means only the coastline hole is ever
     // blurred inside the visible area; the SVG canvas clips the overshoot away.
     `<path fill="#fff" fill-rule="evenodd" filter="url(#f)" d="M${-3 * B} ${-3 * B}H${1 + 3 * B}V${1 + 3 * B}H${-3 * B}Z${island}"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+})();
+
+/**
+ * The water around the island, traced from Fortnite's own in-game map: a
+ * light band and a mid band whose edges swing in and out independently, with
+ * deep rounded bays, thin necks and small puddles of one colour inside the
+ * next, each a flat colour with a crisp edge.
+ *
+ * The shapes are vectors (lib/map/water-rings.ts, traced by
+ * scripts/trace-water-rings.py from a screenshot of the game's map, where
+ * the method and colours are documented), painted outermost first and filled even-odd so puddles and
+ * holes show through. Vectors rather than live filters, which browsers
+ * rasterise at low resolution. The void mask's hole hides whatever falls over
+ * the land itself.
+ */
+const VOID_RINGS_URL = (() => {
+  const B = VOID_COVER_BLEED;
+  const path = (loop: ReadonlyArray<readonly [number, number]>) =>
+    loop.map(([x, y], j) => `${j ? "L" : "M"}${x} ${y}`).join("") + "Z";
+  const layers = WATER_LAYERS.map(
+    (layer) => `<path fill-rule="evenodd" fill="${layer.color}" d="${layer.loops.map(path).join("")}"/>`
+  ).join("");
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${1 + 2 * B} ${1 + 2 * B}" preserveAspectRatio="none" shape-rendering="geometricPrecision">` +
+    layers +
+    `</svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 })();
 
@@ -529,7 +559,8 @@ function IslandClip({ worldSize, nativeZoom }: { worldSize: number; nativeZoom: 
     Object.assign(cover.style, {
       position: "absolute",
       transformOrigin: "0 0",
-      background: "var(--card)",
+      // The water rings over the surround colour (see VOID_RINGS_URL).
+      background: `${VOID_RINGS_URL} 0 0 / 100% 100% no-repeat, var(--map-field)`,
       maskImage: VOID_MASK_URL,
       webkitMaskImage: VOID_MASK_URL,
       maskRepeat: "no-repeat",
@@ -867,7 +898,7 @@ export default function IslandMap({
         // than --background so the field around the island reads as the same
         // surface as the panels either side of it. --map-background still
         // feeds the tile-seam patch in globals.css, so it tracks this.
-        style={{ backgroundColor: "var(--card)", "--map-background": "var(--card)" } as CSSProperties}
+        style={{ backgroundColor: "var(--map-field)", "--map-background": "var(--map-field)" } as CSSProperties}
       >
       <TileWorldSetup
         worldSize={worldSize}
@@ -937,11 +968,11 @@ export default function IslandMap({
             3px ring at ring/30 plus a border, so map controls focused
             differently from every other control in the app. */}
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon-lg"
           onClick={resetView}
           aria-label="Reset view"
-          className="material rounded-full text-muted-foreground hover:bg-card hover:text-foreground dark:bg-transparent"
+          className="material rounded-full text-pop-ink hover:text-pop-ink"
         >
           <RotateCcw className="size-5" strokeWidth={1.5} />
         </Button>
@@ -951,17 +982,17 @@ export default function IslandMap({
             size="icon-lg"
             onClick={() => map?.zoomIn()}
             aria-label="Zoom in"
-            className="rounded-none text-muted-foreground hover:text-foreground focus-visible:ring-inset"
+            className="rounded-none text-pop-ink hover:!bg-pop-yellow hover:text-pop-ink focus-visible:ring-inset"
           >
             <Plus className="size-5" strokeWidth={1.5} />
           </Button>
-          <div className="h-px w-full bg-border" />
+          <div className="h-[3px] w-full bg-pop-ink" />
           <Button
             variant="ghost"
             size="icon-lg"
             onClick={() => map?.zoomOut()}
             aria-label="Zoom out"
-            className="rounded-none text-muted-foreground hover:text-foreground focus-visible:ring-inset"
+            className="rounded-none text-pop-ink hover:!bg-pop-yellow hover:text-pop-ink focus-visible:ring-inset"
           >
             <Minus className="size-5" strokeWidth={1.5} />
           </Button>
