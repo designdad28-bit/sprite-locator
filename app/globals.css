@@ -525,6 +525,17 @@
   }
 }
 
+/* White type ringed in ink, for labels that sit on a colour (the rarity
+   bands and stickers). Dark type on those mid-tone fills measured ~3.1:1,
+   under the 4.5:1 WCAG floor; white against its own ink ring clears 15:1 on
+   any fill. paint-order puts the stroke under the fill, so only its outer
+   half shows and the letters keep their full weight. */
+@utility ink-label {
+  color: #ffffff;
+  -webkit-text-stroke: 4px var(--pop-ink);
+  paint-order: stroke fill;
+}
+
 /* The display face for chunky caps labels (headings, button text). */
 @utility display-caps {
   font-family: var(--font-display);

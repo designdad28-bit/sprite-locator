@@ -17,6 +17,7 @@ import {
   Search01Icon,
   SidebarLeft01Icon,
   Tick02Icon,
+  Touch01Icon,
 } from "@hugeicons/core-free-icons";
 
 /**
@@ -55,3 +56,4 @@ export const ChevronDownIcon = make(ArrowDown01Icon);
 export const ChevronUpIcon = make(ArrowUp01Icon);
 export const CheckIcon = make(Tick02Icon);
 export const XIcon = make(Cancel01Icon);
+export const TapIcon = make(Touch01Icon, 2.25);

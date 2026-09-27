@@ -201,7 +201,7 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
           {/* The same sticker as the catalog's rarity band, in miniature. */}
           <span
             data-slot="rarity-badge"
-            className="display-caps mt-0.5 flex h-7 shrink-0 items-center rounded-full border-[3px] border-pop-ink px-3 text-sm leading-none text-pop-ink shadow-[0_2px_0_var(--pop-ink)]"
+            className="display-caps ink-label mt-0.5 flex h-7 shrink-0 items-center rounded-full border-[3px] border-pop-ink px-3 text-sm leading-none shadow-[0_2px_0_var(--pop-ink)] [-webkit-text-stroke-width:3px]"
             style={{ background: accent.solid }}
           >
             {sprite.rarity ?? "Unknown"}

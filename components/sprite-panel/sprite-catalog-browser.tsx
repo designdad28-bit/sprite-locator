@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
 import { Logo } from "@/components/logo";
-import { Info, Ban, CrownSolid, PanelLeftOpen } from "@/components/icons";
+import { Info, Ban, CrownSolid, PanelLeftOpen, TapIcon } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
@@ -17,6 +17,64 @@ import { MasterySummary } from "./mastery-summary";
 import { cn } from "@/lib/utils";
 
 const RARITY_ORDER = ["common", "uncommon", "rare", "epic", "legendary", "mythic", "special"];
+
+/**
+ * Counts how many times `value` has changed since mount (0 until the first
+ * change). Derived during render, React's own pattern for state that tracks
+ * a prop, so no effect is needed.
+ */
+function useChangeCount<T>(value: T) {
+  const [seen, setSeen] = useState({ value, count: 0 });
+  if (seen.value !== value) setSeen({ value, count: seen.count + 1 });
+  return seen.value === value ? seen.count : seen.count + 1;
+}
+
+/**
+ * A variant tile's box. Re-keyed whenever its status changes, so a tap lands
+ * with a springy pop (and a new crown bounces in when it becomes mastered):
+ * the reward for the one thing the catalog asks you to do. Nothing plays on
+ * the first render, so the page loads still. Reduced motion skips it (see
+ * MotionConfig in app/page.tsx).
+ */
+function TileBox({
+  status,
+  className,
+  style,
+  children,
+}: {
+  status: string;
+  className: string;
+  style?: React.CSSProperties;
+  children: React.ReactNode;
+}) {
+  const changes = useChangeCount(status);
+  const pop = changes > 0;
+  return (
+    <motion.span
+      key={changes}
+      initial={pop ? { scale: 0.82 } : false}
+      animate={{ scale: 1 }}
+      transition={{ type: "spring", stiffness: 520, damping: 14 }}
+      className={className}
+      style={style}
+    >
+      {children}
+      {status === "mastered" && (
+        // A gold disc in the tile's bottom-right, holding a crown in the
+        // sidebar's own colour.
+        <motion.span
+          aria-hidden
+          initial={pop ? { scale: 0, rotate: -40 } : false}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 480, damping: 11, delay: pop ? 0.08 : 0 }}
+          className="absolute right-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full border-2 border-pop-ink bg-sprite-gold shadow-[0_2px_0_var(--pop-ink)]"
+        >
+          <CrownSolid className="size-4 text-card" fill="currentColor" />
+        </motion.span>
+      )}
+    </motion.span>
+  );
+}
 
 /** DOM id of a rarity's section, for the header scrubber to scroll to. */
 function sectionId(rarity: string | null) {
@@ -92,7 +150,7 @@ export function SpriteCatalogBrowser({
   onToggleCollapsed,
 }: SpriteCatalogBrowserProps) {
   const { sprites, loading, error, reload } = useSpriteCatalog();
-  const { getStatus, cycleStatus } = useCollectionStatus();
+  const { getStatus, cycleStatus, hasAny } = useCollectionStatus();
 
   // Only Sprites the current season's live config actually makes obtainable
   // — vaulted/rotated-out/unreleased entries never show up in the browsable
@@ -148,6 +206,22 @@ export function SpriteCatalogBrowser({
           {/* pb-[3px]: room for the bar's 3px hard shadow, which the rarity
               container below would otherwise cover. */}
           <MasterySummary />
+          {/* First run only: until anything is marked, say how the tiles
+              work. Gone for good after the first tap. */}
+          {!hasAny && (
+            <p className="mt-4 flex items-center gap-2 text-sm leading-snug text-muted-foreground">
+              <span
+                aria-hidden
+                className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow text-pop-ink shadow-[0_2px_0_var(--pop-ink)]"
+              >
+                <TapIcon className="size-3.5" />
+              </span>
+              <span>
+                Tap a sprite <span className="font-semibold text-foreground">once</span> when you collect it,{" "}
+                <span className="font-semibold text-foreground">twice</span> when you master it.
+              </span>
+            </p>
+          )}
         </div>
       </div>
 
@@ -385,7 +459,8 @@ export function SpriteCatalogBrowser({
                           >
                             {label}
                           </span>
-                          <span
+                          <TileBox
+                            status={status}
                             className={cn(
                               // A sticker like every other control: ink outline and
                               // hard ink drop. Hover zooms the whole tile (art and
@@ -421,17 +496,7 @@ export function SpriteCatalogBrowser({
                             ) : (
                               <span className="absolute inset-0 bg-input/30" />
                             )}
-                            {status === "mastered" && (
-                              // A gold disc in the tile's bottom-right, holding a crown in
-                              // the sidebar's own background colour (--card).
-                              <span
-                                aria-hidden
-                                className="absolute right-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full border-2 border-pop-ink bg-sprite-gold shadow-[0_2px_0_var(--pop-ink)]"
-                              >
-                                <CrownSolid className="size-4 text-card" fill="currentColor" />
-                              </span>
-                            )}
-                          </span>
+                          </TileBox>
                         </button>
                       );
                     })}
@@ -472,7 +537,7 @@ export function SpriteCatalogBrowser({
                       className="flex h-9 w-full items-center gap-2.5 rounded-full border-[3px] border-pop-ink pr-1 pl-[9px] shadow-[0_3px_0_var(--pop-ink)]"
                       style={{ background: accent.solid }}
                     >
-                      <span className="display-caps text-xl leading-none text-pop-ink">{label}</span>
+                      <span className="display-caps ink-label text-xl leading-none">{label}</span>
                       <span className="display-caps ml-auto rounded-full border-[3px] border-pop-ink bg-pop-ink px-2 text-sm leading-4 tabular-nums text-white">
                         {section.groups.length}
                       </span>

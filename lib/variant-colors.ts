@@ -271,6 +271,21 @@ const SHEEN =
 
 const INK_VEIL = "linear-gradient(rgb(20 28 74 / 0.1), rgb(20 28 74 / 0.1))";
 
+/**
+ * Each variant's own mid-tone, laid over its pattern at 22% so the patterns
+ * sit back on an 80px tile: a fully collected row is five patterns side by
+ * side, and at full strength they competed with the Sprites on them. A veil
+ * of the tile's own colour, not grey, so it calms the texture without
+ * dulling the hue.
+ */
+const QUIET: Record<string, string> = {
+  base: "oklch(0.8 0.06 277 / 0.22)",
+  gold: "oklch(0.74 0.12 84 / 0.22)",
+  cheatmaster: "oklch(0.4 0.11 140 / 0.24)",
+  hacker: "oklch(0.63 0.2 277 / 0.22)",
+  reaper: "oklch(0.64 0.24 318 / 0.22)",
+};
+
 /** Gold and base are a sheen already; the rest get SHEEN on top. */
 const HAS_OWN_SHEEN = new Set(["base", "gold"]);
 
@@ -282,9 +297,10 @@ export function variantBackdrop(variant: string | null): string | null {
   const pattern = VARIANT_PATTERN[key];
   if (!pattern) return gradient;
   const layers = HAS_OWN_SHEEN.has(key) ? `${pattern}, ${gradient}` : `${SHEEN}, ${pattern}, ${gradient}`;
-  // A 10% ink veil over the whole backdrop, so the Sprite on top of it has
-  // a little more contrast against even the brightest patterns.
-  return `${INK_VEIL}, ${layers}`;
+  // The quieting veil, then a 10% ink veil over the whole backdrop, so the
+  // Sprite on top has a little more contrast against the brightest patterns.
+  const quiet = QUIET[key] ? `linear-gradient(${QUIET[key]}, ${QUIET[key]}), ` : "";
+  return `${INK_VEIL}, ${quiet}${layers}`;
 }
 
 /**

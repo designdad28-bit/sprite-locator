@@ -81,5 +81,8 @@ export function useCollectionStatus() {
     setState(updated);
   }, []);
 
-  return { getStatus, cycleStatus };
+  // Whether anything has ever been marked, for the first-run hint.
+  const hasAny = Object.keys(statusById).length > 0;
+
+  return { getStatus, cycleStatus, hasAny };
 }
