@@ -213,6 +213,8 @@ def main():
         if hole.sum() < (0.03 * S) ** 2 and dist[hole].min() < 0.008:
             m_light[hole] = True
     m_mid |= m_light
+    # No background puddles: the outer band is solid (by request).
+    m_mid = ndi.binary_fill_holes(m_mid)
     m_surf = dist < 0.0022
 
     def loops(mask):
