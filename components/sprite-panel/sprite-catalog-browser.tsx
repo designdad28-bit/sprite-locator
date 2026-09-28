@@ -284,9 +284,10 @@ export function SpriteCatalogBrowser({
     <div className="flex h-full flex-col">
       {/* Pinned header: the logo and the mastery count. px-4 matches the
           cards below, so everything in the sidebar shares one left edge. */}
-      {/* A 3px ink line along the bottom, always: the same edge as the
-          phone's bottom CTA bar, closing the header off from the list. */}
-      <div className="shrink-0 border-b-[3px] border-pop-ink pb-3">
+      {/* A 3px ink line along the bottom, always, on --muted: the same fill
+          and edge as the phone's bottom CTA bar, so the two read as one
+          top and bottom frame around the list. */}
+      <div className="shrink-0 border-b-[3px] border-pop-ink bg-muted pb-3">
         <div className="flex items-center gap-2 px-4 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
           <Logo className="text-lg max-md:text-xl" />
           {showAccount && <AccountControl size="sm" />}
