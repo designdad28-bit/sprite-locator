@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
 import { Logo } from "@/components/logo";
-import { Info, Ban, CheckIcon, CrownSolid, PanelLeftOpen, TapIcon } from "@/components/icons";
+import { Info, Ban, CheckIcon, CrownSolid, PanelLeftOpen, TapSolid } from "@/components/icons";
 import { AccountControl } from "@/components/account-control";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
@@ -240,6 +240,22 @@ export function SpriteCatalogBrowser({
   const { getStatus, cycleStatus, hasAny } = useCollectionStatus();
   const [scrolled, setScrolled] = useState(false);
 
+  // Phone only: the status bar (time, Wi-Fi) sits right above this header, so
+  // it follows the header's fill — the sidebar's --card at rest, --muted once
+  // the list scrolls. Two signals, because browsers differ in which they read:
+  // the theme-color meta, and the page's own background at its top edge
+  // (html/body, painted nowhere else — the app shell covers the window).
+  useEffect(() => {
+    if (!showAccount) return;
+    const color = getComputedStyle(document.documentElement)
+      .getPropertyValue(scrolled ? "--muted" : "--card")
+      .trim();
+    if (!color) return;
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", color));
+    document.documentElement.style.backgroundColor = color;
+    document.body.style.backgroundColor = color;
+  }, [scrolled, showAccount]);
+
   // Only Sprites the current season's live config actually makes obtainable
   // — vaulted/rotated-out/unreleased entries never show up in the browsable
   // catalog at all (they're still in sprites.json for reference, just not here).
@@ -335,7 +351,7 @@ export function SpriteCatalogBrowser({
                 aria-hidden
                 className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow text-pop-ink shadow-[0_2px_0_var(--pop-ink)]"
               >
-                <TapIcon className="size-3.5" />
+                <TapSolid className="size-4" fill="currentColor" />
               </span>
               <span>
                 Tap a sprite <span className="font-semibold text-foreground">once</span> when you collect it,{" "}

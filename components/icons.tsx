@@ -56,7 +56,10 @@ export const ChevronDownIcon = make(ArrowDown01Icon);
 export const ChevronUpIcon = make(ArrowUp01Icon);
 export const CheckIcon = make(Tick02Icon);
 export const XIcon = make(Cancel01Icon);
-export const TapIcon = make(Touch01Icon, 2.25);
+/** Filled pointing hand for the first-run hint, drawn like CrownSolid: a
+ *  light stroke plus fill="currentColor" at the call site, so it reads as a
+ *  solid shape. */
+export const TapSolid = make(Touch01Icon, 1.5);
 
 /**
  * Discord's own "Clyde" glyph, not a Hugeicons stand-in — a sign-in button
