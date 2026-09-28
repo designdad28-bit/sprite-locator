@@ -11,7 +11,6 @@ import {
   InformationCircleIcon,
   Layers01Icon,
   Location01Icon,
-  Logout03Icon,
   Radar01Icon,
   Refresh01Icon,
   Remove01Icon,
@@ -58,7 +57,6 @@ export const ChevronUpIcon = make(ArrowUp01Icon);
 export const CheckIcon = make(Tick02Icon);
 export const XIcon = make(Cancel01Icon);
 export const TapIcon = make(Touch01Icon, 2.25);
-export const LogOut = make(Logout03Icon, 2.5);
 
 /**
  * Discord's own "Clyde" glyph, not a Hugeicons stand-in — a sign-in button
