@@ -238,6 +238,7 @@ export function SpriteCatalogBrowser({
 }: SpriteCatalogBrowserProps) {
   const { sprites, loading, error, reload } = useSpriteCatalog();
   const { getStatus, cycleStatus, hasAny } = useCollectionStatus();
+  const [scrolled, setScrolled] = useState(false);
 
   // Only Sprites the current season's live config actually makes obtainable
   // — vaulted/rotated-out/unreleased entries never show up in the browsable
@@ -284,10 +285,17 @@ export function SpriteCatalogBrowser({
     <div className="flex h-full flex-col">
       {/* Pinned header: the logo and the mastery count. px-4 matches the
           cards below, so everything in the sidebar shares one left edge. */}
-      {/* A 3px ink line along the bottom, always, on --muted: the same fill
-          and edge as the phone's bottom CTA bar, so the two read as one
-          top and bottom frame around the list. */}
-      <div className="shrink-0 border-b-[3px] border-pop-ink bg-muted pb-3">
+      {/* At rest the header sits flat on the sidebar: no fill, no line. Once
+          the list scrolls under it, it takes --muted and a 3px ink line along
+          the bottom, the same fill and edge as the phone's bottom CTA bar.
+          The border is always there (transparent at rest) so nothing shifts
+          when it appears. */}
+      <div
+        className={cn(
+          "shrink-0 border-b-[3px] pb-3 transition-[background-color,border-color] duration-150",
+          scrolled ? "border-pop-ink bg-muted" : "border-transparent bg-transparent"
+        )}
+      >
         <div className="flex items-center gap-2 px-4 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
           <Logo className="text-lg max-md:text-xl" />
           {showAccount && <AccountControl size="sm" />}
@@ -301,7 +309,10 @@ export function SpriteCatalogBrowser({
       </div>
 
       {/* Everything below the header scrolls. */}
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-4">
+      <div
+        className="no-scrollbar flex-1 overflow-y-auto px-4 pb-4"
+        onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
+      >
       {/* First run only: until anything is marked, say how the tiles work,
           just under the header line. 16px above it, and the first rarity
           band's own 16px below, so line, hint and band sit evenly apart.
