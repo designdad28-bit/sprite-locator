@@ -569,10 +569,10 @@ export default function Home() {
             title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
             aria-pressed={sidebarOpen}
             // Dressed as a piece of the sidebar rather than a white sticker:
-            // the sidebar's own fill inside the ink outline and drop, with the
+            // the sidebar's own fill inside the ink outline (no drop), with the
             // glyph in the same lavender as the cards' Radar icons, turning
             // yellow on hover like them.
-            className="pointer-events-auto !size-9 rounded-full border-[3px] border-pop-ink !bg-card text-muted-foreground shadow-[0_4px_0_var(--pop-ink)] transition-[color,transform,box-shadow] duration-150 hover:!bg-card hover:!text-pop-yellow active:translate-y-[3px] active:shadow-[0_1px_0_var(--pop-ink)] focus-visible:ring-3 focus-visible:ring-pop-yellow/60"
+            className="pointer-events-auto !size-9 rounded-full border-[3px] border-pop-ink !bg-card text-muted-foreground transition-[color,transform] duration-150 hover:!bg-card hover:!text-pop-yellow active:scale-95 focus-visible:ring-3 focus-visible:ring-pop-yellow/60"
           >
             <SidebarToggleIcon open={sidebarOpen} className="size-[18px]" />
           </Button>
