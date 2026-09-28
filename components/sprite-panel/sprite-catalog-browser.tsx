@@ -254,6 +254,13 @@ export function SpriteCatalogBrowser({
     document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", color));
     document.documentElement.style.backgroundColor = color;
     document.body.style.backgroundColor = color;
+    // Back to the stylesheet's own values when this unmounts or the layout
+    // leaves phone mode, so nothing lingers on desktop.
+    return () => {
+      document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", "#232a7a"));
+      document.documentElement.style.backgroundColor = "";
+      document.body.style.backgroundColor = "";
+    };
   }, [scrolled, showAccount]);
 
   // Only Sprites the current season's live config actually makes obtainable
