@@ -100,7 +100,7 @@ function Section({ title, aside, children }: { title: string; aside?: string; ch
 
 /**
  * A name and its count: the name left, the count hard right as a small pill
- * in the brand blue, so a column of them lines up. A zero count recedes
+ * in the Rare blue, so a column of them lines up. A zero count recedes
  * rather than disappearing.
  */
 function CountRow({ label, count, icon }: { label: string; count: number; icon?: string | null }) {
@@ -126,9 +126,9 @@ function CountRow({ label, count, icon }: { label: string; count: number; icon?:
       <span
         className={cn(
           "display-caps flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-2 text-sm leading-none tabular-nums",
-          // The logo's blue (RARITY_ACCENT.rare.border) with white figures;
-          // a zero keeps the colour but fades back.
-          "bg-[#4688EC] text-white",
+          // The Rare band's blue (RARITY_ACCENT.rare.solid) with white
+          // figures; a zero keeps the colour but fades back.
+          "bg-[#1868DB] text-white",
           count === 0 && "opacity-45"
         )}
       >
