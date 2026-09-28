@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Logo } from "@/components/logo";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — Sprite Radar",
@@ -17,11 +18,21 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="h-dvh overflow-y-auto">
     <main className="mx-auto max-w-2xl px-6 py-16 text-foreground">
-      <Link href="/" className="display-caps inline-flex items-center gap-2 text-lg text-foreground transition-colors hover:text-pop-yellow">
-        Sprite<span className="text-muted-foreground">Radar</span>
-      </Link>
-      <h1 className="display-caps mt-8 text-4xl leading-none">Privacy Policy</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Last updated: September 17, 2026</p>
+      {/* The app's own lockup, and the way back to it: this page is reached
+          from outside the app, and had no route home but the browser's. */}
+      <div className="flex items-center justify-between gap-4">
+        <Link href="/" aria-label="Sprite Radar home" className="rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-pop-yellow/60">
+          <Logo className="text-lg" />
+        </Link>
+        <Link
+          href="/"
+          className="material display-caps flex h-9 items-center rounded-full px-4 text-base text-pop-ink hover:text-pop-ink"
+        >
+          Back to the map
+        </Link>
+      </div>
+      <h1 className="display-caps mt-10 text-4xl leading-none">Privacy Policy</h1>
+      <p className="mt-2 text-sm text-muted-foreground">Last updated: September 28, 2026</p>
 
       <p className="mt-8 leading-relaxed">
         Sprite Radar is a fan-made companion site for tracking where Sprites (an in-game item) appear on the
@@ -38,13 +49,22 @@ export default function PrivacyPolicyPage() {
         sign in (see below) — they exist to build a shared, crowdsourced map of drop locations.
       </p>
 
-      <h3 className="mt-6 text-base font-semibold">Your Epic account, if you sign in</h3>
+      <h3 className="mt-6 text-base font-semibold">Your account, if you sign in</h3>
       <p className="mt-2 leading-relaxed text-muted-foreground">
-        Signing in with Epic Games shares two things with us: your Epic account ID and your current display
-        name. We use this only to recognize you as the same person across visits — for example, to attribute
-        findings to your account or build a personal collection checklist. We do not receive your email,
-        password, payment information, or friends list, and we never see your Epic credentials — the sign-in
-        happens entirely on Epic&rsquo;s own site.
+        Signing in with Discord shares three things with us: your Discord user ID, your display name, and the
+        address of your profile picture. (Where signing in with Epic Games is offered, it shares your Epic
+        account ID and display name.) We use this only to recognize you as the same person across visits — for
+        example, to show who you&rsquo;re signed in as, or to attribute findings to your account. We do not
+        receive your email, password, payment information, messages, servers, or friends list, and we never see
+        your credentials — sign-in happens entirely on Discord&rsquo;s (or Epic&rsquo;s) own site.
+      </p>
+
+      <h3 className="mt-6 text-base font-semibold">Cookies and your browser</h3>
+      <p className="mt-2 leading-relaxed text-muted-foreground">
+        Signing in sets one cookie, which keeps you signed in for up to 30 days; signing out removes it. Your
+        collection progress (which Sprites you&rsquo;ve collected or mastered) and a few display preferences are
+        saved in your own browser&rsquo;s storage and never sent to us. There are no advertising or tracking
+        cookies.
       </p>
 
       <h2 className="display-caps mt-10 text-xl text-pop-yellow">What we don&rsquo;t do</h2>
