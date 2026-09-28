@@ -314,8 +314,9 @@ export function SpriteCatalogBrowser({
         onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
       >
       {/* First run only: until anything is marked, say how the tiles work,
-          just under the header line. 16px above it, and the first rarity
-          band's own 16px below, so line, hint and band sit evenly apart.
+          just under the header. The header's own 15px (pb-3 + its 3px edge)
+          above it and 16px below, the same as between the first band and
+          the header when there is no hint.
           After the first tap it folds away (height to 0) and the list
           glides up into its place rather than jumping. */}
       <AnimatePresence initial={false}>
@@ -328,7 +329,7 @@ export function SpriteCatalogBrowser({
             transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
             className="overflow-hidden"
           >
-            <p className="flex items-center gap-2 pt-4 text-sm leading-snug text-muted-foreground">
+            <p className="flex items-center gap-2 pb-4 text-sm leading-snug text-muted-foreground">
               <span
                 aria-hidden
                 className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow text-pop-ink shadow-[0_2px_0_var(--pop-ink)]"
@@ -349,7 +350,7 @@ export function SpriteCatalogBrowser({
         // when it lands. The status text stays for screen readers.
         <div className="overflow-hidden" aria-busy="true">
           <span className="sr-only" role="status">Loading Sprite catalog…</span>
-          <div className="skeleton mt-4 mb-4 h-9 rounded-full" />
+          <div className="skeleton mb-4 h-9 rounded-full" />
           {[0, 1, 2].map((i) => (
             <div key={i} className="mb-3 rounded-2xl bg-muted px-3 py-3 shadow-[0_3px_0_rgb(20_28_74/0.5)]">
               <div className="flex items-center gap-3">
@@ -643,10 +644,12 @@ export function SpriteCatalogBrowser({
               return (
                 <section key={section.rarity ?? "unknown"} id={sectionId(section.rarity)} aria-label={`${label} Sprites`}>
                   {/* Rarity header: the band with 16px above and below it,
-                      scrolling with its section. */}
+                      scrolling with its section. The first one drops its top
+                      16px: the header's own bottom padding already clears it,
+                      so the list starts right under the mastered bar. */}
                   <div
                     data-slot="rarity-header"
-                    className="mt-3 flex h-[68px] items-center py-4 [section:first-of-type_&]:mt-0"
+                    className="mt-3 flex h-[68px] items-center py-4 [section:first-of-type_&]:mt-0 [section:first-of-type_&]:h-[52px] [section:first-of-type_&]:pt-0"
                   >
                     {/* The section divider: a rarity-coloured sticker band,
                         ink outline and hard drop shadow like every button. */}
