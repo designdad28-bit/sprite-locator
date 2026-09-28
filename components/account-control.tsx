@@ -62,9 +62,6 @@ export function AccountControl({ size = "lg", className }: { size?: "sm" | "lg";
           {/* The same sticker card as the dropdown lists: ink outline, hard
               ink drop, 10px corners, yellow on the highlighted row. */}
           <Menu.Popup className="min-w-44 origin-(--transform-origin) rounded-[10px] border-[3px] border-pop-ink bg-popover p-1.5 text-popover-foreground shadow-[0_4px_0_var(--pop-ink)] outline-none transition-[opacity,scale] duration-100 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0">
-            <div className="px-3 pt-1.5 pb-2 text-xs text-muted-foreground">
-              Signed in with Discord
-            </div>
             <Menu.Item
               onClick={signOut}
               className="display-caps flex w-full cursor-default items-center rounded-md px-3 py-2 text-base text-foreground outline-none select-none data-highlighted:bg-pop-yellow data-highlighted:text-pop-ink"
