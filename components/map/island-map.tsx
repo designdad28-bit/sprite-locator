@@ -99,21 +99,24 @@ const MARKER_BASE_SIZE = 46;
 const MARKER_MIN_SIZE = 22;
 /** Clear space between neighbouring pins in a ring. */
 const MARKER_GAP = 3;
+/** Clear air kept between a pin and any location name it steps away from. */
+const POI_LABEL_GAP = 3;
 /**
- * Vertical clearance between a POI's name label and the pins above it. The
- * label is a ~16px line centered on the POI's point (see .poi-label), so half
- * of it plus a few px of air is what a pin has to stay above.
+ * A name label's box, measured from its CSS (.poi-label): Anton caps at 16px
+ * are ~12px tall, plus the 2.5px visible ink stroke each side, the 2px hard
+ * drop below and a little of the line box. The width is measured per name (see useLabelWidths).
  */
-const POI_LABEL_CLEARANCE = 12;
+const POI_LABEL_HEIGHT = 22;
+const POI_LABEL_PAD_X = 3;
+
 /**
- * Zoom at which pins start lifting clear of POI name labels. Below this the map
- * is the whole-island overview, where a pin sitting over a label is fine — the
- * pin is the thing you're looking for, and the island's shape gives you your
- * bearings. From POI_ZOOM up you're reading a single location, so its name
- * matters. Matching the two means clicking a pin always lands you in the
- * lifted layout.
+ * The pin's drawn extent around its tip, as fractions of the icon (a 60x80
+ * box, tip at (30, 72) — see makeIcon): the teardrop spans x 4..56 and
+ * y 2..72, the ground ring reaches y 78.5.
  */
-const POI_LABEL_ZOOM = POI_ZOOM;
+const PIN_HALF_WIDTH = 26 / 60;
+const PIN_ABOVE_TIP = 70 / 80;
+const PIN_BELOW_TIP = 6.5 / 80;
 
 /** One pin is full size; each extra one at the same spot shrinks them all. */
 function markerSize(count: number): number {
@@ -256,7 +259,6 @@ function scatterOffsets(
   ids: string[],
   size: number,
   fencePx: number,
-  clearsLabel: boolean,
   /** The location's own position in normalized [0,1] map space. */
   origin: { x: number; y: number },
   /** Screen pixels per unit of normalized map space, for the land test below. */
@@ -330,17 +332,77 @@ function scatterOffsets(
   order.forEach((id, i) => {
     let dx = pts[i][0] - cx;
     let dy = pts[i][1] - cy;
-    if (clearsLabel) {
-      // The label is one horizontal line centered on the POI. Push any pin that
-      // lands on it out to the nearer side rather than re-rolling, so the pin
-      // stays where its seed put it horizontally.
-      const bandY = POI_LABEL_CLEARANCE + size / 2;
-      if (Math.abs(dy) < bandY) dy = dy >= 0 ? bandY : -bandY;
-    }
     [dx, dy] = pullOntoLand(dx, dy, origin, pxPerFraction);
     out.set(id, [dx, dy]);
   });
   return out;
+}
+
+interface LabelBox {
+  /** Centre, in screen px at the current zoom (map fraction x pxPerFraction). */
+  x: number;
+  y: number;
+  halfW: number;
+}
+
+/**
+ * Steps a pin clear of every location name it would cover, at every zoom.
+ *
+ * `tip` is the pin's tip in the same screen space as the labels. The pin's
+ * drawn box is its teardrop above the tip plus the ground ring just below, so
+ * a pin tucked under a name still covers it with its body: it has to sit fully
+ * above a name (tip at the name's top) or fully below it (the pin's top at the
+ * name's bottom). Every such spot for every name in the pin's column is a
+ * candidate, and the pin takes the nearest one that covers no name at all —
+ * so two names stacked close together never trap it bouncing between them.
+ * It keeps its horizontal place. Returns the vertical shift to add.
+ */
+function clearLabels(tipX: number, tipY: number, size: number, labels: LabelBox[]): number {
+  const height = (size * 80) / 60;
+  const halfW = size * PIN_HALF_WIDTH;
+  const above = height * PIN_ABOVE_TIP;
+  const below = height * PIN_BELOW_TIP;
+  const halfH = POI_LABEL_HEIGHT / 2 + POI_LABEL_GAP;
+  // Only names whose span overlaps the pin's column can ever be in the way.
+  const column = labels.filter((l) => Math.abs(tipX - l.x) < halfW + l.halfW + POI_LABEL_GAP);
+  const covers = (y: number) => column.some((l) => y - above < l.y + halfH && y + below > l.y - halfH);
+  if (!covers(tipY)) return 0;
+  const candidates = column
+    .flatMap((l) => [l.y - halfH - below, l.y + halfH + above])
+    .filter((y) => !covers(y))
+    .sort((p, q) => Math.abs(p - tipY) - Math.abs(q - tipY));
+  return candidates.length > 0 ? candidates[0] - tipY : 0;
+}
+
+/**
+ * Half the drawn width of each location name, measured in its real face
+ * (Anton caps, 16px, 0.04em tracking — see .poi-label) on a canvas. Measured
+ * again once the web font has loaded, since the fallback face is narrower.
+ */
+function useLabelWidths(pois: Poi[]): Map<string, number> {
+  const [fontsReady, setFontsReady] = useState(false);
+  useEffect(() => {
+    let live = true;
+    document.fonts?.ready.then(() => live && setFontsReady(true));
+    return () => {
+      live = false;
+    };
+  }, []);
+  return useMemo(() => {
+    const widths = new Map<string, number>();
+    if (typeof document === "undefined") return widths;
+    const ctx = document.createElement("canvas").getContext("2d");
+    const family = getComputedStyle(document.documentElement).getPropertyValue("--font-display").trim() || "sans-serif";
+    if (ctx) ctx.font = `400 16px ${family}`;
+    for (const poi of pois) {
+      const text = poi.name.toUpperCase();
+      const w = (ctx ? ctx.measureText(text).width : text.length * 8) + text.length * 0.64;
+      widths.set(poi.id, w / 2 + POI_LABEL_PAD_X);
+    }
+    return widths;
+    // fontsReady re-runs the measure with the loaded face.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pois, fontsReady]);
 }
 
 /**
@@ -796,8 +858,8 @@ export default function IslandMap({
   // React buttons — Leaflet's own zoom control renders "+"/"−" as text, which
   // can't be swapped for real Lucide icons.
   const [map, setMap] = useState<L.Map | null>(null);
-  // Tracked so pins can re-lay-out on zoom: they only step aside for POI labels
-  // once you're actually zoomed in on a location (see POI_LABEL_ZOOM).
+  // Tracked so pins re-lay-out on zoom: the scatter widens as you zoom in, and
+  // location names keep their pixel size, so what a pin covers changes.
   const [zoom, setZoom] = useState<number | null>(null);
 
   useEffect(() => {
@@ -828,6 +890,7 @@ export default function IslandMap({
    * separated by pushing overlapping pairs apart (see scatterOffsets), and a
    * pin can't be pushed off another one it can't see.
    */
+  const labelWidths = useLabelWidths(pois);
   const offsets = useMemo(() => {
     const groups = new Map<string, typeof clustered>();
     for (const item of clustered) {
@@ -838,24 +901,33 @@ export default function IslandMap({
       if (bucket) bucket.push(item);
       else groups.set(key, [item]);
     }
+    // Every location name, in screen px at this zoom. Names keep their pixel
+    // size while the island scales, so this is redone per zoom.
+    const labels: LabelBox[] = pois.map((poi) => ({
+      x: poi.x * pxPerFraction,
+      y: poi.y * pxPerFraction,
+      halfW: labelWidths.get(poi.id) ?? poi.name.length * 4,
+    }));
     const all = new Map<string, [number, number]>();
     for (const group of groups.values()) {
       const first = group[0].finding;
       const size = markerSize(group.length);
       const fencePx = first.poiId ? (fences.get(first.poiId) ?? 0) * pxPerFraction : 0;
-      const clearsLabel = group[0].atPoi && zoom !== null && zoom >= POI_LABEL_ZOOM;
       const placed = scatterOffsets(
         group.map((g) => g.finding.id),
         size,
         fencePx,
-        clearsLabel,
         { x: first.x, y: first.y },
         pxPerFraction
       );
-      for (const [id, offset] of placed) all.set(id, offset);
+      // Then off any name it would cover: its own location's or a neighbour's.
+      for (const [id, [dx, dy]] of placed) {
+        const shift = clearLabels(first.x * pxPerFraction + dx, first.y * pxPerFraction + dy, size, labels);
+        all.set(id, [dx, dy + shift]);
+      }
     }
     return all;
-  }, [clustered, fences, pxPerFraction, zoom]);
+  }, [clustered, fences, pxPerFraction, pois, labelWidths]);
 
   /**
    * Flies to a pin and zooms in on its surroundings. The target is shifted left
