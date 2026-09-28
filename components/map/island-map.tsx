@@ -22,7 +22,7 @@ import { isOnIsland } from "@/lib/map/island-outline";
 import { LAND_OUTLINE } from "@/lib/map/land-outline";
 import { WATER_LAYERS, WATER_REACH } from "@/lib/map/water-rings";
 import { Button } from "@/components/ui/button";
-import { variantColor } from "@/lib/variant-colors";
+import { rarityAccent } from "@/lib/rarity";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 
 /**
@@ -406,14 +406,9 @@ function useLabelWidths(pois: Poi[]): Map<string, number> {
 }
 
 /**
- * `accent` is the VARIANT's colour, not the Sprite's rarity.
- *
- * A finding is logged against the variant that was found, so the pin can say
- * which one it was — and the variant colours are the same ones the catalog
- * tiles are painted in (lib/variant-colors.ts), so a gold pin on the map and
- * the gold tile in the sidebar read as the same thing. Rarity is a property of
- * the Sprite rather than of the sighting, and the sidebar's badge already
- * carries it.
+ * `accent` is the Sprite's RARITY colour: the same solid as its rarity band
+ * in the sidebar, so the pin's fill matches the heading the Sprite sits
+ * under. The variant still shows in the art inside the pin's head.
  */
 function makeIcon(
   accent: string,
@@ -1006,9 +1001,9 @@ export default function IslandMap({
           L.point(f.x * worldSize, f.y * worldSize),
           provider.nativeZoom
         );
-        // Falls back to the base colour for a Sprite whose variant has no
-        // colour of its own, rather than leaving the marker vars empty.
-        const accent = variantColor(sprite.variant) ?? "var(--sprite-base-collected)";
+        // The pin wears its Sprite's rarity: the same solid as that rarity's
+        // band in the sidebar, so a blue pin is a Rare one.
+        const accent = rarityAccent(sprite.rarity).solid;
         const size = markerSize(count);
         return (
           <Marker

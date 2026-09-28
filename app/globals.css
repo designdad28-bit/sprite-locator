@@ -364,12 +364,11 @@
 }
 
 .sprite-pin__body {
-  /* The CTA's flat yellow (lib/cta.ts). */
-  fill: var(--pop-yellow);
-  /* Dressed like the CTA it's filled with: an ink outline and a hard ink
-     drop, so the yellow pin reads as the same sticker as the button, and
-     separates cleanly from sand and snow that a yellow keyline vanished
-     into. */
+  /* The Sprite's rarity colour (--pin-color, set per pin in makeIcon: the
+     same solid as its rarity band in the sidebar), CTA yellow if unset. */
+  fill: var(--pin-color, var(--pop-yellow));
+  /* Dressed like every sticker: an ink outline and a hard ink drop, so the
+     pin separates cleanly from sand and snow whatever its colour. */
   stroke: var(--pop-ink);
   stroke-width: 2.5;
   filter: drop-shadow(0 2.5px 0 var(--pop-ink));
