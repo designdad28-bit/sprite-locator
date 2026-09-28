@@ -22,6 +22,7 @@ import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-con
 import { displayName } from "@/lib/sprite-name";
 import { AddFindingDialog, type AddFindingValues } from "@/components/add-finding-dialog";
 import { Logo } from "@/components/logo";
+import { AccountControl } from "@/components/account-control";
 import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
 import { buildDemoFindings } from "@/lib/demo-findings";
 import { ADD_FINDING_STYLE } from "@/lib/cta";
@@ -466,6 +467,7 @@ export default function Home() {
           onSetVisibility={setSpriteVisibility}
           collapsed={!sidebarOpen}
           onToggleCollapsed={() => setSidebarOpen((open) => !open)}
+          showAccount={isMobile}
         />
 
         {/* The drag handle, sitting on the panel's own edge. Only its middle
@@ -593,6 +595,8 @@ export default function Home() {
           </Button>
           )}
           </div>
+          {/* The account button, in the site's top-right corner. */}
+          <AccountControl className="pointer-events-auto" />
         </div>
 
         {/* Centred along the bottom of the map rather than tucked in the top
