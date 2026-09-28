@@ -432,33 +432,31 @@ export function SpriteCatalogBrowser({
                   {/* Header: informational. Only the Info and Radar icons act.
                       pr-11 keeps a long name clear of the Radar in the corner. */}
                   <div className="flex items-center justify-between py-1 pr-11">
-                    {/* The Sprite is exactly as tall as the name and dots beside
-                        it (23px name + 2px gap + 16px dots = 41px), so the
-                        heading reads as one block rather than a big picture
-                        with a caption. */}
+                    {/* A 48px Sprite with the name and dots centred on it
+                        vertically, so the heading reads as one block. */}
                     <span className="flex min-w-0 items-center gap-2.5">
                       {group.icon ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={group.icon}
                           alt=""
-                          className="size-[41px] shrink-0 object-contain"
+                          className="size-12 shrink-0 object-contain"
                           // Every icon is a 512x512 square, but the artwork inside fills
                           // 71%-92% of it depending on the Sprite — so equal boxes alone
                           // still render visibly unequal sprites. See scripts/build-sprite-icon-metrics.py.
                           style={{ transform: spriteIconTransform(baseVariant.id) }}
                         />
                       ) : (
-                        <span className="size-[41px] shrink-0 rounded-md bg-input/30" />
+                        <span className="size-12 shrink-0 rounded-md bg-input/30" />
                       )}
                       <span className="flex min-w-0 flex-col items-start justify-center gap-0.5">
                         <span className="flex min-w-0 items-center gap-1.5">
-                          <span className="display-caps truncate text-xl leading-[1.15] text-foreground">
+                          <span className="display-caps truncate text-base leading-[1.15] text-foreground">
                             {group.family}
                           </span>
                           {/* Opens this Sprite's profile. The visible box matches the
                               name's line height; ::after widens the hit area to
-                              43px. */}
+                              42px. */}
                           <Button
                             variant="ghost"
                             size="icon-xs"
@@ -466,10 +464,10 @@ export function SpriteCatalogBrowser({
                             onClick={() => onSelect(baseVariant.id)}
                             aria-label={`${group.family} details`}
                             // The visible box stays at the name's line-height, but
-                            // the ::after extends the hit area 10px each way to
-                            // 43px — clearing the accessibility minimum the
+                            // the ::after extends the hit area 12px each way to
+                            // 42px — clearing the accessibility minimum the
                             // visible box alone could not.
-                            className="relative size-[23px] text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow after:absolute after:-inset-2.5 after:content-['']"
+                            className="relative size-[18px] text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow after:absolute after:-inset-3 after:content-['']"
                           >
                             <Info className="size-4" strokeWidth={2.5} />
                           </Button>
