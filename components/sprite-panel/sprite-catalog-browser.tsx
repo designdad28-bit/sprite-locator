@@ -432,20 +432,24 @@ export function SpriteCatalogBrowser({
                   {/* Header: informational. Only the Info and Radar icons act.
                       pr-11 keeps a long name clear of the Radar in the corner. */}
                   <div className="flex items-center justify-between py-1 pr-11">
-                    <span className="flex min-w-0 items-center">
+                    {/* The Sprite is exactly as tall as the name and dots beside
+                        it (23px name + 2px gap + 16px dots = 41px), so the
+                        heading reads as one block rather than a big picture
+                        with a caption. */}
+                    <span className="flex min-w-0 items-center gap-2.5">
                       {group.icon ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={group.icon}
                           alt=""
-                          className="size-14 md:size-16 shrink-0 object-contain"
+                          className="size-[41px] shrink-0 object-contain"
                           // Every icon is a 512x512 square, but the artwork inside fills
                           // 71%-92% of it depending on the Sprite — so equal boxes alone
                           // still render visibly unequal sprites. See scripts/build-sprite-icon-metrics.py.
                           style={{ transform: spriteIconTransform(baseVariant.id) }}
                         />
                       ) : (
-                        <span className="size-14 md:size-16 shrink-0 rounded-md bg-input/30" />
+                        <span className="size-[41px] shrink-0 rounded-md bg-input/30" />
                       )}
                       <span className="flex min-w-0 flex-col items-start justify-center gap-0.5">
                         <span className="flex min-w-0 items-center gap-1.5">
