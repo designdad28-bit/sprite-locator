@@ -59,16 +59,15 @@ export function AccountControl({ size = "lg", className }: { size?: "sm" | "lg";
       <Menu.Portal>
         {/* Above the map's panes and the sidebar (z 500-700). */}
         <Menu.Positioner side="bottom" align="end" sideOffset={8} className="z-[1200]">
-          {/* The menu is a twin of the pill above it: the same width and
-              36px height, white with the ink outline and hard drop, and the
-              whole thing turns CTA yellow on hover, exactly like every other
-              white sticker button. Keyed to real hover and keyboard focus,
-              not the menu's own "highlighted" state, which it sets the
-              moment the menu opens and would paint it yellow at rest. */}
-          <Menu.Popup className="w-(--anchor-width) origin-(--transform-origin) overflow-hidden rounded-full border-[3px] border-pop-ink bg-white shadow-[0_4px_0_var(--pop-ink)] outline-none transition-[opacity,scale,translate] duration-150 data-ending-style:-translate-y-1 data-ending-style:opacity-0 data-starting-style:-translate-y-1 data-starting-style:opacity-0">
+          {/* A dropdown panel, not another button: the ink blue every
+              sticker's shadow is drawn in, 10px corners, matched to the
+              pill's width. The row lightens on hover or keyboard focus (not
+              the menu's own "highlighted" state, which it sets on open) and
+              the label stays CTA yellow throughout. */}
+          <Menu.Popup className="w-(--anchor-width) origin-(--transform-origin) rounded-[10px] bg-pop-ink p-1 shadow-[0_10px_24px_rgb(0_0_0/0.35)] outline-none transition-[opacity,scale,translate] duration-150 data-ending-style:-translate-y-1 data-ending-style:opacity-0 data-starting-style:-translate-y-1 data-starting-style:opacity-0">
             <Menu.Item
               onClick={signOut}
-              className="display-caps flex h-[30px] w-full cursor-pointer items-center justify-center gap-2 text-base text-pop-ink outline-none transition-colors duration-150 select-none hover:bg-pop-yellow focus-visible:bg-pop-yellow"
+              className="display-caps flex h-9 w-full cursor-pointer items-center gap-2 rounded-md px-3 text-base text-pop-yellow outline-none transition-colors duration-150 select-none hover:bg-white/10 focus-visible:bg-white/10"
             >
               <LogOut className="size-4" />
               Sign out
