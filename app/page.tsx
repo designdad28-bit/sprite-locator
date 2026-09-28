@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
-import { CheckIcon, Layers, FlaskConical } from "@/components/icons";
+import { CheckIcon, Layers, FlaskConical, SidebarToggleIcon } from "@/components/icons";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +45,18 @@ const SIDEBAR_MAX_WIDTH = 491;
 
 /** Remembers the dragged width between visits, like the collection state does. */
 const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
+
+/** Remembers whether the sidebar is shown or hidden (desktop). */
+const SIDEBAR_OPEN_KEY = "sprite-radar:sidebar-open";
+
+/**
+ * Hiding and showing the sidebar: the panel slides out to the left while it
+ * fades, and the map's column widens into the space over the same 0.3s, on
+ * one fast-in, soft-landing curve.
+ */
+const SIDEBAR_EASE = [0.2, 0.8, 0.2, 1] as const;
+const SIDEBAR_SLIDE_S = 0.3;
+const SIDEBAR_FADE_S = 0.2;
 
 /** Remembers whether demo findings are switched on. */
 const DEMO_MODE_KEY = "sprite-radar:demo-mode";
@@ -200,6 +212,9 @@ export default function Home() {
    * stored value is applied just after, in the effect.
    */
   const isMobile = useIsMobile();
+  // The phone has no map beside the catalog, so there is nothing to hide
+  // it for: it is always shown there.
+  const panelShown = sidebarOpen || isMobile;
   const hydrated = useHydrated();
   const [storedDemoMode, setDemoMode] = useState(false);
   // Never on in production, however the stored value was left.
@@ -275,6 +290,26 @@ export default function Home() {
   // Starts at the default so the server and the first client render agree;
   // any remembered width is applied just after, in the effect below.
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_WIDTH);
+  // True while the edge is being dragged, so the map's column tracks the
+  // pointer directly instead of easing after it.
+  const [resizing, setResizing] = useState(false);
+
+  useEffect(() => {
+    // Remembered like the width: hidden stays hidden across a reload.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (window.localStorage.getItem(SIDEBAR_OPEN_KEY) === "0") setSidebarOpen(false);
+  }, []);
+
+  function toggleSidebar() {
+    setSidebarOpen((open) => {
+      try {
+        window.localStorage.setItem(SIDEBAR_OPEN_KEY, open ? "0" : "1");
+      } catch {
+        // Storage blocked: the toggle still works for this visit.
+      }
+      return !open;
+    });
+  }
 
   useEffect(() => {
     const saved = Number(window.localStorage.getItem(SIDEBAR_WIDTH_KEY));
@@ -303,6 +338,7 @@ export default function Home() {
     event.preventDefault();
     const handle = event.currentTarget;
     const pointerId = event.pointerId;
+    setResizing(true);
     try {
       handle.setPointerCapture(pointerId);
     } catch {
@@ -314,6 +350,7 @@ export default function Home() {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
+      setResizing(false);
       try {
         handle.releasePointerCapture(pointerId);
       } catch {
@@ -431,20 +468,23 @@ export default function Home() {
     // OS asks for reduced motion.
     <MotionConfig reducedMotion="user">
     <div className="relative flex h-dvh w-full overflow-hidden bg-card">
-      {/* Pinned to the window's left edge, outside the map's container below. */}
+      {/* Pinned to the window's left edge, outside the map's container below.
+          Hidden (desktop only), it slides fully off to the left as it fades,
+          and goes inert so nothing in it can be tabbed to. */}
       <motion.aside
         initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ opacity: panelShown ? 1 : 0, x: panelShown ? 0 : "-100%" }}
+        transition={{
+          x: { duration: SIDEBAR_SLIDE_S, ease: SIDEBAR_EASE },
+          opacity: { duration: SIDEBAR_FADE_S },
+        }}
+        inert={!panelShown}
+        aria-hidden={!panelShown}
         className={cn(
           // Flush to the window: no margin, no radius. The border only runs
-          // along edges that face the map — on the window's own edges it
+          // along the edge that faces the map — on the window's own edges it
           // would just draw a line around the screen.
-          "panel-wash absolute top-0 left-0 z-[600] flex flex-col overflow-hidden border-pop-ink bg-card",
-          // Open: the full-height 280px panel. Collapsed: no width or height of
-          // its own, so it hugs its open button in the corner; it then needs
-          // a bottom edge too, since the map sits below it.
-          sidebarOpen ? "bottom-0" : "w-auto border-b-[3px]",
+          "panel-wash absolute top-0 bottom-0 left-0 z-[600] flex flex-col overflow-hidden border-pop-ink bg-card",
           // On a phone the catalog IS the app: full width, and no right border
           // because there is no map beside it for one to divide. The padding
           // keeps the last card clear of the Add finding bar below.
@@ -454,7 +494,7 @@ export default function Home() {
         // drift apart. Left off entirely on a phone, so the w-full class above
         // isn't fighting an inline width.
         style={{
-          width: isMobile ? undefined : sidebarOpen ? sidebarWidth : undefined,
+          width: isMobile ? undefined : sidebarWidth,
           paddingBottom: isMobile ? MOBILE_CTA_HEIGHT : undefined,
         }}
       >
@@ -463,8 +503,6 @@ export default function Home() {
           onSelect={setSelectedSpriteId}
           visibleSpriteIds={visibleSpriteIds}
           onSetVisibility={setSpriteVisibility}
-          collapsed={!sidebarOpen}
-          onToggleCollapsed={() => setSidebarOpen((open) => !open)}
           showAccount={isMobile}
         />
 
@@ -472,7 +510,7 @@ export default function Home() {
             band is grabbable so it doesn't fight the sidebar's scrollbar
             gutter, and it widens on hover rather than being visible at rest —
             the border it sits on is the affordance. */}
-        {sidebarOpen && !isMobile && (
+        {panelShown && !isMobile && (
           <div
             role="separator"
             aria-orientation="vertical"
@@ -491,8 +529,10 @@ export default function Home() {
       {/* The map's container: everything the sidebar doesn't cover. The margin
           reserves the open sidebar's width, so the map — and the controls and
           hints overlaid on it — are sized and centered in the visible space.
-          When the sidebar collapses to its corner button, the container spans
-          the full width. Leaflet re-fits the island whenever this box resizes. */}
+          Hiding the sidebar eases the margin to 0 on the sidebar's own curve,
+          so the map widens into the space as the panel slides away; Leaflet
+          re-fits the island on every frame of it (its ResizeObserver). While
+          the edge is being dragged the margin follows the pointer directly. */}
       {/* The map is not merely hidden on a phone, it is never mounted:
           Leaflet would otherwise initialise, fit itself and start pulling
           256px tiles for a view nobody can see. */}
@@ -500,7 +540,10 @@ export default function Home() {
       <div
         data-slot="map-container"
         className="relative min-w-0 flex-1"
-        style={{ marginLeft: sidebarOpen ? sidebarWidth : 0 }}
+        style={{
+          marginLeft: sidebarOpen ? sidebarWidth : 0,
+          transition: resizing ? "none" : `margin-left ${SIDEBAR_SLIDE_S}s cubic-bezier(${SIDEBAR_EASE.join(",")})`,
+        }}
       >
         <IslandMapCanvas
           findings={findings}
@@ -514,6 +557,21 @@ export default function Home() {
 
         <div className="pointer-events-none absolute inset-x-0 top-4 z-[500] flex items-center justify-between gap-2 px-4">
           <div className="flex min-w-0 items-center gap-2">
+          {/* Hide / show the sidebar. First in the map's own control row, so
+              it sits right against the sidebar's edge when open and stays in
+              the map's top-left corner when it's hidden. Its chevron turns to
+              point the way the panel will move. */}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={toggleSidebar}
+            aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+            title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+            aria-pressed={sidebarOpen}
+            className="material pointer-events-auto !size-9 rounded-full text-pop-ink hover:text-pop-ink"
+          >
+            <SidebarToggleIcon open={sidebarOpen} className="size-[18px]" />
+          </Button>
           {/* Only present once something is pinned. With every Radar off the
               map has no findings on it, so narrowing them to one variant is a
               control over nothing — and one that would otherwise sit there

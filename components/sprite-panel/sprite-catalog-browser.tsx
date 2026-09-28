@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
 import { Logo } from "@/components/logo";
-import { Info, Ban, CheckIcon, CrownSolid, PanelLeftOpen, TapSolid } from "@/components/icons";
+import { Info, Ban, CheckIcon, CrownSolid, TapSolid } from "@/components/icons";
 import { AccountControl } from "@/components/account-control";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
@@ -221,9 +221,6 @@ export interface SpriteCatalogBrowserProps {
    * in a single state update.
    */
   onSetVisibility: (ids: string[], visible: boolean) => void;
-  /** When true the sidebar shrinks to just its open button in the top-left corner. */
-  collapsed: boolean;
-  onToggleCollapsed: () => void;
   /** Phone only: on desktop the account button sits in the map's top-right corner instead. */
   showAccount?: boolean;
 }
@@ -232,8 +229,6 @@ export function SpriteCatalogBrowser({
   onSelect,
   visibleSpriteIds,
   onSetVisibility,
-  collapsed,
-  onToggleCollapsed,
   showAccount = false,
 }: SpriteCatalogBrowserProps) {
   const { sprites, loading, error, reload } = useSpriteCatalog();
@@ -277,32 +272,6 @@ export function SpriteCatalogBrowser({
   }, [liveSprites]);
 
   const filtered = groups;
-
-  // Collapsed: nothing but the open button, so the sidebar hugs it as a small
-  // floating control in the top-left corner (page.tsx drops the panel's fixed
-  // width and full height). Returns only after every hook above has run —
-  // hooks must be called on every render, collapsed or not.
-  if (collapsed) {
-    return (
-      // bg-muted: the same grey as the open panel's header strip, so the
-      // collapsed control reads as that header folded down to its button.
-      // p-4 puts the icon 16px from the top, the same as in the open header
-      // (pt-4), so collapsing only moves it sideways, never up.
-      <div className="bg-muted p-4">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          data-slot="sidebar-toggle"
-          onClick={onToggleCollapsed}
-          aria-label="Open sidebar"
-          aria-expanded={false}
-          className="text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow"
-        >
-          <PanelLeftOpen className="size-5" strokeWidth={1.5} />
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-full flex-col">
