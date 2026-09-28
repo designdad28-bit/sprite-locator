@@ -326,11 +326,13 @@
   /* A bold ink outline in the site's own ink colour, like the sticker
      buttons. paint-order puts the stroke under the fill, so only its outer
      half shows: 5px of stroke reads as a 2.5px ring and the letters keep
-     their full weight. Then a hard ink drop, the same move as the buttons'
-     shadow, with no blur. */
+     their full weight. Then the buttons' hard ink drop under the whole
+     outlined word, no blur: a drop-shadow filter (not text-shadow, which
+     only drops the fill and hid under the stroke) so the outline casts it
+     too. */
   -webkit-text-stroke: 5px var(--pop-ink);
   paint-order: stroke fill;
-  text-shadow: 0 2px 0 var(--pop-ink);
+  filter: drop-shadow(0 3px 0 var(--pop-ink));
   -webkit-font-smoothing: antialiased;
   pointer-events: none;
   user-select: none;
@@ -367,11 +369,13 @@
   /* The Sprite's rarity colour (--pin-color, set per pin in makeIcon: the
      same solid as its rarity band in the sidebar), CTA yellow if unset. */
   fill: var(--pin-color, var(--pop-yellow));
-  /* A gold outline (the mastery / CTA yellow) and a hard ink drop beneath,
-     so the pin separates cleanly from sand and snow whatever its colour. */
+  /* A gold outline (the mastery / CTA yellow) and the buttons' hard ink drop
+     beneath — about 4px on screen at full size (lengths here are in the
+     pin's 60-wide viewBox units) — so the pin sits up off sand and snow
+     whatever its colour. */
   stroke: var(--sprite-gold);
   stroke-width: 2.5;
-  filter: drop-shadow(0 2.5px 0 var(--pop-ink));
+  filter: drop-shadow(0 5px 0 var(--pop-ink));
 }
 
 .sprite-pin__ground {

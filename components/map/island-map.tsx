@@ -103,10 +103,10 @@ const MARKER_GAP = 3;
 const POI_LABEL_GAP = 3;
 /**
  * A name label's box, measured from its CSS (.poi-label): Anton caps at 16px
- * are ~12px tall, plus the 2.5px visible ink stroke each side, the 2px hard
+ * are ~12px tall, plus the 2.5px visible ink stroke each side, the 3px hard
  * drop below and a little of the line box. The width is measured per name (see useLabelWidths).
  */
-const POI_LABEL_HEIGHT = 22;
+const POI_LABEL_HEIGHT = 23;
 const POI_LABEL_PAD_X = 3;
 
 /**

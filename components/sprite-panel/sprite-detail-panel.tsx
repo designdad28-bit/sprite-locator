@@ -99,9 +99,9 @@ function Section({ title, aside, children }: { title: string; aside?: string; ch
 }
 
 /**
- * A name and its count: the name left, the count hard right as a small ink
- * pill (the same count pill as the rarity bands), so a column of them lines
- * up. A zero count recedes rather than disappearing.
+ * A name and its count: the name left, the count hard right as a small pill
+ * in the brand blue, so a column of them lines up. A zero count recedes
+ * rather than disappearing.
  */
 function CountRow({ label, count, icon }: { label: string; count: number; icon?: string | null }) {
   return (
@@ -126,7 +126,10 @@ function CountRow({ label, count, icon }: { label: string; count: number; icon?:
       <span
         className={cn(
           "display-caps flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-2 text-sm leading-none tabular-nums",
-          count > 0 ? "bg-pop-ink text-white" : "bg-card text-muted-foreground"
+          // The logo's blue (RARITY_ACCENT.rare.border) with white figures;
+          // a zero keeps the colour but fades back.
+          "bg-[#4688EC] text-white",
+          count === 0 && "opacity-45"
         )}
       >
         {count}
