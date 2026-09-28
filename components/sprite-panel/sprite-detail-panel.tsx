@@ -281,7 +281,7 @@ export function SpriteDetailPanel({ spriteId, findings, pois, onBack }: SpriteDe
       </div>
 
       {/* Each place it has been logged, with how many times. */}
-      <Section title="Locations" aside={familyFindings.length > 0 ? `${familyFindings.length} logged` : undefined}>
+      <Section title="Locations" aside={familyFindings.length > 0 ? `${familyFindings.length} total` : undefined}>
         {places.length > 0 ? (
           places.map((p) => <CountRow key={p.name} label={p.name} count={p.count} />)
         ) : (
