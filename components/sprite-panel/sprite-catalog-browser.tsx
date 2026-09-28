@@ -434,7 +434,7 @@ export function SpriteCatalogBrowser({
                           className="size-14 md:size-16 shrink-0 object-contain"
                           // Every icon is a 512x512 square, but the artwork inside fills
                           // 71%-92% of it depending on the Sprite — so equal boxes alone
-                          // still render visibly unequal sprites. See scripts/measure-sprite-icons.py.
+                          // still render visibly unequal sprites. See scripts/build-sprite-icon-metrics.py.
                           style={{ transform: spriteIconTransform(baseVariant.id) }}
                         />
                       ) : (

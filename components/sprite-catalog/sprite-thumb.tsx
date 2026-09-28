@@ -5,7 +5,7 @@ import { spriteIconTransform } from "@/lib/sprite-icon-metrics";
  *
  * Every icon is a 512x512 square, but the artwork inside fills 71%-92% of it
  * depending on the Sprite, so equal boxes alone still render visibly unequal
- * sprites — hence the per-id scale (see scripts/measure-sprite-icons.py).
+ * sprites — hence the per-id scale (see scripts/build-sprite-icon-metrics.py).
  * Sprites with no icon get an empty box of the same size, so every label in a
  * list starts on the same edge.
  *
