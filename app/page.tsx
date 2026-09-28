@@ -543,7 +543,7 @@ export default function Home() {
                 {(value: string) => variantOptions.find((v) => v.slot === value)?.label ?? "All variants"}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent align="start">
               <SelectGroup>
                 <SelectItem value={ALL_VARIANTS}>
                   <span className="flex items-center gap-2">

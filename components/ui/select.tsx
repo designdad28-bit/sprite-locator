@@ -80,6 +80,10 @@ function SelectContent({
         align={align}
         alignOffset={alignOffset}
         alignItemWithTrigger={alignItemWithTrigger}
+        // The list is as wide as its longest option (never narrower than its
+        // field), so no name is ever cut off (SelectGroup's p-1.5 insets the
+        // rows so their yellow highlight keeps a sliver of panel round it); no focus
+        // outline on the panel itself (the highlighted row shows focus).
         // z-[1200], not shadcn's z-50: selects open inside the Add finding
         // dialog (z-[1100]), so the list has to sit above the dialog itself.
         className="isolate z-[1200]"
@@ -87,7 +91,7 @@ function SelectContent({
         <SelectPrimitive.Popup
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
-          className={cn("relative isolate z-[1200] max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-[10px] border-[3px] border-pop-ink bg-popover text-popover-foreground shadow-[0_4px_0_var(--pop-ink)] duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
+          className={cn("relative isolate z-[1200] max-h-(--available-height) w-max min-w-(--anchor-width) max-w-(--available-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-[14px] outline-none border-[3px] border-pop-ink bg-popover text-popover-foreground shadow-[0_4px_0_var(--pop-ink)] duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
           {...props}
         >
           <SelectScrollUpButton />
@@ -121,7 +125,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2.5 rounded-md py-2.5 pr-8 pl-3 text-sm font-semibold outline-hidden select-none transition-colors duration-100 focus:bg-pop-yellow focus:text-pop-ink data-highlighted:bg-pop-yellow data-highlighted:text-pop-ink data-selected:not-data-highlighted:text-pop-yellow not-data-[variant=destructive]:focus:**:text-pop-ink data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 max-md:py-3 max-md:text-base",
+        "display-caps relative flex w-full cursor-default items-center gap-2.5 rounded-[10px] py-2 pr-10 pl-2.5 text-base font-normal outline-hidden select-none transition-colors duration-100 focus:bg-pop-yellow focus:text-pop-ink data-highlighted:bg-pop-yellow data-highlighted:text-pop-ink data-selected:not-data-highlighted:text-pop-yellow not-data-[variant=destructive]:focus:**:text-pop-ink data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 max-md:py-2.5",
         className
       )}
       {...props}
@@ -131,7 +135,7 @@ function SelectItem({
       </SelectPrimitive.ItemText>
       <SelectPrimitive.ItemIndicator
         render={
-          <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />
+          <span className="pointer-events-none absolute right-3 flex size-4 items-center justify-center" />
         }
       >
         <CheckIcon className="pointer-events-none" />
