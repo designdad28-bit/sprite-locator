@@ -310,6 +310,64 @@
 .poi-label-wrapper {
   background: transparent !important;
   border: none !important;
+  transition: opacity 150ms ease-out;
+}
+
+/* A name that would collide with another, or sit under a pin, at this zoom
+   (see visibleLabels in island-map.tsx). Faded, not removed, so it comes back
+   in place as soon as there is room. */
+.poi-label-wrapper.is-hidden {
+  opacity: 0;
+}
+
+/* A pin's tooltip: the sidebar's own card, in the sticker outline and hard
+   drop every control wears, reading the way a game's item tooltip does —
+   name first, variant in its colour, then where and how often. */
+.leaflet-tooltip.sprite-tooltip {
+  display: grid;
+  gap: 2px;
+  padding: 8px 12px 9px;
+  background: var(--card);
+  color: var(--foreground);
+  border: 3px solid var(--pop-ink);
+  border-radius: 12px;
+  box-shadow: 0 3px 0 var(--pop-ink);
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.leaflet-tooltip-top.sprite-tooltip::before {
+  border-top-color: var(--pop-ink);
+  margin-bottom: -15px;
+}
+.sprite-tooltip__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 16px;
+  line-height: 1.1;
+}
+.sprite-tooltip__variant {
+  font-size: 13px;
+}
+.sprite-tooltip__place {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.sprite-tooltip__count {
+  color: var(--pop-yellow);
+  font-variant-numeric: tabular-nums;
+}
+.sprite-tooltip__source {
+  font-size: 12px;
+  color: var(--muted-foreground);
 }
 
 .poi-label {

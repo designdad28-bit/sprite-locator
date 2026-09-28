@@ -1,9 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
-import { CheckIcon, Layers, FlaskConical, SidebarToggleIcon } from "@/components/icons";
+import { Radar } from "lucide-react"; // the cards' own radar glyph (see sprite-catalog-browser.tsx)
+import {
+  AlertIcon,
+  CheckIcon,
+  FlaskConical,
+  Layers,
+  ListIcon,
+  MapIcon,
+  SidebarToggleIcon,
+  X,
+} from "@/components/icons";
 import IslandMapCanvas from "@/components/map/island-map-canvas";
+import type { MapFocusRequest } from "@/components/map/island-map";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -20,6 +31,7 @@ import { useFindings } from "@/hooks/use-findings";
 import { usePois } from "@/hooks/use-pois";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { displayName } from "@/lib/sprite-name";
+import { titleCase } from "@/lib/title-case";
 import { AddFindingDialog, type AddFindingValues } from "@/components/add-finding-dialog";
 import { Logo } from "@/components/logo";
 import { AccountControl } from "@/components/account-control";
@@ -42,6 +54,16 @@ import { cn } from "@/lib/utils";
 const SIDEBAR_WIDTH = 375;
 const SIDEBAR_MIN_WIDTH = 375;
 const SIDEBAR_MAX_WIDTH = 491;
+
+/**
+ * The narrowest the map may be squeezed to by an open profile. Beside the
+ * catalog, a profile takes a second sidebar's width out of the window, and
+ * below this the island shrinks until its names pile up and the map's own
+ * controls collide (a 1000px window left it 250px wide). Under it, the
+ * profile opens over the catalog's column instead — drilling into the list,
+ * the way a phone does — and the map keeps its size.
+ */
+const MIN_MAP_WIDTH = 560;
 
 /** Remembers the dragged width between visits, like the collection state does. */
 const SIDEBAR_WIDTH_KEY = "sprite-radar:sidebar-width";
@@ -92,13 +114,15 @@ function isMobileWidth() {
 }
 
 /**
- * Phone width, where the app is the Sprite catalog and nothing else.
+ * Phone width, where the app is the Sprite catalog first and the map a view
+ * you switch to.
  *
- * A media query rather than CSS classes because the map is not hidden on a
- * phone, it is never mounted: Leaflet would otherwise initialise, fit itself
- * and start pulling 256px tiles for a view no one can see. The detail panel
- * needs it too — it animates its own width open on desktop, and an inline
- * width from Framer Motion cannot be overridden by a `max-md:` class.
+ * A media query rather than CSS classes because the map is not merely hidden
+ * on a phone, it is only mounted while you're looking at it: Leaflet would
+ * otherwise initialise, fit itself and start pulling 256px tiles for a view no
+ * one can see. The detail panel needs it too — it animates its own width open
+ * on desktop, and an inline width from Framer Motion cannot be overridden by a
+ * `max-md:` class.
  *
  * useSyncExternalStore rather than state plus an effect, which is what this
  * was first written as. A deferred read cannot be trusted for layout: it
@@ -109,6 +133,11 @@ function isMobileWidth() {
  */
 function useIsMobile() {
   return useSyncExternalStore(subscribeToWidth, isMobileWidth, () => false);
+}
+
+/** The window's width, for deciding whether a profile fits beside the map. */
+function useWindowWidth() {
+  return useSyncExternalStore(subscribeToWidth, () => window.innerWidth, () => 1280);
 }
 
 const noSubscription = () => () => {};
@@ -134,18 +163,21 @@ function AppSplash() {
   );
 }
 
-/** Height the mobile Add finding bar occupies, which the catalog pads clear of. */
+/** Height the mobile Add finding bar occupies before it's measured (it grows by the home indicator's inset). */
 const MOBILE_CTA_HEIGHT = 72;
 
-/**
- * Add finding's fill, shared by the desktop and phone buttons so the two
- * cannot drift apart.
- *
- * Yellow on the app's darkest blue — the highest-contrast pair the palette
- * holds, which is what the one action on the screen should be. Worth knowing:
- * --sprite-gold is also the mastery colour (crowns, the mastered tile ring,
- * the mastery bar), so it now marks two things rather than one.
- */
+/** An element's rendered height, kept current. */
+function useElementHeight(fallback: number) {
+  const [height, setHeight] = useState(fallback);
+  const [node, setNode] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!node) return;
+    const observer = new ResizeObserver(() => setHeight(Math.round(node.getBoundingClientRect().height)));
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [node]);
+  return [height, setNode] as const;
+}
 
 function clampSidebarWidth(width: number) {
   const ceiling = Math.min(SIDEBAR_MAX_WIDTH, Math.round(window.innerWidth / 2));
@@ -176,14 +208,21 @@ function AllVariantsThumb() {
 /** The ink border each panel draws on its map-facing edge (border-r-3 / border-l-3). */
 const PANEL_BORDER = 3;
 
+/** How a save is going, for the one toast that reports it. */
+type SaveToast =
+  | { kind: "saving"; spriteId: string }
+  | { kind: "saved"; spriteId: string; poiId: string }
+  | { kind: "error"; spriteId: string; values: AddFindingValues };
+
+/** The map's primary controls' sticker: white, ink outline and drop, Anton caps (see Sign In). */
+const MAP_PILL =
+  "material display-caps pointer-events-auto flex h-9 items-center rounded-full text-base leading-none text-pop-ink";
+
 export default function Home() {
-  const { findings: savedFindings, addFinding } = useFindings();
+  const { findings: savedFindings, addFinding, error: saveError } = useFindings();
   const { pois } = usePois();
   const { sprites, getSprite } = useSpriteCatalog();
   const [selectedSpriteId, setSelectedSpriteId] = useState<string | null>(null);
-  // Which Sprites' findings are pinned on the map. Driven only by the Radar
-  // toggle — deliberately separate from `selectedSpriteId`, which is just
-  // "what the detail panel is showing".
   /**
    * Which Sprites' findings are pinned, as an override the Radar toggles own
    * once the user has touched one. Null until then, meaning "whatever has been
@@ -191,13 +230,25 @@ export default function Home() {
    */
   const [pinnedOverride, setPinnedOverride] = useState<Set<string> | null>(null);
   // The Add finding modal. Bumping the key remounts it, so every open starts
-  // from a blank form (pre-picked with the sprite whose panel is open).
+  // from a blank form (pre-picked with the sprite whose panel is open), or
+  // from a failed save's answers when it's being retried.
   const [addOpen, setAddOpen] = useState(false);
   const [addKey, setAddKey] = useState(0);
+  const [retryValues, setRetryValues] = useState<AddFindingValues | null>(null);
+  const [toast, setToast] = useState<SaveToast | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Phone only: the map is a view you switch to from the bottom bar.
+  const [mobileMap, setMobileMap] = useState(false);
+  // A place to fly the map to, from a profile's location rows.
+  const [focusRequest, setFocusRequest] = useState<MapFocusRequest | null>(null);
   // Which variant the map is narrowed to, as a slot key ("gold"). null shows
   // every variant of whatever the Radar toggles have turned on.
   const [variantFilter, setVariantFilter] = useState<string | null>(null);
+  const isMobile = useIsMobile();
+  const windowWidth = useWindowWidth();
+  const hydrated = useHydrated();
+  const [barHeight, setBarNode] = useElementHeight(MOBILE_CTA_HEIGHT);
+
   /**
    * Demo mode adds one synthetic finding per live Sprite so the map can be seen
    * fully populated. Off unless switched on, and never written to the database
@@ -211,24 +262,14 @@ export default function Home() {
    * Starts false so the server's render and the first client one agree; the
    * stored value is applied just after, in the effect.
    */
-  const isMobile = useIsMobile();
-  // The phone has no map beside the catalog, so there is nothing to hide
-  // it for: it is always shown there.
-  const panelShown = sidebarOpen || isMobile;
-  const hydrated = useHydrated();
   const [storedDemoMode, setDemoMode] = useState(false);
   // Never on in production, however the stored value was left.
   const demoMode = DEMO_AVAILABLE && storedDemoMode;
   useEffect(() => {
     if (!DEMO_AVAILABLE) return;
-    // Read synchronously, NOT deferred to requestAnimationFrame.
-    //
-    // Deferring was the original shape here, purely to satisfy
-    // react-hooks/set-state-in-effect — and it quietly breaks in a background
-    // tab, because rAF callbacks do not run while a page is hidden. The app
-    // then boots with demo mode off however the setting was left, and only
-    // catches up when the tab is focused. The extra render pass the rule warns
-    // about is the cheaper problem.
+    // Read synchronously, NOT deferred to requestAnimationFrame: rAF callbacks
+    // do not run while a page is hidden, so a background tab booted with demo
+    // mode off however the setting was left.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDemoMode(window.localStorage.getItem(DEMO_MODE_KEY) === "1");
   }, []);
@@ -239,13 +280,8 @@ export default function Home() {
     window.localStorage.setItem(DEMO_MODE_KEY, next ? "1" : "0");
     setDemoMode(next);
     if (!next) return;
-    // Switching demo on has to pin it too. The visible set is seeded once from
-    // whatever findings existed at load, so a Sprite with no real sighting has
-    // its Radar off — and most Sprites have no real sighting, which is the
-    // whole point of demo mode. Without this the map would answer a toggle
-    // with a handful of new pins instead of a full island.
-    // Only when the user has taken over the pinning. Before that the visible
-    // set is derived from the findings themselves, so demo's arrive pinned.
+    // Switching demo on has to pin it too, once the user has taken over the
+    // pinning; before that the visible set is derived and demo's arrive pinned.
     setPinnedOverride((prev) => {
       if (prev === null) return null;
       const ids = new Set(prev);
@@ -260,32 +296,65 @@ export default function Home() {
     () => (demoMode ? [...savedFindings, ...buildDemoFindings(sprites, pois)] : savedFindings),
     [demoMode, savedFindings, sprites, pois]
   );
+
   /**
    * What is pinned before the user has touched a Radar: nothing, so the island
-   * opens clean and every pin on it is there because someone asked for it.
+   * opens clean and every pin on it is there because someone asked for it —
+   * the map's own hint offers "Show all sightings" as the one-tap way in.
+   * Demo mode is the exception: its whole purpose is to show the map
+   * populated.
    *
-   * Demo mode is the exception, and the only one. Its whole purpose is to show
-   * the map populated, so switching it on with no Radars set pins what it
-   * adds — otherwise the toggle would appear to do nothing at all.
-   *
-   * Derived, not seeded into state by an effect. Seeding was the first
-   * approach and it was quietly unreliable: the effect had to wait for
-   * findings to load, defer a frame to keep out of the render pass, and guard
-   * itself against re-seeding over a Radar the user had switched off — and any
-   * change to `findings` landing in that same frame cancelled the pending seed
-   * through the effect's own cleanup. It usually won that race and sometimes
-   * did not, which is the worst kind of bug to own.
-   *
-   * There is nothing to race here. With no override the answer is computed
-   * from whatever findings currently exist, so it is right on the first render
-   * and right again the moment more arrive. The first Radar click installs an
-   * override and the toggles own it from then on.
+   * Derived, not seeded into state by an effect (which raced the findings
+   * loading). The first Radar click installs an override and the toggles own
+   * it from then on.
    */
   const autoVisibleSpriteIds = useMemo(
     () => (demoMode ? new Set(findings.map((f) => f.spriteId)) : new Set<string>()),
     [demoMode, findings]
   );
   const visibleSpriteIds = pinnedOverride ?? autoVisibleSpriteIds;
+
+  // Every live variant id, by family: a Radar, "Show on map" and a new
+  // sighting all pin a whole Sprite, never one variant of it.
+  const liveSprites = useMemo(() => sprites.filter((s) => s.currentlyLive), [sprites]);
+  const familyIds = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const s of liveSprites) {
+      const list = map.get(s.family);
+      if (list) list.push(s.id);
+      else map.set(s.family, [s.id]);
+    }
+    return map;
+  }, [liveSprites]);
+  const baseIdOf = useCallback(
+    (id: string) => {
+      const family = getSprite(id)?.family;
+      if (!family) return id;
+      return liveSprites.find((s) => s.family === family && s.variant === null)?.id ?? id;
+    },
+    [getSprite, liveSprites]
+  );
+
+  // How many sightings each Sprite has, for the cards' radar counts and the
+  // map's "Show all sightings".
+  const sightingsByFamily = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const f of findings) {
+      const family = getSprite(f.spriteId)?.family;
+      if (family) counts.set(family, (counts.get(family) ?? 0) + 1);
+    }
+    return counts;
+  }, [findings, getSprite]);
+
+  // The Sprites whose Radar is on, by family.
+  const pinnedFamilies = useMemo(() => {
+    const set = new Set<string>();
+    for (const id of visibleSpriteIds) {
+      const family = getSprite(id)?.family;
+      if (family) set.add(family);
+    }
+    return set;
+  }, [visibleSpriteIds, getSprite]);
 
   // Starts at the default so the server and the first client render agree;
   // any remembered width is applied just after, in the effect below.
@@ -314,9 +383,7 @@ export default function Home() {
   useEffect(() => {
     const saved = Number(window.localStorage.getItem(SIDEBAR_WIDTH_KEY));
     if (!Number.isFinite(saved) || saved <= 0) return;
-    // Synchronous for the same reason as demo mode above: a frame-deferred
-    // read never happens in a hidden tab, which left the sidebar at its
-    // default width instead of the remembered one.
+    // Synchronous for the same reason as demo mode above.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSidebarWidth(clampSidebarWidth(saved));
   }, []);
@@ -377,27 +444,20 @@ export default function Home() {
       return next;
     });
   }
-  const [lastAdded, setLastAdded] = useState<string | null>(null);
 
   /**
    * The filter's rows: one per variant slot, each carrying a real icon of that
    * variant rather than a colour swatch — the same thumb + name the Add
-   * finding dialog's variant picker uses.
-   *
-   * Which Sprite's artwork stands for a variant is decided by what you are
-   * watching: with a Radar on, the rows show that Sprite's own gold / cheat
-   * master / loot hacker / bounty hunter icons, so the question reads as
-   * "which variant of this am I looking at". With nothing on — or a variant
-   * none of the watched Sprites has — it falls back to the first live Sprite
-   * that has it, so every row still carries real artwork instead of a gap.
+   * finding dialog's variant picker uses. With a Radar on, the rows show that
+   * Sprite's own variants; with nothing on, the first live Sprite that has
+   * each, so every row still carries real artwork.
    */
   const variantOptions = useMemo(() => {
-    const live = sprites.filter((s) => s.currentlyLive);
-    const watched = live.filter((s) => visibleSpriteIds.has(s.id));
+    const watched = liveSprites.filter((s) => visibleSpriteIds.has(s.id));
     return VARIANT_SLOTS.map((slot) => {
       const match =
         watched.find((s) => variantKey(s.variant) === slot) ??
-        live.find((s) => variantKey(s.variant) === slot);
+        liveSprites.find((s) => variantKey(s.variant) === slot);
       return {
         slot,
         label: VARIANT_NAME[slot] ?? slot,
@@ -407,16 +467,12 @@ export default function Home() {
         icon: match?.icon ?? null,
       };
     });
-  }, [sprites, visibleSpriteIds]);
+  }, [liveSprites, visibleSpriteIds]);
 
   /**
    * What the map actually pins: the Sprites whose Radar is on, narrowed to one
-   * variant when the filter asks for one.
-   *
-   * The two controls answer different questions and are kept separate on
-   * purpose — the Radar is "which Sprites am I hunting", the filter is "which
-   * variant of them am I looking at". Combining them here rather than in the
-   * map keeps IslandMap's contract as a plain set of ids.
+   * variant when the filter asks for one. The Radar is "which Sprites am I
+   * hunting", the filter "which variant of them am I looking at".
    */
   const pinnedSpriteIds = useMemo(() => {
     if (variantFilter === null) return visibleSpriteIds;
@@ -436,29 +492,343 @@ export default function Home() {
       else next.delete(id);
     }
     setPinnedOverride(next);
-    // Turning off the last Radar takes the variant filter off screen with it
-    // (it has nothing left to narrow), so the filter resets too. A control the
-    // user can no longer see must not keep narrowing the map from behind it —
-    // otherwise the next Radar they switch on comes back to a map still
-    // filtered to one variant, with no visible cause.
+    // Turning off the last Radar takes the variant filter off screen with it,
+    // so the filter resets too: a control the user can no longer see must not
+    // keep narrowing the map from behind it.
     if (next.size === 0) setVariantFilter(null);
   }
 
-  async function confirmFinding({ poiId, spriteId, variant, lootSource }: AddFindingValues) {
-    // Close first: the insert is a network round-trip, and the form has
-    // nothing left to show while it runs.
-    setAddOpen(false);
-    const saved = await addFinding({ poiId, spriteId, variant, lootSource });
-    if (!saved) return;
-    // Log a finding and you should see it, even if this Sprite's Radar was off.
-    // Same reasoning as demo mode: with no override the new finding is already
-    // pinned by derivation.
-    setPinnedOverride((prev) => (prev === null ? null : new Set(prev).add(spriteId)));
-    setLastAdded(spriteId);
-    window.setTimeout(() => setLastAdded(null), 1800);
+  /** Every Sprite that has at least one sighting, on the map at once. */
+  function showAllSightings() {
+    const ids = new Set<string>();
+    for (const [family, count] of sightingsByFamily) {
+      if (count > 0) for (const id of familyIds.get(family) ?? []) ids.add(id);
+    }
+    setPinnedOverride(ids);
   }
 
+  function clearPins() {
+    setPinnedOverride(new Set());
+    setVariantFilter(null);
+  }
+
+  // Where focus was when a profile opened, to hand it back when it closes.
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+
+  /** Opens a Sprite's profile — always its family's, whichever variant was picked. */
+  function openProfile(id: string) {
+    if (!selectedSpriteId) returnFocusRef.current = document.activeElement as HTMLElement | null;
+    setSelectedSpriteId(baseIdOf(id));
+  }
+
+  const closeProfile = useCallback(() => {
+    setSelectedSpriteId(null);
+    const back = returnFocusRef.current;
+    returnFocusRef.current = null;
+    if (back?.isConnected) requestAnimationFrame(() => back.focus({ preventScroll: true }));
+  }, []);
+
+  // Escape closes the profile, as it does the Add finding dialog — unless that
+  // dialog is what's open, in which case Escape is its.
+  useEffect(() => {
+    if (!selectedSpriteId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !addOpen && !e.defaultPrevented) closeProfile();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedSpriteId, addOpen, closeProfile]);
+
+  const selectedFamily = selectedSpriteId ? (getSprite(selectedSpriteId)?.family ?? null) : null;
+
+  /** The profile's "Show on map": pins or unpins the whole Sprite. */
+  function toggleProfileOnMap() {
+    if (!selectedFamily) return;
+    const on = !pinnedFamilies.has(selectedFamily);
+    setSpriteVisibility(familyIds.get(selectedFamily) ?? [], on);
+    // On a phone the map is a separate view: go and look.
+    if (on && isMobile) {
+      setMobileMap(true);
+      closeProfile();
+    }
+  }
+
+  /** A profile's location row: pin the Sprite and fly the map to that place. */
+  function focusPlace(poiId: string) {
+    const poi = pois.find((p) => p.id === poiId);
+    if (!poi || !selectedFamily) return;
+    if (!pinnedFamilies.has(selectedFamily)) setSpriteVisibility(familyIds.get(selectedFamily) ?? [], true);
+    setFocusRequest({ x: poi.x, y: poi.y, key: Date.now() });
+    if (isMobile) {
+      setMobileMap(true);
+      closeProfile();
+    }
+  }
+
+  function openAddFinding(values: AddFindingValues | null = null) {
+    setRetryValues(values);
+    setAddKey((k) => k + 1);
+    setAddOpen(true);
+  }
+
+  async function confirmFinding(values: AddFindingValues) {
+    // Close first: the insert is a network round-trip, and the form has
+    // nothing left to show while it runs. The toast says it's under way.
+    setAddOpen(false);
+    setToast({ kind: "saving", spriteId: values.spriteId });
+    const saved = await addFinding(values);
+    if (!saved) {
+      setToast({ kind: "error", spriteId: values.spriteId, values });
+      return;
+    }
+    // Log a sighting and you should see it: its Sprite goes on the map,
+    // whether or not its Radar was on (or any Radar had been touched yet).
+    const family = getSprite(values.spriteId)?.family;
+    const ids = (family && familyIds.get(family)) || [values.spriteId];
+    setPinnedOverride((prev) => {
+      const next = new Set(prev ?? autoVisibleSpriteIds);
+      for (const id of ids) next.add(id);
+      return next;
+    });
+    setToast({ kind: "saved", spriteId: values.spriteId, poiId: values.poiId });
+  }
+
+  // The save hook's own message, once a save has failed.
+  const toastMessage = toast?.kind === "error" ? (saveError ?? "Something went wrong.") : "";
+
+  // Saved toasts clear themselves; an error waits a while longer so its
+  // "Try again" can be reached.
+  useEffect(() => {
+    if (!toast || toast.kind === "saving") return;
+    const current = toast;
+    const timer = window.setTimeout(
+      () => setToast((t) => (t === current ? null : t)),
+      toast.kind === "saved" ? 2600 : 9000
+    );
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
   if (!hydrated) return <AppSplash />;
+
+  // Room for the map beside both panels? If not, a profile opens over the
+  // catalog's column instead of beside it (see MIN_MAP_WIDTH).
+  const stacked = !isMobile && windowWidth - sidebarWidth * 2 < MIN_MAP_WIDTH;
+  const profileOpen = selectedSpriteId !== null;
+  // The left column is showing: the catalog, or (stacked) a profile over it.
+  const leftColumnOpen = sidebarOpen || (stacked && profileOpen);
+  // The catalog itself: shown, and not covered by the stacked profile or the
+  // phone's map view.
+  const catalogShown = (sidebarOpen || isMobile) && !(stacked && profileOpen) && !(isMobile && mobileMap);
+  const catalogVisible = sidebarOpen || isMobile;
+  const mapShown = !isMobile || mobileMap;
+
+  const pinnedCount = pinnedFamilies.size;
+  const anySightings = findings.length > 0;
+
+  /** The map's hint and pinned-state chip, shared by the desktop map and the phone's map view. */
+  const mapHint = (
+    <AnimatePresence>
+      {pinnedCount === 0 && (
+        <motion.div
+          key="map-hint"
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
+          className="pointer-events-auto mx-auto flex max-w-[calc(100%-2rem)] items-center gap-3 rounded-2xl border-[3px] border-pop-ink bg-card py-2 pr-2 pl-3 shadow-[0_3px_0_var(--pop-ink)]"
+          role="note"
+        >
+          <Radar aria-hidden className="size-5 shrink-0 text-sprite-gold" strokeWidth={1.75} />
+          <p className="text-sm leading-snug text-foreground">
+            {anySightings ? (
+              <>Turn on a Sprite&rsquo;s radar to see where it&rsquo;s been found.</>
+            ) : (
+              <>No sightings logged yet. Found one? Add its location.</>
+            )}
+          </p>
+          {anySightings && (
+            <Button
+              variant="ghost"
+              onClick={showAllSightings}
+              className={cn(MAP_PILL, "h-8 shrink-0 px-3 text-sm hover:text-pop-ink")}
+            >
+              Show all
+            </Button>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  const pinnedChip =
+    pinnedCount > 0 ? (
+      <Button
+        variant="ghost"
+        onClick={clearPins}
+        aria-label={`Clear ${pinnedCount} ${pinnedCount === 1 ? "Sprite" : "Sprites"} from the map`}
+        title="Clear the map"
+        className={cn(MAP_PILL, "gap-1.5 !border-[3px] !border-pop-ink !bg-white pr-2.5 pl-3 hover:!bg-pop-yellow hover:text-pop-ink")}
+      >
+        <Radar aria-hidden className="size-4" strokeWidth={2.25} />
+        <span className="tabular-nums">{pinnedCount}</span> on map
+        <X className="ml-0.5 size-3.5" />
+      </Button>
+    ) : null;
+
+  const variantFilterControl =
+    visibleSpriteIds.size > 0 ? (
+      <Select
+        value={variantFilter ?? ALL_VARIANTS}
+        onValueChange={(value) => setVariantFilter(value === ALL_VARIANTS ? null : (value as string))}
+      >
+        <SelectTrigger
+          aria-label="Filter the map by variant"
+          // The ! overrides: SelectTrigger's own base classes (bg-input/50, a
+          // 1px transparent border, its data-size heights) sit later in the
+          // generated stylesheet than the material utility.
+          className="material display-caps !bg-white hover:!bg-pop-yellow !border-[3px] !border-pop-ink pointer-events-auto !h-9 gap-1.5 rounded-full py-0 pr-3 pl-4 !text-base text-pop-ink"
+        >
+          <SelectValue>
+            {(value: string) => {
+              // A chosen variant shows its Sprite beside the name, so the pill
+              // says at a glance which one the map is narrowed to.
+              const chosen = variantOptions.find((v) => v.slot === value);
+              if (!chosen) return "All variants";
+              return (
+                <span className="flex items-center gap-1.5">
+                  <SpriteThumb id={chosen.id} icon={chosen.icon} />
+                  {chosen.label}
+                </span>
+              );
+            }}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent align="start">
+          <SelectGroup>
+            <SelectItem value={ALL_VARIANTS}>
+              <span className="flex items-center gap-2">
+                <AllVariantsThumb />
+                All variants
+              </span>
+            </SelectItem>
+            {variantOptions.map((v) => (
+              <SelectItem key={v.slot} value={v.slot}>
+                <span className="flex items-center gap-2">
+                  <SpriteThumb id={v.id} icon={v.icon} />
+                  {v.label}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    ) : null;
+
+  const demoToggle = DEMO_AVAILABLE ? (
+    <Button
+      variant="ghost"
+      onClick={toggleDemoMode}
+      aria-pressed={demoMode}
+      className={cn(
+        "material pointer-events-auto h-9 rounded-full hover:text-pop-ink",
+        demoMode ? "!bg-pop-yellow text-pop-ink" : "text-pop-ink"
+      )}
+    >
+      <FlaskConical strokeWidth={1.875} />
+      {demoMode ? "Demo data — on" : "Demo data"}
+    </Button>
+  ) : null;
+
+  const map = (
+    <IslandMapCanvas
+      findings={findings}
+      visibleSpriteIds={pinnedSpriteIds}
+      // Findings are logged through the Add finding modal, not by clicking
+      // the map, so map-click placement stays off.
+      isAddMode={false}
+      pois={pois}
+      onMapClick={() => {}}
+      onSelectSprite={openProfile}
+      focusRequest={focusRequest}
+    />
+  );
+
+  /** The one toast: saving, saved, or failed with a way to try again. */
+  const toastView = (
+    <AnimatePresence>
+      {toast && (
+        <motion.div
+          key={toast.kind}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 8 }}
+          transition={{ duration: 0.18, ease: [0.2, 0.8, 0.2, 1] }}
+          role={toast.kind === "error" ? "alert" : "status"}
+          className={cn(
+            "material pointer-events-auto flex max-w-[min(28rem,calc(100vw-2rem))] items-center gap-2 py-1.5 pl-1.5 text-sm font-semibold text-pop-ink",
+            // An error has more to say and a button to reach: it may take two
+            // lines, so it's a rounded card rather than a pill.
+            toast.kind === "error" ? "rounded-2xl pr-1.5" : "rounded-full pr-4"
+          )}
+        >
+          {toast.kind === "saving" && (
+            <>
+              <span
+                aria-hidden
+                className="size-6 shrink-0 animate-spin rounded-full border-[3px] border-pop-ink border-t-transparent motion-reduce:animate-none"
+              />
+              <span className="truncate">Saving location…</span>
+            </>
+          )}
+          {toast.kind === "saved" && (
+            <>
+              {/* The same yellow sticker disc as the mastered badge, with a tick. */}
+              <span aria-hidden className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow">
+                <CheckIcon className="size-3.5" />
+              </span>
+              <span className="truncate">
+                Location saved — {displayName(getSprite(toast.spriteId)?.name)}
+                {(() => {
+                  const poi = pois.find((p) => p.id === toast.poiId);
+                  return poi ? `, ${titleCase(poi.name)}` : "";
+                })()}
+              </span>
+            </>
+          )}
+          {toast.kind === "error" && (
+            <>
+              <span aria-hidden className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-destructive text-white">
+                <AlertIcon className="size-3.5" />
+              </span>
+              <span className="line-clamp-2 min-w-0 flex-1 leading-snug">
+                Couldn&rsquo;t save that location. <span className="font-medium">{toastMessage}</span>
+              </span>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  const values = toast.values;
+                  setToast(null);
+                  openAddFinding(values);
+                }}
+                className={cn("h-8 shrink-0 rounded-full px-3 text-sm", ADD_FINDING_STYLE)}
+              >
+                Try again
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setToast(null)}
+                aria-label="Dismiss"
+                className="size-8 shrink-0 rounded-full text-pop-ink hover:!bg-pop-ink/10"
+              >
+                <X className="size-3.5" />
+              </Button>
+            </>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     // h-dvh, not h-screen: 100vh can resolve to a stale or oversized height
@@ -473,13 +843,13 @@ export default function Home() {
           and goes inert so nothing in it can be tabbed to. */}
       <motion.aside
         initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: panelShown ? 1 : 0, x: panelShown ? 0 : "-100%" }}
+        animate={{ opacity: catalogVisible ? 1 : 0, x: catalogVisible ? 0 : "-100%" }}
         transition={{
           x: { duration: SIDEBAR_SLIDE_S, ease: SIDEBAR_EASE },
           opacity: { duration: SIDEBAR_FADE_S },
         }}
-        inert={!panelShown}
-        aria-hidden={!panelShown}
+        inert={!catalogShown}
+        aria-hidden={!catalogShown}
         className={cn(
           // Flush to the window: no margin, no radius. The border only runs
           // along the edge that faces the map — on the window's own edges it
@@ -495,22 +865,23 @@ export default function Home() {
         // isn't fighting an inline width.
         style={{
           width: isMobile ? undefined : sidebarWidth,
-          paddingBottom: isMobile ? MOBILE_CTA_HEIGHT : undefined,
+          paddingBottom: isMobile ? barHeight : undefined,
         }}
       >
         <SpriteCatalogBrowser
-          selectedSpriteId={selectedSpriteId}
-          onSelect={setSelectedSpriteId}
+          selectedFamily={selectedFamily}
+          onSelect={openProfile}
           visibleSpriteIds={visibleSpriteIds}
           onSetVisibility={setSpriteVisibility}
+          sightingsByFamily={sightingsByFamily}
+          statusBarTone={isMobile && mobileMap ? "muted" : null}
           showAccount={isMobile}
         />
 
-        {/* The drag handle, sitting on the panel's own edge. Only its middle
-            band is grabbable so it doesn't fight the sidebar's scrollbar
-            gutter, and it widens on hover rather than being visible at rest —
-            the border it sits on is the affordance. */}
-        {panelShown && !isMobile && (
+        {/* The drag handle, sitting on the panel's own edge. It widens on
+            hover rather than being visible at rest — the border it sits on is
+            the affordance. */}
+        {catalogShown && !isMobile && (
           <div
             role="separator"
             aria-orientation="vertical"
@@ -526,259 +897,203 @@ export default function Home() {
         )}
       </motion.aside>
 
-      {/* The map's container: everything the sidebar doesn't cover. The margin
-          reserves the open sidebar's width, so the map — and the controls and
-          hints overlaid on it — are sized and centered in the visible space.
-          Hiding the sidebar eases the margin to 0 on the sidebar's own curve,
-          so the map widens into the space as the panel slides away; Leaflet
-          re-fits the island on every frame of it (its ResizeObserver). While
-          the edge is being dragged the margin follows the pointer directly. */}
-      {/* The map is not merely hidden on a phone, it is never mounted:
-          Leaflet would otherwise initialise, fit itself and start pulling
-          256px tiles for a view nobody can see. */}
-      {!isMobile && (
+      {/* The map's container: everything the left column doesn't cover. The
+          margin reserves the column's width, so the map — and the controls
+          overlaid on it — are sized and centred in the visible space. Hiding
+          the sidebar eases the margin to 0 on the sidebar's own curve, and
+          Leaflet re-fits the island as it widens (its ResizeObserver). While
+          the edge is being dragged the margin follows the pointer directly.
+
+          On a phone it's a view of its own, over the catalog and above the
+          bottom bar, mounted only while it's showing. */}
+      {mapShown && (
       <div
         data-slot="map-container"
-        className="relative min-w-0 flex-1"
-        style={{
-          marginLeft: sidebarOpen ? sidebarWidth : 0,
-          transition: resizing ? "none" : `margin-left ${SIDEBAR_SLIDE_S}s cubic-bezier(${SIDEBAR_EASE.join(",")})`,
-        }}
+        className={cn(isMobile ? "fixed inset-x-0 top-0 z-[640] bg-map-field" : "relative min-w-0 flex-1")}
+        style={
+          isMobile
+            ? { bottom: barHeight }
+            : {
+                marginLeft: leftColumnOpen ? sidebarWidth : 0,
+                transition: resizing ? "none" : `margin-left ${SIDEBAR_SLIDE_S}s cubic-bezier(${SIDEBAR_EASE.join(",")})`,
+              }
+        }
       >
-        <IslandMapCanvas
-          findings={findings}
-          visibleSpriteIds={pinnedSpriteIds}
-          // Findings are logged through the Add finding modal now, not by
-          // clicking the map, so map-click placement stays off.
-          isAddMode={false}
-          pois={pois}
-          onMapClick={() => {}}
-        />
+        {map}
 
-        <div className="pointer-events-none absolute inset-x-0 top-4 z-[500] flex items-center justify-between gap-2 px-4">
-          <div className="flex min-w-0 items-center gap-2">
-          {/* Hide / show the sidebar. First in the map's own control row, so
-              it sits right against the sidebar's edge when open and stays in
-              the map's top-left corner when it's hidden. Its chevron turns to
-              point the way the panel will move. */}
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={toggleSidebar}
-            aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-            title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-            aria-pressed={sidebarOpen}
-            // Dressed as a piece of the sidebar rather than a white sticker:
-            // the sidebar's own fill inside the ink outline (no drop), with the
-            // glyph in the same lavender as the cards' Radar icons, turning
-            // yellow on hover like them.
-            className="pointer-events-auto !size-9 rounded-full border-[3px] border-pop-ink !bg-card text-muted-foreground transition-[color,transform] duration-150 hover:!bg-card hover:!text-pop-yellow active:scale-95 focus-visible:ring-3 focus-visible:ring-pop-yellow/60"
-          >
-            <SidebarToggleIcon open={sidebarOpen} className="size-[18px]" />
-          </Button>
-          {/* Only present once something is pinned. With every Radar off the
-              map has no findings on it, so narrowing them to one variant is a
-              control over nothing — and one that would otherwise sit there
-              inviting a click that changes nothing visible.
-
-              Styled exactly like the Sign In pill opposite it — 36px, white
-              sticker, 3px ink outline and drop, Anton caps, yellow on hover —
-              so the two read as one row of map controls. A chosen variant
-              adds its Sprite's thumbnail; "All variants" is words only. */}
-          {visibleSpriteIds.size > 0 && (
-          <Select
-            value={variantFilter ?? ALL_VARIANTS}
-            onValueChange={(value) =>
-              setVariantFilter(value === ALL_VARIANTS ? null : (value as string))
-            }
-          >
-            <SelectTrigger
-              aria-label="Filter the map by variant"
-              // The ! overrides: SelectTrigger's own base classes (bg-input/50,
-              // a 1px transparent border, its data-size heights) sit later in
-              // the generated stylesheet than the material utility, so they
-              // win the cascade at equal specificity without them. Hover turns
-              // it yellow via material, like Sign In.
-              className="material display-caps !bg-white hover:!bg-pop-yellow !border-[3px] !border-pop-ink pointer-events-auto !h-9 gap-1.5 rounded-full py-0 pr-3 pl-4 !text-base text-pop-ink"
-            >
-              <SelectValue>
-                {(value: string) => {
-                  // A chosen variant shows its Sprite beside the name, so the
-                  // pill says at a glance which one the map is narrowed to.
-                  // "All variants" stays words only.
-                  const chosen = variantOptions.find((v) => v.slot === value);
-                  if (!chosen) return "All variants";
-                  return (
-                    <span className="flex items-center gap-1.5">
-                      <SpriteThumb id={chosen.id} icon={chosen.icon} />
-                      {chosen.label}
-                    </span>
-                  );
-                }}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent align="start">
-              <SelectGroup>
-                <SelectItem value={ALL_VARIANTS}>
-                  <span className="flex items-center gap-2">
-                    <AllVariantsThumb />
-                    All variants
-                  </span>
-                </SelectItem>
-                {variantOptions.map((v) => (
-                  <SelectItem key={v.slot} value={v.slot}>
-                    <span className="flex items-center gap-2">
-                      <SpriteThumb id={v.id} icon={v.icon} />
-                      {v.label}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          )}
-
-          {/* Always present in development, so the mode can be left as easily
-              as it is entered — but it never looks the same in both states.
-              Lit and labelled while on, because the map is then showing data
-              nobody logged and that must not be a quiet state. Absent in
-              production entirely. */}
-          {DEMO_AVAILABLE && (
-          <Button
-            variant="ghost"
-            onClick={toggleDemoMode}
-            aria-pressed={demoMode}
-            className={cn(
-              "material pointer-events-auto h-11 rounded-full hover:text-pop-ink",
-              demoMode ? "!bg-pop-yellow text-pop-ink" : "text-pop-ink"
-            )}
-          >
-            <FlaskConical strokeWidth={1.875} />
-            {demoMode ? "Demo data — on" : "Demo data"}
-          </Button>
-          )}
+        {/* The map's own controls, over its top edge. Two columns: the
+            account pinned right, and everything else in a left group that
+            wraps rather than sliding under it when the map is narrow. */}
+        <div className="pointer-events-none absolute inset-x-0 top-4 z-[500] flex flex-col gap-3 px-4">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              {/* Hide / show the sidebar. First in the map's own control row,
+                  so it sits right against the sidebar's edge when open and
+                  stays in the map's top-left corner when it's hidden. Desktop
+                  only: on a phone the bottom bar switches views. */}
+              {!isMobile && (
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={toggleSidebar}
+                  aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+                  title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+                  aria-pressed={sidebarOpen}
+                  // Dressed as a piece of the sidebar rather than a white
+                  // sticker: the sidebar's own fill inside the ink outline
+                  // (no drop), the glyph in the cards' Radar lavender,
+                  // yellow on hover like them.
+                  className="pointer-events-auto !size-9 rounded-full border-[3px] border-pop-ink !bg-card text-muted-foreground transition-[color,transform] duration-150 hover:!bg-card hover:!text-pop-yellow active:scale-95 focus-visible:ring-3 focus-visible:ring-pop-yellow/60"
+                >
+                  <SidebarToggleIcon open={sidebarOpen} className="size-[18px]" />
+                </Button>
+              )}
+              {variantFilterControl}
+              {pinnedChip}
+              {demoToggle}
+            </div>
+            {/* The account button, in the site's top-right corner (desktop;
+                on a phone it's in the catalog's header). */}
+            {!isMobile && <AccountControl className="pointer-events-auto self-start" />}
           </div>
-          {/* The account button, in the site's top-right corner: 16px from the top
-              and right, the same inset as the sidebar's logo. */}
-          <AccountControl className="pointer-events-auto self-start" />
+          {mapHint}
         </div>
 
-        {/* Centred along the bottom of the map rather than tucked in the top
-            corner with the filters: it is the one thing the page asks you to
-            do, so it reads as the page's action instead of a third control in
-            a row of them. Clear of the zoom cluster in the bottom-right and of
-            the confirmation toast, which now sits above it. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-[500] flex justify-center px-4">
-          <Button
-            onClick={() => {
-              setAddKey((k) => k + 1);
-              setAddOpen(true);
-            }}
-            className={cn("pointer-events-auto h-12 gap-2 rounded-full px-7 text-base", ADD_FINDING_STYLE)}
-          >
-            Add Sprite Location
-          </Button>
-        </div>
+        {/* Centred along the bottom of the map: it is the one thing the page
+            asks you to do. Desktop only — the phone's lives in its bottom
+            bar, where a thumb reaches. */}
+        {!isMobile && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-6 z-[500] flex justify-center px-4">
+            <Button
+              onClick={() => openAddFinding()}
+              className={cn("pointer-events-auto h-12 gap-2 rounded-full px-7 text-base", ADD_FINDING_STYLE)}
+            >
+              Add Sprite Location
+            </Button>
+          </div>
+        )}
 
+        {/* Above the Add Sprite Location button, centred on the map it
+            reports on rather than on the whole window. */}
+        {!isMobile && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-[88px] z-[510] flex justify-center px-4">
+            {toastView}
+          </div>
+        )}
       </div>
       )}
 
-      {/* The phone's one action, where a thumb reaches. The map's own
-          Add finding button lives in the controls overlaid on the map, so
-          without this there would be no way to log a finding at all. */}
+      {/* The phone's bottom bar: the list/map switch, and the one action,
+          where a thumb reaches. */}
       {isMobile && (
         <div
-          // --muted, the same fill as the header strip at the top of the
-          // catalog — not --card, which is what the content itself uses.
-          // HIG's materials guidance puts controls and navigation on a layer
-          // that is visibly distinct from the content layer; painting this bar
-          // in the content's own colour left it reading as part of the list
-          // rather than as a bar floating above it.
-          className="fixed inset-x-0 bottom-0 z-[650] border-t-[3px] border-pop-ink bg-muted px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
+          ref={setBarNode}
+          // --muted, a step lighter than the catalog: controls sit on a layer
+          // visibly distinct from the content they scroll over.
+          className="fixed inset-x-0 bottom-0 z-[650] flex items-center gap-3 border-t-[3px] border-pop-ink bg-muted px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"
           style={{ minHeight: MOBILE_CTA_HEIGHT }}
         >
           <Button
-            onClick={() => {
-              setAddKey((k) => k + 1);
-              setAddOpen(true);
-            }}
-            // text-base: this Button's own default is text-sm (14px), same
-            // as the desktop map CTA — but there is nothing on a phone
-            // screen for it to visually match at that size, and 14px reads
-            // as noticeably smaller than the sheet it opens once that sheet
-            // is also fixed. One step up, same as everything else scaled
-            // for a phone this session.
-            className={cn("h-12 w-full gap-2 text-base", ADD_FINDING_STYLE)}
+            variant="ghost"
+            onClick={() => setMobileMap((on) => !on)}
+            aria-label={mobileMap ? "Show the Sprite list" : "Show the map"}
+            aria-pressed={mobileMap}
+            className="material relative size-12 shrink-0 rounded-full text-pop-ink hover:text-pop-ink"
+          >
+            {mobileMap ? <ListIcon className="size-5" /> : <MapIcon className="size-5" />}
+            {/* How many Sprites are on the map: the Radars' effect, visible
+                from the list. Pops when it changes. */}
+            <AnimatePresence initial={false}>
+              {!mobileMap && pinnedCount > 0 && (
+                <motion.span
+                  key={pinnedCount}
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.6, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 22 }}
+                  aria-hidden
+                  className="display-caps absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow px-1 text-xs leading-none text-pop-ink tabular-nums"
+                >
+                  {pinnedCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </Button>
+          <Button
+            onClick={() => openAddFinding()}
+            // text-base: one step up from the Button's own 14px, so the bar's
+            // action reads at the size of the sheet it opens.
+            className={cn("h-12 min-w-0 flex-1 gap-2 text-base", ADD_FINDING_STYLE)}
           >
             Add Sprite Location
           </Button>
         </div>
       )}
 
-        <AddFindingDialog
-          key={addKey}
-          open={addOpen}
-          onOpenChange={setAddOpen}
-          pois={pois}
-          defaultSpriteId={selectedSpriteId}
-          onConfirm={confirmFinding}
-        />
+      {/* Phone: the toast floats just above the bottom bar, over whichever
+          view is showing — the profile sheet (z-700) included. */}
+      {isMobile && (
+        <div
+          className="pointer-events-none fixed inset-x-0 z-[710] flex justify-center px-4"
+          style={{ bottom: barHeight + 12 }}
+        >
+          {toastView}
+        </div>
+      )}
 
-        <AnimatePresence>
-          {lastAdded && (
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              // Above the Add finding button below it, which now occupies the
-              // bottom-centre this used to have to itself.
-              role="status"
-              className="material pointer-events-none absolute bottom-24 left-1/2 z-[500] flex -translate-x-1/2 items-center gap-2 rounded-full py-2 pr-5 pl-2 text-sm font-semibold whitespace-nowrap text-pop-ink"
-            >
-              {/* The same yellow sticker disc as the mastered badge, with a tick. */}
-              <span aria-hidden className="flex size-6 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow">
-                <CheckIcon className="size-3.5" />
-              </span>
-              Sprite location added — {displayName(getSprite(lastAdded)?.name)}
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <AddFindingDialog
+        key={addKey}
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        pois={pois}
+        defaultSpriteId={selectedSpriteId}
+        initialValues={retryValues}
+        onConfirm={confirmFinding}
+      />
 
       <AnimatePresence>
-        {selectedSpriteId && (
+        {selectedSpriteId !== null && (
           <motion.aside
-            key={selectedSpriteId}
-            // On a phone it covers the catalog rather than sitting beside it —
-            // there is no room for two panels — so it slides in over the top
-            // and is dismissed by its own close button. Width is not animated
-            // there: it is already the whole screen, and Framer writes the
-            // animated width inline where a class could not override it.
-            initial={isMobile ? { x: "100%", opacity: 1 } : { width: 0, opacity: 0 }}
-            // Same width as the left sidebar, from the same constant.
-            animate={isMobile ? { x: 0, opacity: 1 } : { width: sidebarWidth, opacity: 1 }}
-            exit={isMobile ? { x: "100%", opacity: 1 } : { width: 0, opacity: 0 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            // Flush to the window like the left sidebar: no margin, no radius,
-            // and a border only on the edge that faces the map.
+            // Keyed by layout, not by Sprite: switching Sprites keeps the
+            // panel open and cross-fades its contents (SpriteDetailPanel keys
+            // itself), instead of collapsing and reopening the whole panel.
+            key={isMobile ? "phone" : stacked ? "stacked" : "beside"}
+            aria-label="Sprite profile"
+            // Phone: slides in over everything from the right. Stacked: over
+            // the catalog's column, a short slide from the left like a drill-
+            // in. Beside: opens its own width next to the map.
+            initial={
+              isMobile ? { x: "100%", opacity: 1 } : stacked ? { x: -16, opacity: 0 } : { width: 0, opacity: 0 }
+            }
+            animate={isMobile ? { x: 0, opacity: 1 } : stacked ? { x: 0, opacity: 1 } : { width: sidebarWidth, opacity: 1 }}
+            exit={isMobile ? { x: "100%", opacity: 1 } : stacked ? { x: -16, opacity: 0 } : { width: 0, opacity: 0 }}
+            transition={{ duration: stacked ? 0.22 : 0.35, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
               "panel-wash flex flex-col overflow-hidden border-pop-ink bg-card",
-              isMobile ? "fixed inset-0 z-[700] w-full" : "shrink-0 border-l-[3px]"
+              isMobile
+                ? "fixed inset-0 z-[700] w-full"
+                : stacked
+                  ? "absolute top-0 bottom-0 left-0 z-[620] border-r-[3px]"
+                  : "shrink-0 border-l-[3px]"
             )}
+            style={stacked ? { width: sidebarWidth } : undefined}
           >
-            {/* Fixed width, so the panel's contents don't reflow while the
-                aside animates its own width open or shut — but minus the 2px
+            {/* Fixed width beside the map, so the panel's contents don't
+                reflow while the aside animates its own width — minus the
                 border, which the aside's width includes and this div's does
-                not. Without that it overhung by exactly 2px at every sidebar
-                width, giving the panel a hairline horizontal scroll. */}
+                not. */}
             <div
-              className={cn("h-full", isMobile && "w-full")}
-              style={{ width: isMobile ? undefined : sidebarWidth - PANEL_BORDER }}
+              className={cn("h-full", (isMobile || stacked) && "w-full")}
+              style={{ width: isMobile || stacked ? undefined : sidebarWidth - PANEL_BORDER }}
             >
               <SpriteDetailPanel
                 spriteId={selectedSpriteId}
                 findings={findings}
                 pois={pois}
-                onBack={() => setSelectedSpriteId(null)}
+                onBack={closeProfile}
+                shownOnMap={selectedFamily !== null && pinnedFamilies.has(selectedFamily)}
+                onToggleMap={toggleProfileOnMap}
+                onFocusPlace={focusPlace}
               />
             </div>
           </motion.aside>

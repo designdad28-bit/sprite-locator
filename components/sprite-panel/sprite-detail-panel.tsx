@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Radar } from "lucide-react"; // the cards' own radar glyph
 import { X } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { Finding } from "@/lib/findings";
@@ -36,6 +37,12 @@ export interface SpriteDetailPanelProps {
   /** Named locations, for turning each sighting into the place it was logged at. */
   pois: Poi[];
   onBack: () => void;
+  /** Whether this Sprite's Radar is on — its sightings pinned on the map. */
+  shownOnMap?: boolean;
+  /** Pins or unpins this Sprite on the map (its Radar). */
+  onToggleMap?: () => void;
+  /** A location row was picked: show that place on the map. */
+  onFocusPlace?: (poiId: string) => void;
 }
 
 const AVAILABILITY_LABEL: Record<string, string> = {
@@ -104,13 +111,28 @@ function Section({ title, aside, children }: { title: string; aside?: string; ch
  * ink outline, a hard drop), so a column of them lines up. A zero count
  * keeps the chip but mutes the figure rather than disappearing.
  */
-function CountRow({ label, count, icon }: { label: string; count: number; icon?: string | null }) {
-  return (
-    <div className="flex items-center justify-between gap-4 py-1.5">
+function CountRow({
+  label,
+  count,
+  icon,
+  onClick,
+  actionLabel,
+}: {
+  label: string;
+  count: number;
+  icon?: string | null;
+  /** Makes the row a button (a location row flies the map there). */
+  onClick?: () => void;
+  actionLabel?: string;
+}) {
+  const content = (
+    <>
       <span
         className={cn(
-          "flex min-w-0 items-center gap-2.5 text-sm font-medium",
-          count > 0 ? "text-foreground" : "text-muted-foreground"
+          "flex min-w-0 items-center gap-2.5 text-sm font-medium transition-colors duration-150",
+          count > 0 ? "text-foreground" : "text-muted-foreground",
+          // Only reachable inside a clickable row (a location), whose button is the group.
+          onClick && "group-hover:text-pop-yellow"
         )}
       >
         {/* A row that takes an icon always keeps its slot, so labels in a
@@ -132,7 +154,20 @@ function CountRow({ label, count, icon }: { label: string; count: number; icon?:
       >
         {count}
       </span>
-    </div>
+    </>
+  );
+  if (!onClick) return <div className="flex items-center justify-between gap-4 py-1.5">{content}</div>;
+  // A row you can act on: the whole row is the target, with the label taking
+  // the controls' yellow on hover and a map pin glyph saying where it goes.
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={actionLabel}
+      className="group -mx-2 flex w-[calc(100%+1rem)] items-center justify-between gap-4 rounded-xl px-2 py-1.5 text-left transition-colors duration-150 outline-none hover:bg-white/[0.06] focus-visible:ring-3 focus-visible:ring-pop-yellow/60"
+    >
+      {content}
+    </button>
   );
 }
 
@@ -141,7 +176,15 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-muted-foreground">{children}</p>;
 }
 
-export function SpriteDetailPanel({ spriteId, findings, pois, onBack }: SpriteDetailPanelProps) {
+export function SpriteDetailPanel({
+  spriteId,
+  findings,
+  pois,
+  onBack,
+  shownOnMap = false,
+  onToggleMap,
+  onFocusPlace,
+}: SpriteDetailPanelProps) {
   const { getSprite, sprites } = useSpriteCatalog();
   const sprite = getSprite(spriteId);
 
@@ -172,13 +215,17 @@ export function SpriteDetailPanel({ spriteId, findings, pois, onBack }: SpriteDe
   const familyFindings = findings.filter((f) => familyIds.has(f.spriteId));
 
   // Where it has been seen: each place with its count, most sightings first.
-  const byPlace = new Map<string, { name: string; count: number }>();
+  const byPlace = new Map<string, { id: string | null; name: string; count: number }>();
   for (const f of familyFindings) {
     const place = placeOf(f, pois);
     const key = place?.id ?? "unknown";
     // Location names are stored shouting ("CLUSTER COAST"); sentence-cased
     // here like the loot sources beside them and the Add finding form.
-    const entry = byPlace.get(key) ?? { name: place ? titleCase(place.name) : "Unknown location", count: 0 };
+    const entry = byPlace.get(key) ?? {
+      id: place?.id ?? null,
+      name: place ? titleCase(place.name) : "Unknown location",
+      count: 0,
+    };
     entry.count += 1;
     byPlace.set(key, entry);
   }
@@ -234,20 +281,25 @@ export function SpriteDetailPanel({ spriteId, findings, pois, onBack }: SpriteDe
           variant="ghost"
           size="icon-sm"
           onClick={onBack}
-          aria-label="Close"
+          aria-label="Close profile"
+          // Focus lands here when the profile opens, so a keyboard or screen
+          // reader user starts inside it (Escape closes it too).
+          autoFocus
           className="material absolute top-3 right-3 z-10 rounded-full text-pop-ink hover:text-pop-ink max-md:size-11"
         >
           <X />
         </Button>
 
-        {/* A square that tracks the panel's width (the sidebar is draggable),
-            sized and centred per Sprite like every other piece of art. It
-            wears the tiles' pop too: a hard ink drop, then a soft lift. */}
+        {/* 4:3, tracking the panel's width (the sidebar is draggable): the
+            Sprite still fills the stage, but the facts below — where it's
+            been found, what it drops from — start above the fold on a laptop
+            instead of under a full square of art. Sized and centred per
+            Sprite like every other piece of art, with the tiles' pop. */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 8 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
-          className="relative mx-auto flex aspect-square w-full items-center justify-center p-4"
+          className="relative mx-auto flex aspect-[4/3] w-full items-center justify-center px-4 pt-4 pb-5"
         >
           {sprite.icon ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -296,10 +348,37 @@ export function SpriteDetailPanel({ spriteId, findings, pois, onBack }: SpriteDe
         )}
       </div>
 
-      {/* Each place it has been logged, with how many times. */}
+      {/* Each place it has been logged, with how many times. A row shows that
+          place on the map; the button below puts every sighting there. */}
       <Section title="Locations" aside={familyFindings.length > 0 ? `${familyFindings.length} total` : undefined}>
         {places.length > 0 ? (
-          places.map((p) => <CountRow key={p.name} label={p.name} count={p.count} />)
+          <>
+            {places.map((p) => (
+              <CountRow
+                key={p.name}
+                label={p.name}
+                count={p.count}
+                onClick={p.id && onFocusPlace ? () => onFocusPlace(p.id!) : undefined}
+                actionLabel={`Show ${p.name} on the map, ${p.count} ${p.count === 1 ? "sighting" : "sightings"}`}
+              />
+            ))}
+            {onToggleMap && (
+              <Button
+                variant="ghost"
+                onClick={onToggleMap}
+                aria-pressed={shownOnMap}
+                // The card's Radar, as a labelled button: gold while this
+                // Sprite is on the map, the white sticker while it isn't.
+                className={cn(
+                  "material display-caps mt-2 mb-1 h-10 w-full gap-2 rounded-full text-base text-pop-ink hover:text-pop-ink",
+                  shownOnMap && "!bg-sprite-gold"
+                )}
+              >
+                <Radar aria-hidden className="size-5" strokeWidth={2.25} />
+                {shownOnMap ? "Showing on map" : "Show on map"}
+              </Button>
+            )}
+          </>
         ) : (
           <Empty>No sightings logged yet.</Empty>
         )}

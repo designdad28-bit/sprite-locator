@@ -5,6 +5,7 @@ import {
   MapContainer,
   TileLayer,
   Marker,
+  Tooltip,
   useMap,
   useMapEvents,
 } from "react-leaflet";
@@ -24,6 +25,10 @@ import { WATER_LAYERS, WATER_REACH } from "@/lib/map/water-rings";
 import { Button } from "@/components/ui/button";
 import { rarityAccent } from "@/lib/rarity";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
+import { displayName } from "@/lib/sprite-name";
+import { titleCase } from "@/lib/title-case";
+import { lootSourceById } from "@/lib/loot-sources";
+import { VARIANT_NAME, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
 
 /**
  * The island's box, shrunk around its center by ISLAND_FIT_SCALE. Fitting a
@@ -67,21 +72,57 @@ function makePoiLabel(name: string) {
   });
 }
 
-function PoiLabels({ pois, worldSize, nativeZoom }: { pois: Poi[]; worldSize: number; nativeZoom: number }) {
+/**
+ * One location name. `hidden` fades it out (a class on Leaflet's own element,
+ * so the fade is a CSS transition rather than a rebuilt marker) when it would
+ * collide with a name nearer the front — see the layout in IslandMap.
+ *
+ * Names draw above pins (zIndexOffset): a pin steps off a name where it can,
+ * and where it can't (a small map, a crowded corner) the name stays readable
+ * on top rather than being covered. A hovered pin rises above both.
+ */
+function PoiLabel({ poi, hidden, worldSize, nativeZoom }: { poi: Poi; hidden: boolean; worldSize: number; nativeZoom: number }) {
+  const [marker, setMarker] = useState<L.Marker | null>(null);
+  const latlng = useMemo(
+    () => CRS.Simple.pointToLatLng(L.point(poi.x * worldSize, poi.y * worldSize), nativeZoom),
+    [poi.x, poi.y, worldSize, nativeZoom]
+  );
+  const icon = useMemo(() => makePoiLabel(poi.name), [poi.name]);
+  useEffect(() => {
+    const el = marker?.getElement();
+    if (!el) return;
+    el.classList.toggle("is-hidden", hidden);
+    el.setAttribute("aria-hidden", hidden ? "true" : "false");
+  }, [marker, hidden]);
+  return (
+    <Marker
+      ref={setMarker}
+      position={latlng}
+      icon={icon}
+      interactive={false}
+      keyboard={false}
+      zIndexOffset={1000}
+      eventHandlers={{ add: (e) => (e.target as L.Marker).getElement()?.classList.toggle("is-hidden", hidden) }}
+    />
+  );
+}
+
+function PoiLabels({
+  pois,
+  hiddenIds,
+  worldSize,
+  nativeZoom,
+}: {
+  pois: Poi[];
+  hiddenIds: Set<string>;
+  worldSize: number;
+  nativeZoom: number;
+}) {
   return (
     <>
-      {pois.map((poi) => {
-        const latlng = CRS.Simple.pointToLatLng(L.point(poi.x * worldSize, poi.y * worldSize), nativeZoom);
-        return (
-          <Marker
-            key={poi.id}
-            position={latlng}
-            icon={makePoiLabel(poi.name)}
-            interactive={false}
-            keyboard={false}
-          />
-        );
-      })}
+      {pois.map((poi) => (
+        <PoiLabel key={poi.id} poi={poi} hidden={hiddenIds.has(poi.id)} worldSize={worldSize} nativeZoom={nativeZoom} />
+      ))}
     </>
   );
 }
@@ -96,6 +137,13 @@ function PoiLabels({ pois, worldSize, nativeZoom }: { pois: Poi[]; worldSize: nu
 // replaced even though it was meant to read at the same scale. 46 gives a
 // 46x61 pin, closer to the old marker's footprint.
 const MARKER_BASE_SIZE = 46;
+/**
+ * The same pin on a small map — a phone, or a narrow window — where the whole
+ * island is only 300-400px across and a 46px pin buries the names around it.
+ */
+const MARKER_COMPACT_SIZE = 36;
+/** Map widths below this draw compact pins. */
+const COMPACT_MAP_WIDTH = 520;
 const MARKER_MIN_SIZE = 22;
 /** Clear space between neighbouring pins in a ring. */
 const MARKER_GAP = 3;
@@ -119,9 +167,9 @@ const PIN_ABOVE_TIP = 70 / 80;
 const PIN_BELOW_TIP = 6.5 / 80;
 
 /** One pin is full size; each extra one at the same spot shrinks them all. */
-function markerSize(count: number): number {
-  if (count <= 1) return MARKER_BASE_SIZE;
-  return Math.max(MARKER_MIN_SIZE, Math.round(MARKER_BASE_SIZE / Math.sqrt(count)));
+function markerSize(count: number, base = MARKER_BASE_SIZE): number {
+  if (count <= 1) return base;
+  return Math.max(MARKER_MIN_SIZE, Math.round(base / Math.sqrt(count)));
 }
 
 /** How much of its slice a pin may wander within, as a fraction. */
@@ -339,11 +387,43 @@ function scatterOffsets(
 }
 
 interface LabelBox {
+  id: string;
   /** Centre, in screen px at the current zoom (map fraction x pxPerFraction). */
   x: number;
   y: number;
   halfW: number;
 }
+
+/**
+ * Which location names to show at this zoom. Names keep their pixel size
+ * while the island scales, so on a small map (a narrow window, a phone, the
+ * fitted overview) neighbouring names collide and stack into an unreadable
+ * pile. Greedy, in priority order: a name is shown unless it would overlap
+ * one already shown, so the front of the list always wins its space.
+ */
+function visibleLabels(labels: LabelBox[], priority: (id: string) => number): Set<string> {
+  const pad = 4;
+  const halfH = POI_LABEL_HEIGHT / 2;
+  const kept: LabelBox[] = [];
+  const ordered = [...labels].sort((a, b) => priority(a.id) - priority(b.id));
+  for (const l of ordered) {
+    const clash = kept.some(
+      (k) => Math.abs(k.x - l.x) < k.halfW + l.halfW + pad && Math.abs(k.y - l.y) < halfH * 2 + pad
+    );
+    if (!clash) kept.push(l);
+  }
+  return new Set(kept.map((l) => l.id));
+}
+
+/**
+ * The furthest a pin may be moved to step off a name, as a multiple of its
+ * own height. Further than this and the pin would stand somewhere it wasn't
+ * found (on a small map a column of stacked names once pushed a Green Hill
+ * Zone pin up past Lifty Lodge); it stays put instead, under the name.
+ */
+const MAX_DODGE = 1.25;
+/** Lifts a hovered pin above the names (which sit at +1000). */
+const PIN_RISE = 2000;
 
 /**
  * Steps a pin clear of every location name it would cover, at every zoom.
@@ -369,7 +449,7 @@ function clearLabels(tipX: number, tipY: number, size: number, labels: LabelBox[
   if (!covers(tipY)) return 0;
   const candidates = column
     .flatMap((l) => [l.y - halfH - below, l.y + halfH + above])
-    .filter((y) => !covers(y))
+    .filter((y) => !covers(y) && Math.abs(y - tipY) <= height * MAX_DODGE)
     .sort((p, q) => Math.abs(p - tipY) - Math.abs(q - tipY));
   return candidates.length > 0 ? candidates[0] - tipY : 0;
 }
@@ -403,6 +483,43 @@ function useLabelWidths(pois: Poi[]): Map<string, number> {
     // fontsReady re-runs the measure with the loaded face.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pois, fontsReady]);
+}
+
+/**
+ * flyTo, with the pan clamp (maxBounds) lifted for the length of the flight.
+ *
+ * Leaflet re-clamps the view on every `moveend` by panning it back inside
+ * maxBounds — and that pan's own `setView` stops any flight in progress. Right
+ * after the map fits itself, a short clamp pan is often still running; flyTo
+ * stops it, which fires `moveend`, which starts another clamp pan, which lands
+ * a quarter-second into the flight and cancels it. (A profile's location row
+ * on a phone mounts the map and flies in the same moment, and never arrived.)
+ * The destination is always on the island, so nothing needs clamping on the
+ * way; the bounds go back the moment the flight lands.
+ */
+function flyUnclamped(map: L.Map, latlng: L.LatLng, zoom: number) {
+  const bounds = map.options.maxBounds;
+  if (bounds) {
+    map.setMaxBounds(null as unknown as L.LatLngBounds);
+    // Back on when the flight has actually landed (at its zoom): stopping the
+    // clamp pan at take-off fires its own move events, so the first
+    // zoomend/moveend isn't the landing. A timeout covers a flight the user
+    // interrupts.
+    let done = false;
+    const restore = () => {
+      if (done) return;
+      done = true;
+      map.off("moveend", onMoveEnd);
+      window.clearTimeout(fallback);
+      map.setMaxBounds(bounds);
+    };
+    const onMoveEnd = () => {
+      if (Math.abs(map.getZoom() - zoom) < 0.01) restore();
+    };
+    const fallback = window.setTimeout(restore, 2000);
+    map.on("moveend", onMoveEnd);
+  }
+  map.flyTo(latlng, zoom, { duration: 0.6 });
 }
 
 /**
@@ -441,6 +558,10 @@ function makeIcon(
     // The tip, at (30, 72) of the 60x80 box, is pinned to the coordinate;
     // shifting the anchor the other way slides the pin to its cluster slot.
     iconAnchor: [size / 2 - offset[0], (height * 72) / 80 - offset[1]],
+    // Tooltips open from the top of the pin's head (y 2 of 80), wherever the
+    // scatter moved it — relative to the anchor above, so the offset rides
+    // along.
+    tooltipAnchor: [offset[0], offset[1] - (height * 70) / 80 - 2],
   });
 }
 
@@ -714,7 +835,14 @@ function TileWorldSetup({
     // keeping them over land is the better behaviour there anyway.
     const panBounds = bounds;
 
-    function applyFit() {
+    /**
+     * `preserveZoom`: a resize keeps a view the user zoomed into. Opening a
+     * profile or hiding the sidebar changes the map's width, and re-framing
+     * the whole island every time threw away whatever they had zoomed in on.
+     * At the fitted zoom there is nothing to keep, so it re-frames as before.
+     */
+    function applyFit(preserveZoom = false) {
+      const zoomedIn = map.getZoom() > map.getMinZoom() + 1e-3;
       // getBoundsZoom() clamps what it returns to the map's CURRENT minZoom
       // (leaflet-src.js: `return Math.max(min, Math.min(max, zoom))`), and we
       // then use that result as the new minZoom. Leaving the old floor in place
@@ -737,14 +865,17 @@ function TileWorldSetup({
       // fitBounds while the view is still the old size. Unanimated because
       // resizes can arrive in a stream (the detail panel animates its width)
       // and queued fly-animations would race each other.
-      map.fitBounds(bounds, {
-        animate: false,
-        paddingTopLeft: [insetLeft + FIT_PADDING, FIT_PADDING],
-        paddingBottomRight: [FIT_PADDING, FIT_PADDING],
-      });
+      if (!(preserveZoom && zoomedIn && map.getZoom() > fitZoom + 1e-3)) {
+        map.fitBounds(bounds, {
+          animate: false,
+          paddingTopLeft: [insetLeft + FIT_PADDING, FIT_PADDING],
+          paddingBottomRight: [FIT_PADDING, FIT_PADDING],
+        });
+      }
       map.setMaxBounds(panBounds);
       syncDragging();
     }
+    const onResize = () => applyFit(true);
 
     // Dragging is only offered once the user has actually zoomed in.
     //
@@ -773,8 +904,8 @@ function TileWorldSetup({
     // Development hid this completely. StrictMode re-runs child effects after
     // mount, so a second fit always landed after react-leaflet was done, and
     // only a production build showed the bug.
-    const firstFit = requestAnimationFrame(applyFit);
-    map.on("resize", applyFit);
+    const firstFit = requestAnimationFrame(() => applyFit());
+    map.on("resize", onResize);
     map.on("zoomend", syncDragging);
 
     // Leaflet's own "resize" event only fires from `invalidateSize()` — it is
@@ -794,13 +925,13 @@ function TileWorldSetup({
       // stayed framed for the pre-settle box — off-center and cut off. The
       // observer's first callback, delivered right after observe(), now
       // always lands a fit for the real, settled container.
-      applyFit();
+      applyFit(true);
     });
     resizeObserver.observe(container);
 
     return () => {
       cancelAnimationFrame(firstFit);
-      map.off("resize", applyFit);
+      map.off("resize", onResize);
       map.off("zoomend", syncDragging);
       resizeObserver.disconnect();
     };
@@ -827,6 +958,13 @@ function ClickCatcher({
   return null;
 }
 
+/** A request to fly the map to a point (map fractions). A new `key` re-flies to the same point. */
+export interface MapFocusRequest {
+  x: number;
+  y: number;
+  key: number;
+}
+
 export interface IslandMapProps {
   findings: Finding[];
   /** Sprite ids whose Radar toggle is on. Only their findings get pins — an empty set means an empty map. */
@@ -836,6 +974,10 @@ export interface IslandMapProps {
   onMapClick: (xFrac: number, yFrac: number) => void;
   /** Horizontal space the overlaying sidebar occupies; the island is fitted and centered to the right of it. */
   insetLeft?: number;
+  /** A pin was clicked: the id of the Sprite (variant) it stands for. */
+  onSelectSprite?: (spriteId: string) => void;
+  /** Fly here. Used by the profile's location rows. */
+  focusRequest?: MapFocusRequest | null;
 }
 
 export default function IslandMap({
@@ -845,6 +987,8 @@ export default function IslandMap({
   pois,
   onMapClick,
   insetLeft = 0,
+  onSelectSprite,
+  focusRequest,
 }: IslandMapProps) {
   const provider = ACTIVE_MAP_PROVIDER;
   const worldSize = useMemo(() => worldSizePx(provider), [provider]);
@@ -856,14 +1000,22 @@ export default function IslandMap({
   // Tracked so pins re-lay-out on zoom: the scatter widens as you zoom in, and
   // location names keep their pixel size, so what a pin covers changes.
   const [zoom, setZoom] = useState<number | null>(null);
+  // Smaller pins on a small map (see MARKER_COMPACT_SIZE).
+  const [compact, setCompact] = useState(false);
+  const pinBase = compact ? MARKER_COMPACT_SIZE : MARKER_BASE_SIZE;
 
   useEffect(() => {
     if (!map) return;
-    const update = () => setZoom(map.getZoom());
+    const update = () => {
+      setZoom(map.getZoom());
+      setCompact(map.getSize().x < COMPACT_MAP_WIDTH);
+    };
     update();
     map.on("zoomend", update);
+    map.on("resize", update);
     return () => {
       map.off("zoomend", update);
+      map.off("resize", update);
     };
   }, [map]);
 
@@ -886,7 +1038,7 @@ export default function IslandMap({
    * pin can't be pushed off another one it can't see.
    */
   const labelWidths = useLabelWidths(pois);
-  const offsets = useMemo(() => {
+  const { offsets, hiddenLabels } = useMemo(() => {
     const groups = new Map<string, typeof clustered>();
     for (const item of clustered) {
       // The same key clusterFindings groups on, so the two always agree on
@@ -898,15 +1050,23 @@ export default function IslandMap({
     }
     // Every location name, in screen px at this zoom. Names keep their pixel
     // size while the island scales, so this is redone per zoom.
-    const labels: LabelBox[] = pois.map((poi) => ({
+    const allLabels: LabelBox[] = pois.map((poi) => ({
+      id: poi.id,
       x: poi.x * pxPerFraction,
       y: poi.y * pxPerFraction,
       halfW: labelWidths.get(poi.id) ?? poi.name.length * 4,
     }));
+    // Names of places with pins on them go first: they're what the map is
+    // being asked about. The rest keep the list's own order.
+    const pinnedPois = new Set(clustered.map((c) => c.finding.poiId).filter(Boolean));
+    const order = new Map(pois.map((p, i) => [p.id, i]));
+    const shown = visibleLabels(allLabels, (id) => (pinnedPois.has(id) ? 0 : 1000) + (order.get(id) ?? 0));
+    const labels = allLabels.filter((l) => shown.has(l.id));
+
     const all = new Map<string, [number, number]>();
     for (const group of groups.values()) {
       const first = group[0].finding;
-      const size = markerSize(group.length);
+      const size = markerSize(group.length, pinBase);
       const fencePx = first.poiId ? (fences.get(first.poiId) ?? 0) * pxPerFraction : 0;
       const placed = scatterOffsets(
         group.map((g) => g.finding.id),
@@ -917,12 +1077,28 @@ export default function IslandMap({
       );
       // Then off any name it would cover: its own location's or a neighbour's.
       for (const [id, [dx, dy]] of placed) {
-        const shift = clearLabels(first.x * pxPerFraction + dx, first.y * pxPerFraction + dy, size, labels);
+        const tipX = first.x * pxPerFraction + dx;
+        const tipY = first.y * pxPerFraction + dy;
+        const shift = clearLabels(tipX, tipY, size, labels);
         all.set(id, [dx, dy + shift]);
       }
     }
-    return all;
-  }, [clustered, fences, pxPerFraction, pois, labelWidths]);
+    const hidden = new Set(pois.map((p) => p.id).filter((id) => !shown.has(id)));
+    return { offsets: all, hiddenLabels: hidden };
+  }, [clustered, fences, pxPerFraction, pois, labelWidths, pinBase]);
+
+  // How many times each Sprite (variant) was logged at each place, for the
+  // pin's tooltip — the map draws one pin per Sprite per place.
+  const sightingsAt = useMemo(() => {
+    const counts = new Map<string, Finding[]>();
+    for (const f of visibleFindings) {
+      const key = `${f.poiId ?? `${f.x},${f.y}`}::${f.spriteId}`;
+      const list = counts.get(key);
+      if (list) list.push(f);
+      else counts.set(key, [f]);
+    }
+    return counts;
+  }, [visibleFindings]);
 
   /**
    * Flies to a pin and zooms in on its surroundings. The target is shifted left
@@ -933,7 +1109,7 @@ export default function IslandMap({
     if (!map) return;
     const zoom = Math.min(provider.maxZoom, POI_ZOOM);
     const shifted = map.project(latlng, zoom).subtract(L.point(insetLeft / 2, 0));
-    map.flyTo(map.unproject(shifted, zoom), zoom, { duration: 0.6 });
+    flyUnclamped(map, map.unproject(shifted, zoom), zoom);
   }
 
   function resetView() {
@@ -944,6 +1120,27 @@ export default function IslandMap({
       paddingBottomRight: [FIT_PADDING, FIT_PADDING],
     });
   }
+
+  // A location picked outside the map (a profile's location row): fly there.
+  // Keyed on the request's own key, so picking the same place twice still
+  // flies back to it after the user has panned away.
+  const focusKey = focusRequest?.key;
+  useEffect(() => {
+    if (!map || !focusRequest) return;
+    const latlng = CRS.Simple.pointToLatLng(
+      L.point(focusRequest.x * worldSize, focusRequest.y * worldSize),
+      provider.nativeZoom
+    );
+    const zoom = Math.min(provider.maxZoom, POI_ZOOM);
+    // After the map's own first fit: on a phone the map mounts in the same
+    // moment the request is made, and its fit-to-island (a frame later, then
+    // again on its first resize) would otherwise cancel the flight midway.
+    const timer = window.setTimeout(() => flyUnclamped(map, latlng, zoom), 250);
+    return () => window.clearTimeout(timer);
+    // Only a new request should fly; the request object itself is replaced
+    // together with its key.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, focusKey]);
 
   return (
     <div className="relative h-full w-full">
@@ -993,7 +1190,7 @@ export default function IslandMap({
       {isAddMode && (
         <ClickCatcher worldSize={worldSize} nativeZoom={provider.nativeZoom} onMapClick={onMapClick} />
       )}
-      <PoiLabels pois={pois} worldSize={worldSize} nativeZoom={provider.nativeZoom} />
+      <PoiLabels pois={pois} hiddenIds={hiddenLabels} worldSize={worldSize} nativeZoom={provider.nativeZoom} />
       {clustered.map(({ finding: f, count }) => {
         const sprite = getSprite(f.spriteId);
         if (!sprite) return null;
@@ -1003,22 +1200,67 @@ export default function IslandMap({
         );
         // The pin wears its Sprite's rarity: the same solid as that rarity's
         // band in the sidebar, so a blue pin is a Rare one.
-        const accent = rarityAccent(sprite.rarity).solid;
-        const size = markerSize(count);
+        const rarity = rarityAccent(sprite.rarity);
+        const size = markerSize(count, pinBase);
+        const here = sightingsAt.get(`${f.poiId ?? `${f.x},${f.y}`}::${f.spriteId}`) ?? [f];
+        const place = f.poiId ? pois.find((p) => p.id === f.poiId) : null;
+        const placeName = place ? titleCase(place.name) : "Unnamed spot";
+        const sources = [...new Set(here.map((h) => lootSourceById(h.lootSource)?.label).filter(Boolean))];
+        const variant = variantLabel(sprite.variant);
+        const name = displayName(sprite.name);
+        // What a screen reader announces for the focused pin, and the same
+        // facts the tooltip shows — the variant's full name here, not the
+        // tile caption's short caps.
+        const label = `${name}, ${VARIANT_NAME[variantKey(sprite.variant)] ?? variant}, ${sprite.rarity ?? ""} — ${placeName}, ${
+          here.length
+        } ${here.length === 1 ? "sighting" : "sightings"}. Open profile.`;
         return (
           <Marker
             key={f.id}
             position={latlng}
+            riseOnHover
+            riseOffset={PIN_RISE}
             icon={makeIcon(
-              accent,
+              rarity.solid,
               sprite.icon,
               f.id.startsWith("f-"),
               size,
               offsets.get(f.id) ?? [0, 0]
             )}
-            // No popup: clicking a pin flies the map to it instead.
-            eventHandlers={{ click: () => focusOn(latlng) }}
-          />
+            // Click (or Enter on a focused pin) flies in on it and opens the
+            // Sprite's profile: the pin is a way into what it stands for.
+            eventHandlers={{
+              click: (e) => {
+                focusOn(latlng);
+                onSelectSprite?.(sprite.id);
+                // Leaflet opens the tooltip on click too; the profile now says
+                // everything it did, and it would otherwise ride along with
+                // the pin through the fly-in until the pointer next moved.
+                const marker = e.target as L.Marker;
+                window.setTimeout(() => marker.closeTooltip(), 0);
+              },
+              add: (e) => (e.target as L.Marker).getElement()?.setAttribute("aria-label", label),
+            }}
+          >
+            <Tooltip direction="top" offset={[0, 0]} opacity={1} className="sprite-tooltip">
+              <span className="sprite-tooltip__head">
+                <span className="sprite-tooltip__name">{name}</span>
+                <span
+                  className="sprite-tooltip__variant"
+                  style={{ color: variantLabelColor(sprite.variant) ?? undefined }}
+                >
+                  {variant}
+                </span>
+              </span>
+              <span className="sprite-tooltip__place">
+                {placeName}
+                <span className="sprite-tooltip__count">
+                  {here.length} {here.length === 1 ? "sighting" : "sightings"}
+                </span>
+              </span>
+              {sources.length > 0 && <span className="sprite-tooltip__source">{sources.join(" · ")}</span>}
+            </Tooltip>
+          </Marker>
         );
       })}
       </MapContainer>

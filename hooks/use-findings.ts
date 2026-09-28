@@ -140,16 +140,24 @@ export function useFindings() {
       const source = LOOT_SOURCES.find((s) => s.id === lootSource);
       if (!poi || !sprite || !source) return false;
 
-      const res = await fetch("/api/sprite-locations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          location_name: titleCase(poi.name),
-          sprite_name: displayName(sprite.name),
-          variant: VARIANT_NAME[variant] ?? variant,
-          loot_source: source.label,
-        }),
-      });
+      let res: Response;
+      try {
+        res = await fetch("/api/sprite-locations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            location_name: titleCase(poi.name),
+            sprite_name: displayName(sprite.name),
+            variant: VARIANT_NAME[variant] ?? variant,
+            loot_source: source.label,
+          }),
+        });
+      } catch {
+        // Offline, or the request never reached the server: a failed save the
+        // caller can report, not an unhandled rejection.
+        setError("Couldn't reach Sprite Radar. Check your connection.");
+        return false;
+      }
 
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -158,9 +166,12 @@ export function useFindings() {
       }
 
       // The route replies {success:true} without the stored row, so there is
-      // no id or created_at to append locally — re-read instead.
+      // no id or created_at to append locally — re-read instead. The save
+      // itself succeeded either way, so that's what is reported: a failed
+      // re-read must not tell the user their sighting was lost.
       setError(null);
-      return refresh();
+      await refresh();
+      return true;
     },
     [pois, sprites, refresh]
   );

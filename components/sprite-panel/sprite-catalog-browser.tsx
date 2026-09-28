@@ -53,9 +53,10 @@ function TileBox({
   return (
     <motion.span
       key={changes}
-      initial={pop ? { scale: 0.82 } : false}
+      initial={pop ? { scale: 0.84 } : false}
       animate={{ scale: 1 }}
-      transition={{ type: "spring", stiffness: 520, damping: 14 }}
+      // A quick, firm pop that settles in one overshoot rather than wobbling.
+      transition={{ type: "spring", stiffness: 520, damping: 18 }}
       className={className}
       style={style}
     >
@@ -67,7 +68,7 @@ function TileBox({
           aria-hidden
           initial={pop ? { scale: 0, rotate: -40 } : false}
           animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 480, damping: 11, delay: pop ? 0.08 : 0 }}
+          transition={{ type: "spring", stiffness: 480, damping: 15, delay: pop ? 0.08 : 0 }}
           className="absolute right-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full border-2 border-pop-ink bg-sprite-gold shadow-[0_2px_0_var(--pop-ink)]"
         >
           <CrownSolid className="size-4 text-card" fill="currentColor" />
@@ -165,14 +166,24 @@ function sectionId(rarity: string | null) {
   return `rarity-${rarity ?? "unknown"}`;
 }
 
+// The cards come in on a short stagger: 30ms apart, so the first screenful
+// has landed in about a third of a second instead of the whole list taking
+// over a second to settle.
 const container = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.05, delayChildren: 0.08 } },
+  show: { transition: { staggerChildren: 0.03, delayChildren: 0.05 } },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } },
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as const } },
+};
+
+/** What a tile's status reads as, and what a tap does next. */
+const STATUS_WORDS: Record<string, { now: string; next: string }> = {
+  default: { now: "not collected", next: "mark it collected" },
+  owned: { now: "collected", next: "mark it mastered" },
+  mastered: { now: "mastered", next: "clear it" },
 };
 
 interface SpriteFamilyGroup {
@@ -209,9 +220,17 @@ function groupByFamily(sprites: NormalizedSprite[]): SpriteFamilyGroup[] {
 }
 
 export interface SpriteCatalogBrowserProps {
-  selectedSpriteId?: string | null;
-  /** Opens the detail panel. The Info icon only — Radar never triggers this. */
+  /** The family whose profile is open, to mark its card as selected. */
+  selectedFamily?: string | null;
+  /** Opens the detail panel: the card's name, art or Info glyph. Radar never triggers this. */
   onSelect: (id: string) => void;
+  /** How many sightings each family has, for the count on its Radar. */
+  sightingsByFamily?: Map<string, number>;
+  /**
+   * Phone only: the status bar's colour while something other than the list
+   * fills the top of the screen (the map view's --muted field).
+   */
+  statusBarTone?: "card" | "muted" | null;
   visibleSpriteIds: Set<string>;
   /**
    * Shows/hides this Sprite's findings on the map. The Radar icon only.
@@ -226,9 +245,12 @@ export interface SpriteCatalogBrowserProps {
 }
 
 export function SpriteCatalogBrowser({
+  selectedFamily = null,
   onSelect,
   visibleSpriteIds,
   onSetVisibility,
+  sightingsByFamily,
+  statusBarTone = null,
   showAccount = false,
 }: SpriteCatalogBrowserProps) {
   const { sprites, loading, error, reload } = useSpriteCatalog();
@@ -240,10 +262,11 @@ export function SpriteCatalogBrowser({
   // the list scrolls. Two signals, because browsers differ in which they read:
   // the theme-color meta, and the page's own background at its top edge
   // (html/body, painted nowhere else — the app shell covers the window).
+  const tone = statusBarTone ?? (scrolled ? "muted" : "card");
   useEffect(() => {
     if (!showAccount) return;
     const color = getComputedStyle(document.documentElement)
-      .getPropertyValue(scrolled ? "--muted" : "--card")
+      .getPropertyValue(tone === "muted" ? "--muted" : "--card")
       .trim();
     if (!color) return;
     document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", color));
@@ -256,7 +279,7 @@ export function SpriteCatalogBrowser({
       document.documentElement.style.backgroundColor = "";
       document.body.style.backgroundColor = "";
     };
-  }, [scrolled, showAccount]);
+  }, [tone, showAccount]);
 
   // Only Sprites the current season's live config actually makes obtainable
   // — vaulted/rotated-out/unreleased entries never show up in the browsable
@@ -387,6 +410,8 @@ export function SpriteCatalogBrowser({
             // Mega Man ships only its base one, so it reads (0/1).
             const masteredInSet = group.variants.filter((v) => getStatus(v.id) === "mastered").length;
             const setComplete = group.variants.length > 0 && masteredInSet === group.variants.length;
+            const sightings = sightingsByFamily?.get(group.family) ?? 0;
+            const selected = selectedFamily === group.family;
 
             return (
               <motion.div key={group.family} variants={item} className="relative">
@@ -395,19 +420,38 @@ export function SpriteCatalogBrowser({
                     the sidebar (--muted), rounded, and a soft ink drop under it
                     at half strength, so the cards separate by surface and
                     depth rather than by outlines. overflow-hidden clips the
-                    scrolling tile row to the panel's rounded corners. */}
-                <div className="relative mb-3 overflow-hidden rounded-2xl bg-muted px-3 py-2 shadow-[0_3px_0_rgb(13_30_74/0.5)]">
-                  {/* Header: informational. Only the Info and Radar icons act.
-                      pr-11 keeps a long name clear of the Radar in the corner. */}
+                    scrolling tile row to the panel's rounded corners.
+                    Selected — its profile is open — it takes a white ring, the
+                    one outline no other state uses. */}
+                <div
+                  data-selected={selected || undefined}
+                  className={cn(
+                    "relative mb-3 overflow-hidden rounded-2xl bg-muted px-3 py-2 shadow-[0_3px_0_rgb(13_30_74/0.5)] transition-shadow duration-150",
+                    selected && "ring-3 ring-white"
+                  )}
+                >
+                  {/* Header: the Sprite's art, name and mastery dots are one
+                      button that opens its profile — a far bigger target than
+                      the Info glyph alone, which stays as its signpost. pr-11
+                      keeps a long name clear of the Radar in the corner. */}
                   <div className="flex items-center justify-between py-1 pr-11">
-                    {/* A 48px Sprite with the name and dots centred on it
-                        vertically, so the heading reads as one block. */}
-                    <span className="flex min-w-0 items-center gap-2.5">
+                    <button
+                      type="button"
+                      data-slot="sprite-details"
+                      onClick={() => onSelect(baseVariant.id)}
+                      aria-label={`${group.family} details`}
+                      aria-expanded={selected}
+                      className="group/head -my-1 -ml-1 flex min-w-0 items-center gap-2.5 rounded-xl py-1 pr-2 pl-1 text-left outline-none focus-visible:ring-3 focus-visible:ring-pop-yellow/60"
+                    >
                       {group.icon ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={group.icon}
                           alt=""
+                          loading="lazy"
+                          decoding="async"
+                          width={48}
+                          height={48}
                           className="size-12 shrink-0 object-contain"
                           // Every icon is a 512x512 square, but the artwork inside fills
                           // 71%-92% of it depending on the Sprite — so equal boxes alone
@@ -419,26 +463,14 @@ export function SpriteCatalogBrowser({
                       )}
                       <span className="flex min-w-0 flex-col items-start justify-center gap-0.5">
                         <span className="flex min-w-0 items-center gap-1.5">
-                          <span className="display-caps truncate text-base leading-[1.15] text-foreground">
+                          <span className="display-caps truncate text-base leading-[1.15] text-foreground transition-colors duration-150 group-hover/head:text-pop-yellow">
                             {group.family}
                           </span>
-                          {/* Opens this Sprite's profile. The visible box matches the
-                              name's line height; ::after widens the hit area to
-                              42px. */}
-                          <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            data-slot="sprite-details"
-                            onClick={() => onSelect(baseVariant.id)}
-                            aria-label={`${group.family} details`}
-                            // The visible box stays at the name's line-height, but
-                            // the ::after extends the hit area 12px each way to
-                            // 42px — clearing the accessibility minimum the
-                            // visible box alone could not.
-                            className="relative size-[18px] text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow after:absolute after:-inset-3 after:content-['']"
-                          >
-                            <Info className="size-4" strokeWidth={2.5} />
-                          </Button>
+                          <Info
+                            aria-hidden
+                            className="size-4 shrink-0 text-muted-foreground transition-colors duration-150 group-hover/head:text-pop-yellow"
+                            strokeWidth={2.5}
+                          />
                         </span>
                         {/* One dot per variant the family has, in slot order:
                             gold once mastered, else the unselected tile fill. */}
@@ -467,29 +499,46 @@ export function SpriteCatalogBrowser({
                           })}
                         </span>
                       </span>
-                    </span>
+                    </button>
                     {/* In the card's top-right corner, 8px in from both edges. */}
                     <span className="absolute top-2 right-2 z-[1] flex">
                       {/* The Radar toggle: a bare glyph either way, no disc.
                           Off it is lavender and turns yellow on hover; on it
-                          stays gold, the same gold as mastery. */}
+                          stays gold, the same gold as mastery. The badge is how
+                          many sightings it will put on the map — a Radar with
+                          none has nothing to show yet. */}
                       <Button
                         variant="ghost"
                         size="icon-sm"
                         data-slot="toggle-findings"
                         onClick={() => onSetVisibility(group.variants.map((v) => v.id), !isShown)}
                         aria-pressed={isShown}
-                        aria-label={
-                          isShown
-                            ? `Hide ${group.family} findings on the map`
-                            : `Show ${group.family} findings on the map`
+                        aria-label={`${isShown ? "Hide" : "Show"} ${group.family} findings on the map${
+                          sightings > 0 ? ` (${sightings} ${sightings === 1 ? "sighting" : "sightings"})` : " (no sightings yet)"
+                        }`}
+                        title={
+                          sightings > 0
+                            ? `${sightings} ${sightings === 1 ? "sighting" : "sightings"}`
+                            : "No sightings logged yet"
                         }
                         className={cn(
-                          "size-10 rounded-full transition-colors duration-150 hover:!bg-transparent motion-reduce:transition-none",
-                          isShown ? "text-sprite-gold hover:!text-sprite-gold" : "text-muted-foreground hover:!text-pop-yellow"
+                          "relative size-10 rounded-full transition-colors duration-150 hover:!bg-transparent motion-reduce:transition-none",
+                          isShown ? "text-sprite-gold hover:!text-sprite-gold" : "text-muted-foreground hover:!text-pop-yellow",
+                          sightings === 0 && !isShown && "opacity-60"
                         )}
                       >
                         <Radar className="size-6" strokeWidth={1.75} />
+                        {sightings > 0 && (
+                          <span
+                            aria-hidden
+                            className={cn(
+                              "display-caps absolute top-0.5 right-0 flex h-4 min-w-4 items-center justify-center rounded-full border-2 border-pop-ink px-[3px] text-[10px] leading-none tabular-nums",
+                              isShown ? "bg-sprite-gold text-pop-ink" : "bg-card text-foreground"
+                            )}
+                          >
+                            {sightings}
+                          </span>
+                        )}
                       </Button>
                     </span>
                   </div>
@@ -560,7 +609,11 @@ export function SpriteCatalogBrowser({
                           data-slot="variant-tile"
                           data-status={status}
                           onClick={() => cycleStatus(v.id)}
-                          aria-label={`${displayName(v.name)}: ${status}, click to change`}
+                          // Names the state in the hint's own words, and what a
+                          // tap will do next.
+                          aria-label={`${displayName(v.name)}: ${STATUS_WORDS[status]?.now ?? status}. Tap to ${
+                            STATUS_WORDS[status]?.next ?? "change"
+                          }.`}
                           className="group flex min-w-0 flex-1 flex-col items-center gap-1 outline-none select-none"
                         >
                           {/* The caption is always in its variant's colour, so the
@@ -592,7 +645,13 @@ export function SpriteCatalogBrowser({
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 src={v.icon}
-                                alt={displayName(v.name)}
+                                alt=""
+                                // 101 tiles: the ones below the fold load as
+                                // they scroll into view, not all up front.
+                                loading="lazy"
+                                decoding="async"
+                                width={80}
+                                height={80}
                                 className={cn(
                                   // Every Sprite pops off its tile by default: the hard
                                   // ink drop under the art, then a soft dark lift.

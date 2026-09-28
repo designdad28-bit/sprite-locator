@@ -6,10 +6,11 @@ import type { Poi } from "@/lib/map/pois";
 import { displayName } from "@/lib/sprite-name";
 import { titleCase } from "@/lib/title-case";
 import { SpriteThumb } from "@/components/sprite-catalog/sprite-thumb";
-import { LOOT_SOURCES, lootSourceById } from "@/lib/loot-sources";
+import { LOOT_SOURCES } from "@/lib/loot-sources";
 import { ADD_FINDING_STYLE } from "@/lib/cta";
 import { cn } from "@/lib/utils";
-import { VARIANT_NAME, VARIANT_SLOTS, variantKey } from "@/lib/variant-colors";
+import { VARIANT_NAME, VARIANT_SLOTS, variantBackdrop, variantKey, variantLabel, variantLabelColor } from "@/lib/variant-colors";
+import { spriteIconTransform } from "@/lib/sprite-icon-metrics";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,6 +43,24 @@ function LootThumb({ icon }: { icon: string | null }) {
   return <img src={icon} alt="" className="size-6 shrink-0 object-contain" />;
 }
 
+/**
+ * Arrow keys move between the options of a one-tap choice (a radiogroup),
+ * picking as they go — the keyboard half of a row of buttons that act as one
+ * control.
+ */
+function onChoiceKeys(event: React.KeyboardEvent<HTMLDivElement>) {
+  const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"];
+  if (!keys.includes(event.key)) return;
+  const options = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
+  const at = options.indexOf(document.activeElement as HTMLButtonElement);
+  if (at === -1) return;
+  event.preventDefault();
+  const step = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+  const next = options[(at + step + options.length) % options.length];
+  next.focus();
+  next.click();
+}
+
 export interface AddFindingValues {
   poiId: string;
   /**
@@ -62,6 +81,12 @@ export interface AddFindingDialogProps {
   pois: Poi[];
   /** Pre-picked in the Sprite field: the sprite whose detail panel is open, if any. */
   defaultSpriteId: string | null;
+  /**
+   * A whole earlier answer to start from — a save that failed and is being
+   * retried — so nothing has to be picked twice. Its spriteId is the
+   * variant's own id; the form is re-derived from it.
+   */
+  initialValues?: AddFindingValues | null;
   onConfirm: (values: AddFindingValues) => void;
 }
 
@@ -81,12 +106,27 @@ const LABEL_STYLE = "display-caps text-base leading-none text-pop-yellow max-md:
 const PICKER_STYLE =
   "material !bg-white w-full rounded-[10px] font-semibold text-pop-ink data-placeholder:text-pop-ink/60 [&_svg]:text-pop-ink";
 
-export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, onConfirm }: AddFindingDialogProps) {
+export function AddFindingDialog({
+  open,
+  onOpenChange,
+  pois,
+  defaultSpriteId,
+  initialValues,
+  onConfirm,
+}: AddFindingDialogProps) {
   const { sprites } = useSpriteCatalog();
-  const [poiId, setPoiId] = useState<string | null>(null);
-  const [spriteId, setSpriteId] = useState<string | null>(defaultSpriteId);
-  const [variant, setVariant] = useState<string | null>(null);
-  const [lootSource, setLootSource] = useState<string | null>(null);
+  // A retried answer names the variant that was found; the Sprite field wants
+  // that family's base sprite, so it's mapped back here.
+  const initialBaseId = (() => {
+    if (!initialValues) return defaultSpriteId;
+    const found = sprites.find((s) => s.id === initialValues.spriteId);
+    if (!found) return defaultSpriteId;
+    return sprites.find((s) => s.family === found.family && s.variant === null)?.id ?? found.id;
+  })();
+  const [poiId, setPoiId] = useState<string | null>(initialValues?.poiId ?? null);
+  const [spriteId, setSpriteId] = useState<string | null>(initialBaseId);
+  const [variant, setVariant] = useState<string | null>(initialValues?.variant ?? null);
+  const [lootSource, setLootSource] = useState<string | null>(initialValues?.lootSource ?? null);
 
   const sortedPois = useMemo(() => [...pois].sort((a, b) => a.name.localeCompare(b.name)), [pois]);
 
@@ -180,43 +220,76 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
             </Select>
           </div>
 
-          {/* Absent until a Sprite is chosen, rather than present and
-              disabled. Which variants exist depends entirely on that choice,
-              so before it there is nothing for this control to offer — and a
-              disabled field reading "Choose a sprite first" spent a row
-              restating the row above it. */}
+          {/* Absent until a Sprite is chosen: which variants exist depends
+              entirely on that choice. One tap, not a dropdown — the variants
+              are few, and seeing them all at once as the catalog's own tiles
+              (their art, their caption colours) is faster to answer mid-match
+              than reading a list. */}
           {spriteId && (
           <div className="grid gap-2">
-            <Label htmlFor="finding-variant" className={LABEL_STYLE}>Variant</Label>
-            <Select value={variant} onValueChange={(value) => setVariant(value as string | null)}>
-              <SelectTrigger id="finding-variant" className={PICKER_STYLE}>
-                <SelectValue>
-                  {(value: string | null) => {
-                    const chosen = value ? variants.find((v) => v.slot === value) : null;
-                    return chosen ? (
-                      <span className="flex items-center gap-2">
-                        <SpriteThumb id={spriteId ?? ""} icon={chosen.icon} />
-                        {chosen.label}
-                      </span>
-                    ) : (
-                      "Choose a variant"
-                    );
-                  }}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {variants.map((v) => (
-                    <SelectItem key={v.slot} value={v.slot}>
-                      <span className="flex items-center gap-2">
-                        <SpriteThumb id={spriteId ?? ""} icon={v.icon} />
-                        {v.label}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <span id="finding-variant-label" className={LABEL_STYLE}>Variant</span>
+            <div
+              role="radiogroup"
+              aria-labelledby="finding-variant-label"
+              onKeyDown={onChoiceKeys}
+              className="flex gap-2"
+            >
+              {variants.map((v) => {
+                const checked = variant === v.slot;
+                const variantValue = v.slot === "normal" ? null : v.slot;
+                return (
+                  <button
+                    key={v.slot}
+                    type="button"
+                    role="radio"
+                    aria-checked={checked}
+                    aria-label={v.label}
+                    // Roving focus: only the picked option (or the first, before
+                    // anything is picked) is in the tab order.
+                    tabIndex={checked || (variant === null && v === variants[0]) ? 0 : -1}
+                    onClick={() => setVariant(v.slot)}
+                    className="group flex min-w-0 flex-1 flex-col items-center gap-1 outline-none"
+                  >
+                    <span
+                      className="display-caps text-sm leading-5"
+                      style={{ color: variantLabelColor(variantValue) ?? undefined }}
+                    >
+                      {variantLabel(variantValue)}
+                    </span>
+                    {/* The catalog tile's sticker: ink outline and drop, the
+                        variant's own backdrop once picked (with the white
+                        selected ring the open card wears), the sidebar's fill
+                        and duotone art until then. */}
+                    <span
+                      className={cn(
+                        "relative block aspect-square w-full overflow-clip rounded-md border-[3px] border-pop-ink shadow-[0_3px_0_var(--pop-ink)] transition-[scale,box-shadow] duration-150 ease-out group-hover:scale-[1.05] group-active:scale-[0.97] group-focus-visible:ring-3 group-focus-visible:ring-pop-yellow motion-reduce:transition-none",
+                        checked ? "ring-3 ring-white" : "bg-card"
+                      )}
+                      style={checked ? { background: variantBackdrop(variantValue) ?? undefined } : undefined}
+                    >
+                      {v.icon && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={v.icon}
+                          alt=""
+                          className={cn(
+                            "absolute inset-0 size-full object-cover [filter:drop-shadow(0_2px_0_var(--pop-ink))]",
+                            !checked &&
+                              "[filter:url(#reef-duotone)_drop-shadow(0_2px_0_var(--pop-ink))] group-hover:[filter:drop-shadow(0_2px_0_var(--pop-ink))]"
+                          )}
+                          style={{ transform: spriteIconTransform(v.id) }}
+                        />
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+              {/* Keeps each tile a fifth of the row when a Sprite has fewer
+                  than five variants (Mega Man has one). */}
+              {Array.from({ length: Math.max(0, VARIANT_SLOTS.length - variants.length) }, (_, i) => (
+                <span key={`pad-${i}`} aria-hidden className="min-w-0 flex-1" />
+              ))}
+            </div>
           </div>
           )}
 
@@ -240,37 +313,41 @@ export function AddFindingDialog({ open, onOpenChange, pois, defaultSpriteId, on
             </Select>
           </div>
 
+          {/* Six fixed options, shown as one-tap chips rather than a list
+              behind a dropdown: dark until picked, CTA yellow once picked. */}
           <div className="grid gap-2">
-            <Label htmlFor="finding-loot-source" className={LABEL_STYLE}>Loot source</Label>
-            <Select value={source} onValueChange={(value) => setLootSource(value as string | null)}>
-              <SelectTrigger id="finding-loot-source" className={PICKER_STYLE}>
-                <SelectValue>
-                  {(value: string | null) => {
-                    const chosen = lootSourceById(value);
-                    return chosen ? (
-                      <span className="flex items-center gap-2">
-                        <LootThumb icon={chosen.icon} />
-                        {chosen.label}
-                      </span>
-                    ) : (
-                      "Choose a loot source"
-                    );
-                  }}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {LOOT_SOURCES.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      <span className="flex items-center gap-2">
-                        <LootThumb icon={s.icon} />
-                        {s.label}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <span id="finding-loot-source-label" className={LABEL_STYLE}>Loot source</span>
+            <div
+              role="radiogroup"
+              aria-labelledby="finding-loot-source-label"
+              onKeyDown={onChoiceKeys}
+              className="grid grid-cols-2 gap-2"
+            >
+              {LOOT_SOURCES.map((s) => {
+                const checked = source === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={checked}
+                    tabIndex={checked || (source === null && s === LOOT_SOURCES[0]) ? 0 : -1}
+                    onClick={() => setLootSource(s.id)}
+                    className={cn(
+                      "flex min-h-11 min-w-0 items-center gap-2 rounded-[10px] border-[3px] border-pop-ink px-2.5 py-1 text-left text-sm leading-tight font-semibold shadow-[0_3px_0_var(--pop-ink)] outline-none transition-[background-color,color,translate,box-shadow] duration-150 active:translate-y-[2px] active:shadow-[0_1px_0_var(--pop-ink)] focus-visible:ring-3 focus-visible:ring-pop-yellow/60 motion-reduce:transition-none",
+                      checked
+                        ? "bg-pop-yellow text-pop-ink"
+                        : "bg-card text-foreground hover:bg-[color-mix(in_oklch,var(--card),white_8%)]"
+                    )}
+                  >
+                    {/* Only real art takes space: an empty slot beside
+                        "Legendary Cheat Code" was what cut its name short. */}
+                    {s.icon && <LootThumb icon={s.icon} />}
+                    <span className="line-clamp-2 min-w-0">{s.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
