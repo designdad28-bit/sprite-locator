@@ -1,20 +1,32 @@
 -- Run once in the Supabase SQL Editor. This is DDL, which the app's public
 -- key can never do (by design — see lib/supabase.ts) even after this file
 -- exists, so it has to be pasted in by hand.
+--
+-- A profile can be signed in with Epic, Discord, or both — see
+-- app/api/auth/epic/callback and app/api/auth/discord/callback. Both
+-- provider id columns are nullable; the CHECK constraint is what still
+-- guarantees a row has at least one of them actually linked.
 
 create table public.profiles (
-  id                 uuid primary key default gen_random_uuid(),
-  epic_account_id    text not null unique,
-  epic_display_name  text not null,
-  created_at         timestamptz not null default now()
+  id                    uuid primary key default gen_random_uuid(),
+  epic_account_id       text unique,
+  epic_display_name     text,
+  discord_account_id    text unique,
+  discord_display_name  text,
+  discord_avatar_url    text,
+  created_at            timestamptz not null default now(),
+
+  constraint profiles_has_a_provider
+    check (epic_account_id is not null or discord_account_id is not null)
 );
 
 alter table public.profiles enable row level security;
 
 -- Profiles are written only by the server (via the service-role key in
--- app/api/auth/epic/callback), which bypasses RLS entirely — these policies
--- govern what a signed-in BROWSER may do directly against the table.
--- A player may read and rename only their own row; nothing else.
+-- app/api/auth/epic/callback and app/api/auth/discord/callback), which
+-- bypasses RLS entirely — these policies govern what a signed-in BROWSER may
+-- do directly against the table. A player may read and rename only their own
+-- row; nothing else.
 create policy "read own profile"
   on public.profiles for select
   using (id = auth.uid());

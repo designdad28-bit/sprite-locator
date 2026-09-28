@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
 import { Logo } from "@/components/logo";
-import { Info, Ban, CheckIcon, CrownSolid, PanelLeftOpen, TapIcon } from "@/components/icons";
+import { Info, Ban, CheckIcon, CrownSolid, DiscordIcon, PanelLeftOpen, TapIcon } from "@/components/icons";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { useCollectionStatus } from "@/hooks/use-collection-status";
 import type { NormalizedSprite } from "@/lib/sprite-catalog/types";
@@ -159,6 +160,54 @@ function SetComplete({ done }: { done: boolean }) {
   );
 }
 
+/**
+ * The signed-in state, in the sidebar header beside the logo. Signed out: a
+ * small "Sign in" sticker pill carrying Discord's own mark (the convention
+ * every third-party sign-in button follows). Signed in: the player's Discord
+ * avatar and name, clicking either to sign out — the app has no separate
+ * account page yet, so this doubles as both.
+ *
+ * Nothing renders while the session is still loading, rather than flashing
+ * "Sign in" for someone who turns out to already be signed in.
+ */
+function AccountControl() {
+  const { user, loading, signOut } = useCurrentUser();
+  if (loading) return null;
+
+  if (!user) {
+    return (
+      <a
+        href="/api/auth/discord/login"
+        className="material ml-auto flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-pop-ink hover:text-pop-ink"
+      >
+        <DiscordIcon className="size-4" />
+        Sign in
+      </a>
+    );
+  }
+
+  const name = user.discordDisplayName ?? user.epicDisplayName ?? "Player";
+  return (
+    <button
+      type="button"
+      onClick={signOut}
+      aria-label={`Signed in as ${name}. Sign out`}
+      title="Sign out"
+      className="material ml-auto flex h-8 max-w-32 shrink-0 items-center gap-1.5 rounded-full py-0 pr-3 pl-0.5 text-sm font-semibold text-pop-ink hover:text-pop-ink"
+    >
+      {user.discordAvatarUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={user.discordAvatarUrl} alt="" className="size-7 shrink-0 rounded-full border-2 border-pop-ink" />
+      ) : (
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow">
+          <DiscordIcon className="size-3.5" />
+        </span>
+      )}
+      <span className="truncate">{name}</span>
+    </button>
+  );
+}
+
 /** DOM id of a rarity's section, for the header scrubber to scroll to. */
 function sectionId(rarity: string | null) {
   return `rarity-${rarity ?? "unknown"}`;
@@ -292,6 +341,7 @@ export function SpriteCatalogBrowser({
       >
         <div className="flex items-center gap-2 px-4 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
           <Logo className="text-lg max-md:text-xl" />
+          <AccountControl />
         </div>
 
         <div className="px-4 pb-[3px]">
