@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Radar } from "lucide-react"; // the original radar glyph, kept off the Hugeicons set on purpose
 import { Logo } from "@/components/logo";
 import { Info, Ban, CheckIcon, CrownSolid, PanelLeftOpen, TapIcon } from "@/components/icons";
@@ -238,7 +238,6 @@ export function SpriteCatalogBrowser({
 }: SpriteCatalogBrowserProps) {
   const { sprites, loading, error, reload } = useSpriteCatalog();
   const { getStatus, cycleStatus, hasAny } = useCollectionStatus();
-  const [scrolled, setScrolled] = useState(false);
 
   // Only Sprites the current season's live config actually makes obtainable
   // — vaulted/rotated-out/unreleased entries never show up in the browsable
@@ -285,28 +284,39 @@ export function SpriteCatalogBrowser({
     <div className="flex h-full flex-col">
       {/* Pinned header: the logo and the mastery count. px-4 matches the
           cards below, so everything in the sidebar shares one left edge. */}
-      <div
-        className={cn(
-          // A 3px ink line along the bottom once the list scrolls under it,
-          // the same edge as the phone's bottom CTA bar. Transparent at rest
-          // so nothing shifts when it appears.
-          "shrink-0 border-b-[3px] pb-3",
-          scrolled ? "border-pop-ink" : "border-transparent"
-        )}
-      >
+      {/* A 3px ink line along the bottom, always: the same edge as the
+          phone's bottom CTA bar, closing the header off from the list. */}
+      <div className="shrink-0 border-b-[3px] border-pop-ink pb-3">
         <div className="flex items-center gap-2 px-4 pt-4 pb-3 max-md:pt-5 max-md:pb-4">
           <Logo className="text-lg max-md:text-xl" />
           {showAccount && <AccountControl size="sm" />}
         </div>
 
         <div className="px-4 pb-[3px]">
-          {/* pb-[3px]: room for the bar's 3px hard shadow, which the rarity
-              container below would otherwise cover. */}
+          {/* pb-[3px]: room for the bar's 3px hard shadow, which the line
+              below would otherwise cover. */}
           <MasterySummary />
-          {/* First run only: until anything is marked, say how the tiles
-              work. Gone for good after the first tap. */}
-          {!hasAny && (
-            <p className="mt-4 flex items-center gap-2 text-sm leading-snug text-muted-foreground">
+        </div>
+      </div>
+
+      {/* Everything below the header scrolls. */}
+      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-4">
+      {/* First run only: until anything is marked, say how the tiles work,
+          just under the header line. 16px above it, and the first rarity
+          band's own 16px below, so line, hint and band sit evenly apart.
+          After the first tap it folds away (height to 0) and the list
+          glides up into its place rather than jumping. */}
+      <AnimatePresence initial={false}>
+        {!hasAny && (
+          <motion.div
+            key="first-run-hint"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            className="overflow-hidden"
+          >
+            <p className="flex items-center gap-2 pt-4 text-sm leading-snug text-muted-foreground">
               <span
                 aria-hidden
                 className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow text-pop-ink shadow-[0_2px_0_var(--pop-ink)]"
@@ -318,15 +328,9 @@ export function SpriteCatalogBrowser({
                 <span className="font-semibold text-foreground">twice</span> when you master it.
               </span>
             </p>
-          )}
-        </div>
-      </div>
-
-      {/* Everything below the header scrolls. */}
-      <div
-        className="no-scrollbar flex-1 overflow-y-auto px-4 pb-4"
-        onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
-      >
+          </motion.div>
+        )}
+      </AnimatePresence>
       {loading && (
         // The real layout, drawn before the data arrives: a rarity band, then
         // card panels in the catalog's exact proportions, so nothing jumps
