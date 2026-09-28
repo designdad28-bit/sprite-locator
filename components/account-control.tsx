@@ -28,7 +28,7 @@ export function AccountControl({ size = "lg", className }: { size?: "sm" | "lg";
         )}
       >
         <DiscordIcon className={lg ? "size-5" : "size-4"} />
-        {lg ? "Sign in with Discord" : "Sign in"}
+        Sign In
       </a>
     );
   }
