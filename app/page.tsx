@@ -32,17 +32,15 @@ import { cn } from "@/lib/utils";
 // of it, so the island is fitted and centred in the space the sidebar doesn't
 // cover.
 //
-// The default and the drag floor are the same width, chosen so each sprite
-// card's edge cuts the fourth tile (HACKER) down the middle: the sidebar's
-// 16px pad + the card's 12px pad + 3 tiles and gaps (264) + half a tile (40)
-// = 332 to the card's edge, then the 16px pad outside the card and the 3px
-// ink border = 351. A half-tile is the cue that the row scrolls; a whole one
-// would read as the last.
+// The default and the drag floor are the same width: 375, a phone's width,
+// so the sidebar holds exactly what the phone shows. The sprite tiles flex to
+// fill each card (see sprite-catalog-browser.tsx), so all five variants are
+// always in view and a wider drag only makes them bigger.
 //
-// The ceiling is where every tile fits: 28 + 5 x 80 + 4 x 8 + 12 + 16 + 3.
+// The ceiling is where the tiles reach 80px: 28 + 5 x 80 + 4 x 8 + 12 + 16 + 3.
 // Still capped at half the window too, so a drag never squeezes the map.
-const SIDEBAR_WIDTH = 351;
-const SIDEBAR_MIN_WIDTH = 351;
+const SIDEBAR_WIDTH = 375;
+const SIDEBAR_MIN_WIDTH = 375;
 const SIDEBAR_MAX_WIDTH = 491;
 
 /** Remembers the dragged width between visits, like the collection state does. */

@@ -362,7 +362,7 @@ export function SpriteCatalogBrowser({
               </div>
               <div className="mt-4 flex gap-2">
                 {[0, 1, 2, 3, 4].map((j) => (
-                  <div key={j} className="skeleton-dark aspect-square w-20 shrink-0 rounded-md max-md:w-auto max-md:flex-1" />
+                  <div key={j} className="skeleton-dark aspect-square min-w-0 flex-1 rounded-md" />
                 ))}
               </div>
             </div>
@@ -503,10 +503,10 @@ export function SpriteCatalogBrowser({
                     </span>
                   </div>
 
-                  {/* Beside the map the tiles keep a fixed 80px and the row
-                      scrolls, clipped at the card's edge; on a phone they flex
-                      to fill the card's width instead. */}
-                  <div className="no-scrollbar -mx-3 flex items-center gap-2 overflow-x-auto px-3 py-2 max-md:overflow-x-visible">
+                  {/* The five tiles flex to fill the card's width, on a phone
+                      and beside the map alike, so every variant is always in
+                      view. */}
+                  <div className="-mx-3 flex items-center gap-2 px-3 py-2">
                     {VARIANT_SLOTS.map((slot) => {
                       const v = group.variants.find((x) => variantKey(x.variant) === slot);
                       // Not every family ships all five variants (Mega Man has only
@@ -517,7 +517,7 @@ export function SpriteCatalogBrowser({
                           <div
                             key={slot}
                             data-slot="variant-slot-empty"
-                            className="flex w-20 shrink-0 flex-col items-center gap-1 max-md:w-auto max-md:flex-1 max-md:shrink"
+                            className="flex min-w-0 flex-1 flex-col items-center gap-1"
                           >
                             {/* Colour-coded like a real tile's caption, so the
                                 five columns stay identifiable straight down
@@ -570,7 +570,7 @@ export function SpriteCatalogBrowser({
                           data-status={status}
                           onClick={() => cycleStatus(v.id)}
                           aria-label={`${displayName(v.name)}: ${status}, click to change`}
-                          className="group flex w-20 shrink-0 flex-col items-center gap-1 outline-none select-none max-md:w-auto max-md:flex-1 max-md:shrink"
+                          className="group flex min-w-0 flex-1 flex-col items-center gap-1 outline-none select-none"
                         >
                           {/* The caption is always in its variant's colour, so the
                               row reads as a legend of the five. */}
