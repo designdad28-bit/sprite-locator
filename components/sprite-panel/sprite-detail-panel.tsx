@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { X } from "@/components/icons";
 import { useSpriteCatalog } from "@/components/sprite-catalog/sprite-catalog-context";
 import { Finding } from "@/lib/findings";
+import { LOOT_SOURCES } from "@/lib/loot-sources";
+import { Poi } from "@/lib/map/pois";
 import { rarityAccent } from "@/lib/rarity";
 import { displayName } from "@/lib/sprite-name";
 import { titleCase } from "@/lib/title-case";
@@ -31,6 +33,8 @@ import { Button } from "@/components/ui/button";
 export interface SpriteDetailPanelProps {
   spriteId: string;
   findings: Finding[];
+  /** Named locations, for turning each sighting into the place it was logged at. */
+  pois: Poi[];
   onBack: () => void;
 }
 
@@ -41,6 +45,33 @@ const AVAILABILITY_LABEL: Record<string, string> = {
   unreleased: "Not yet released",
   unknown: "Availability unknown",
 };
+
+/**
+ * Resummon costs where the catalog has none: the cost most often published for
+ * the same base rarity and variant elsewhere in the catalog, else these.
+ * Estimates, not data — every variant still gets its chip, because a close
+ * guess says more than an empty row.
+ */
+const FALLBACK_BASE_COST = 100;
+const FALLBACK_VARIANT_COST = 1500;
+
+/** The place a sighting belongs to: its logged location, else the nearest named one. */
+function placeOf(finding: Finding, pois: Poi[]): Poi | null {
+  if (finding.poiId) {
+    const poi = pois.find((p) => p.id === finding.poiId);
+    if (poi) return poi;
+  }
+  let best: Poi | null = null;
+  let bestD = Infinity;
+  for (const p of pois) {
+    const d = (p.x - finding.x) ** 2 + (p.y - finding.y) ** 2;
+    if (d < bestD) {
+      bestD = d;
+      best = p;
+    }
+  }
+  return best;
+}
 
 /** The one section heading treatment: Anton caps in the CTA yellow. */
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -68,40 +99,23 @@ function Section({ title, aside, children }: { title: string; aside?: string; ch
 }
 
 /**
- * A label/value line. Label left, value hard right on tabular figures so
- * numbers down a column line up.
- *
- * Loot sources and summon costs were previously two unrelated shapes — pills
- * with right-aligned text, and wrapping outlined chips. They are the same kind
- * of information, so they are now the same row.
+ * A name and its count: the name left, the count hard right as a small ink
+ * pill (the same count pill as the rarity bands), so a column of them lines
+ * up. A zero count recedes rather than disappearing.
  */
-function Row({
-  label,
-  labelColor,
-  value,
-  muted,
-}: {
-  label: string;
-  labelColor?: string;
-  value: string;
-  /** For a value the catalog doesn't have, so "unknown" never looks like data. */
-  muted?: boolean;
-}) {
+function CountRow({ label, count }: { label: string; count: number }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 py-1.5">
-      <span
-        className={cn("text-sm font-medium", !labelColor && "text-foreground")}
-        style={labelColor ? { color: labelColor } : undefined}
-      >
+    <div className="flex items-center justify-between gap-4 py-1.5">
+      <span className={cn("text-sm font-medium", count > 0 ? "text-foreground" : "text-muted-foreground")}>
         {label}
       </span>
       <span
         className={cn(
-          "shrink-0 text-sm tabular-nums",
-          muted ? "text-muted-foreground" : "font-medium text-foreground"
+          "display-caps flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-2 text-sm leading-none tabular-nums",
+          count > 0 ? "bg-pop-ink text-white" : "bg-card text-muted-foreground"
         )}
       >
-        {value}
+        {count}
       </span>
     </div>
   );
@@ -112,7 +126,7 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-muted-foreground">{children}</p>;
 }
 
-export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPanelProps) {
+export function SpriteDetailPanel({ spriteId, findings, pois, onBack }: SpriteDetailPanelProps) {
   const { getSprite, sprites } = useSpriteCatalog();
   const sprite = getSprite(spriteId);
 
@@ -128,8 +142,6 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
   }
 
   const accent = rarityAccent(sprite.rarity);
-  const sightingCount = findings.filter((f) => f.spriteId === spriteId).length;
-  const dropRateEntries = sprite.dropRates ? Object.entries(sprite.dropRates) : [];
   // Authored copy first (see lib/sprite-abilities.ts), then the catalog's.
   const ability = SPRITE_ABILITIES[sprite.family] ?? sprite.ability ?? sprite.description;
   // Every live variant of this family, in the same slot order as the catalog
@@ -137,7 +149,50 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
   const familyVariants = VARIANT_SLOTS.map((slot) =>
     sprites.find((s) => s.currentlyLive && s.family === sprite.family && variantKey(s.variant) === slot)
   ).filter((s): s is NonNullable<typeof s> => !!s);
-  const noCostsPublished = familyVariants.every((v) => v.summonCostSpriteDust == null);
+
+  // Sightings of the whole family, every variant: the panel is the Sprite's,
+  // and its Radar pins all of them too.
+  const familyIds = new Set(familyVariants.map((v) => v.id));
+  familyIds.add(sprite.id);
+  const familyFindings = findings.filter((f) => familyIds.has(f.spriteId));
+
+  // Where it has been seen: each place with its count, most sightings first.
+  const byPlace = new Map<string, { name: string; count: number }>();
+  for (const f of familyFindings) {
+    const place = placeOf(f, pois);
+    const key = place?.id ?? "unknown";
+    // Location names are stored shouting ("CLUSTER COAST"); sentence-cased
+    // here like the loot sources beside them and the Add finding form.
+    const entry = byPlace.get(key) ?? { name: place ? titleCase(place.name) : "Unknown location", count: 0 };
+    entry.count += 1;
+    byPlace.set(key, entry);
+  }
+  const places = [...byPlace.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+
+  // Every loot source, with how many of this Sprite's sightings came from it.
+  const lootCounts = LOOT_SOURCES.map((source) => ({
+    label: source.label,
+    count: familyFindings.filter((f) => f.lootSource === source.id).length,
+  }));
+
+  // A cost for every variant: the catalog's, else an estimate (see above).
+  const baseRarity = sprites.find((s) => s.family === sprite.family && s.variant === null)?.rarity ?? sprite.rarity;
+  function costFor(variant: string | null): { cost: number; estimated: boolean } {
+    const own = familyVariants.find((v) => v.variant === variant)?.summonCostSpriteDust;
+    if (own != null) return { cost: own, estimated: false };
+    const tally = new Map<number, number>();
+    for (const s of sprites) {
+      if (s.variant !== variant || s.summonCostSpriteDust == null) continue;
+      const rarity = sprites.find((b) => b.family === s.family && b.variant === null)?.rarity ?? s.rarity;
+      if (rarity !== baseRarity) continue;
+      tally.set(s.summonCostSpriteDust, (tally.get(s.summonCostSpriteDust) ?? 0) + 1);
+    }
+    const common = [...tally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+    return {
+      cost: common ?? (variant === null ? FALLBACK_BASE_COST : FALLBACK_VARIANT_COST),
+      estimated: true,
+    };
+  }
 
   return (
     <motion.div
@@ -225,75 +280,53 @@ export function SpriteDetailPanel({ spriteId, findings, onBack }: SpriteDetailPa
         )}
       </div>
 
-      <Section title="Locations">
-        <Row
-          label={sightingCount === 1 ? "Sighting logged" : "Sightings logged"}
-          value={String(sightingCount)}
-          muted={sightingCount === 0}
-        />
-        <Row label="Most likely areas" value="Coming soon" muted />
+      {/* Each place it has been logged, with how many times. */}
+      <Section title="Locations" aside={familyFindings.length > 0 ? `${familyFindings.length} logged` : undefined}>
+        {places.length > 0 ? (
+          places.map((p) => <CountRow key={p.name} label={p.name} count={p.count} />)
+        ) : (
+          <Empty>No sightings logged yet.</Empty>
+        )}
       </Section>
 
+      {/* Every loot source, each with how many sightings came from it. */}
       <Section title="Loot sources">
-        {dropRateEntries.length > 0 ? (
-          dropRateEntries.map(([source, pct]) => (
-            <Row
-              key={source}
-              // The catalog stores these shouting ("SPRITE CHEST"), which is
-              // how the source published them, not how they should read in a
-              // sentence-cased panel. Same treatment the Add finding form
-              // gives location names.
-              label={titleCase(source)}
-              value={pct != null ? `${pct}%` : "Not published"}
-              muted={pct == null}
-            />
-          ))
-        ) : (
-          <Empty>Not documented</Empty>
-        )}
-        {sprite.acquisitionHint && (
-          <p className="mt-2 mb-1 text-sm leading-relaxed text-muted-foreground">{sprite.acquisitionHint}</p>
-        )}
+        {lootCounts.map((s) => (
+          <CountRow key={s.label} label={s.label} count={s.count} />
+        ))}
       </Section>
 
       <Section title="Resummon cost" aside="Sprite Dust">
         {/* One chip per variant, in the catalog's slot order: the variant's
             name in its caption colour, the cost in CTA yellow, on the tiles'
             own recessed indigo with the ink outline and hard drop every
-            sticker wears. A cost the catalog doesn't have shows as a dash;
-            nothing is estimated. */}
-        {noCostsPublished ? (
-          <Empty>Epic hasn&rsquo;t published costs for this Sprite yet.</Empty>
-        ) : (
-          <div data-slot="summon-costs" className="flex flex-wrap gap-2 pt-1 pb-1.5">
-            {familyVariants.map((v) => {
-              const cost = v.summonCostSpriteDust;
-              return (
+            sticker wears. Where the catalog has no cost, the chip shows an
+            estimate (see costFor) rather than a gap. */}
+        <div data-slot="summon-costs" className="flex flex-wrap gap-2 pt-1 pb-1.5">
+          {familyVariants.map((v) => {
+            const { cost, estimated } = costFor(v.variant);
+            return (
+              <span
+                key={v.id}
+                data-slot="summon-cost"
+                data-estimated={estimated || undefined}
+                title={estimated ? "Estimated" : undefined}
+                className="inline-flex h-9 items-center gap-2.5 rounded-xl border-[3px] border-pop-ink bg-card px-3 shadow-[0_2px_0_var(--pop-ink)]"
+                aria-label={`${variantLabel(v.variant)}: ${cost.toLocaleString()} Sprite Dust${estimated ? " (estimated)" : ""}`}
+              >
                 <span
-                  key={v.id}
-                  data-slot="summon-cost"
-                  className="inline-flex h-9 items-center gap-2.5 rounded-xl border-[3px] border-pop-ink bg-card px-3 shadow-[0_2px_0_var(--pop-ink)]"
-                  aria-label={`${variantLabel(v.variant)}: ${cost != null ? `${cost.toLocaleString()} Sprite Dust` : "not published"}`}
+                  className="display-caps text-base leading-none"
+                  style={{ color: variantLabelColor(v.variant) ?? undefined }}
                 >
-                  <span
-                    className="display-caps text-base leading-none"
-                    style={{ color: variantLabelColor(v.variant) ?? undefined }}
-                  >
-                    {variantLabel(v.variant)}
-                  </span>
-                  <span
-                    className={cn(
-                      "display-caps text-base leading-none tabular-nums",
-                      cost != null ? "text-pop-yellow" : "text-muted-foreground/70"
-                    )}
-                  >
-                    {cost != null ? cost.toLocaleString() : "—"}
-                  </span>
+                  {variantLabel(v.variant)}
                 </span>
-              );
-            })}
-          </div>
-        )}
+                <span className="display-caps text-base leading-none text-pop-yellow tabular-nums">
+                  {cost.toLocaleString()}
+                </span>
+              </span>
+            );
+          })}
+        </div>
       </Section>
 
       {sprite.boons.length > 0 && (

@@ -777,6 +777,7 @@ export default function Home() {
               <SpriteDetailPanel
                 spriteId={selectedSpriteId}
                 findings={findings}
+                pois={pois}
                 onBack={() => setSelectedSpriteId(null)}
               />
             </div>
