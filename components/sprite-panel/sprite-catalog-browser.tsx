@@ -291,6 +291,7 @@ export function SpriteCatalogBrowser({
           The border is always there (transparent at rest) so nothing shifts
           when it appears. */}
       <div
+        data-scrolled={scrolled}
         className={cn(
           "shrink-0 border-b-[3px] pb-3 transition-[background-color,border-color] duration-150",
           scrolled ? "border-pop-ink bg-muted" : "border-transparent bg-transparent"

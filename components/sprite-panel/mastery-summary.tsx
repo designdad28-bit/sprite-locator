@@ -38,12 +38,12 @@ export function MasterySummary() {
           can only be restyled from the root via their data-slot hooks. */}
       <Progress
         value={percentOfAll}
-        // The track is bg-card, not the component's default bg-muted: the header
-        // strip behind it is itself --muted, so the default left the empty part
-        // of the bar invisible.
-        // Flat gold fill, no outer glow: the track is a flat ink-outlined
-        // pill with the same hard drop shadow as the buttons, no inner shadow.
-        className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-indicator]]:!h-2 [&_[data-slot=progress-indicator]]:rounded-[100px] [&_[data-slot=progress-track]]:h-3.5 [&_[data-slot=progress-track]]:border-[3px] [&_[data-slot=progress-track]]:border-pop-ink [&_[data-slot=progress-track]]:bg-card [&_[data-slot=progress-track]]:shadow-[0_3px_0_var(--pop-ink)]"
+        // The track is dressed like a sprite card: the card's --muted fill,
+        // no ink outline, and the card's soft half-strength ink drop beneath.
+        // The gold fill runs the track's full height, flat, no glow. Once the
+        // list scrolls, the header behind it turns --muted too, so the track
+        // steps down to the sidebar's --card to stay visible.
+        className="gap-1.5 [&_[data-slot=progress-indicator]]:bg-sprite-gold [&_[data-slot=progress-indicator]]:rounded-[100px] [&_[data-slot=progress-track]]:h-3 [&_[data-slot=progress-track]]:rounded-full [&_[data-slot=progress-track]]:border-0 [&_[data-slot=progress-track]]:bg-muted [&_[data-slot=progress-track]]:shadow-[0_3px_0_rgb(20_28_74/0.5)] [[data-scrolled=true]_&_[data-slot=progress-track]]:bg-card"
       >
         <ProgressLabel className="display-caps flex items-center gap-1.5 text-lg leading-none text-sprite-gold">
           {/* The same badge as a mastered tile: a gold disc, ink outline and
