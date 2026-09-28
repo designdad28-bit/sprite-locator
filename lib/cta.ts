@@ -8,9 +8,12 @@
  * also mastery gold and the map pins, so "yellow" means "yours / do this".
  */
 export const ADD_FINDING_STYLE =
-  // The primary sticker-button: a yellow-to-amber pill in a thick ink outline
-  // with a hard ink drop, labelled in Anton caps. Hover brightens it and lifts
-  // it a pixel off its shadow; press sinks it in (the pop utility). Disabled,
-  // it drops the gradient for the sidebar's own indigo with lavender type, so
-  // it reads as "not yet" rather than as a broken, faded yellow.
-  "pop !rounded-full !shadow-[0_4px_0_var(--pop-ink)] active:!shadow-[0_1px_0_var(--pop-ink)] display-caps !font-normal bg-[linear-gradient(180deg,#ffd84d,#f5a623)] text-pop-ink text-lg transition-[filter,translate,box-shadow] hover:-translate-y-px hover:brightness-105 hover:!shadow-[0_5px_0_var(--pop-ink)] focus-visible:ring-3 focus-visible:ring-white/70 disabled:bg-none disabled:bg-card disabled:text-muted-foreground disabled:opacity-100 disabled:hover:translate-y-0 disabled:hover:brightness-100";
+  // The primary sticker-button, built exactly like every other sticker (the
+  // Sign In pill, the map controls, the rarity bands): one flat fill — the
+  // palette's yellow, no gloss or gradient — a 3px ink outline and a hard 4px
+  // ink drop, labelled in Anton caps a step up from the other buttons. Hover
+  // lifts it a pixel off its shadow (it is already yellow, so it has nowhere
+  // to turn); press sinks it into the drop. Disabled, it takes the sidebar's
+  // own indigo with lavender type, so it reads as "not yet" rather than as a
+  // broken, faded yellow.
+  "pop !rounded-full !shadow-[0_4px_0_var(--pop-ink)] active:!shadow-[0_1px_0_var(--pop-ink)] display-caps !font-normal bg-pop-yellow text-pop-ink text-xl hover:bg-pop-yellow hover:text-pop-ink transition-[translate,box-shadow] hover:-translate-y-px hover:!shadow-[0_5px_0_var(--pop-ink)] active:translate-y-[3px] focus-visible:ring-3 focus-visible:ring-white/70 disabled:bg-card disabled:text-muted-foreground disabled:opacity-100 disabled:hover:translate-y-0 disabled:hover:!shadow-[0_4px_0_var(--pop-ink)]";
