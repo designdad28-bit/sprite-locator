@@ -595,8 +595,9 @@ export default function Home() {
           </Button>
           )}
           </div>
-          {/* The account button, in the site's top-right corner. */}
-          <AccountControl className="pointer-events-auto" />
+          {/* The account button, in the site's top-right corner: 16px from the top
+              and right, the same inset as the sidebar's logo. */}
+          <AccountControl className="pointer-events-auto self-start" />
         </div>
 
         {/* Centred along the bottom of the map rather than tucked in the top
