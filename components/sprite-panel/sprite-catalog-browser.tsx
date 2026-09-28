@@ -477,10 +477,9 @@ export function SpriteCatalogBrowser({
                     </span>
                     {/* In the card's top-right corner, 8px in from both edges. */}
                     <span className="absolute top-2 right-2 z-[1] flex">
-                      {/* The Radar toggle. Off: a bare lavender glyph that turns
-                          yellow on hover. On: a yellow sticker disc with an ink
-                          glyph, so "showing on the map" reads as a switched-on
-                          state at a glance, not just a colour shift. */}
+                      {/* The Radar toggle: a bare glyph either way, no disc.
+                          Off it is lavender and turns yellow on hover; on it
+                          stays gold, the same gold as mastery. */}
                       <Button
                         variant="ghost"
                         size="icon-sm"
@@ -493,10 +492,8 @@ export function SpriteCatalogBrowser({
                             : `Show ${group.family} findings on the map`
                         }
                         className={cn(
-                          "size-10 rounded-full border-2 transition-[background-color,color,border-color,box-shadow,transform] duration-150 active:translate-y-[2px] motion-reduce:transition-none",
-                          isShown
-                            ? "border-pop-ink !bg-pop-yellow text-pop-ink shadow-[0_2px_0_var(--pop-ink)] hover:!text-pop-ink active:shadow-none"
-                            : "border-transparent text-muted-foreground hover:!bg-transparent hover:!text-pop-yellow"
+                          "size-10 rounded-full transition-colors duration-150 hover:!bg-transparent motion-reduce:transition-none",
+                          isShown ? "text-sprite-gold hover:!text-sprite-gold" : "text-muted-foreground hover:!text-pop-yellow"
                         )}
                       >
                         <Radar className="size-6" strokeWidth={2} />
