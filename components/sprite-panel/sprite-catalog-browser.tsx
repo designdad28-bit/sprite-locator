@@ -314,7 +314,6 @@ export function SpriteCatalogBrowser({
           The border is always there (transparent at rest) so nothing shifts
           when it appears. */}
       <div
-        data-scrolled={scrolled}
         className={cn(
           "shrink-0 border-b-[3px] pb-3 transition-[background-color,border-color] duration-150",
           scrolled ? "border-pop-ink bg-muted" : "border-transparent bg-transparent"
@@ -521,7 +520,7 @@ export function SpriteCatalogBrowser({
                           isShown ? "text-sprite-gold hover:!text-sprite-gold" : "text-muted-foreground hover:!text-pop-yellow"
                         )}
                       >
-                        <Radar className="size-6" strokeWidth={2} />
+                        <Radar className="size-6" strokeWidth={1.75} />
                       </Button>
                     </span>
                   </div>
