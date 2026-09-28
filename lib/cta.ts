@@ -16,4 +16,6 @@ export const ADD_FINDING_STYLE =
   // to turn); press sinks it into the drop. Disabled, it takes the sidebar's
   // own indigo with lavender type, so it reads as "not yet" rather than as a
   // broken, faded yellow.
-  "pop !rounded-full !shadow-[0_4px_0_var(--pop-ink)] active:!shadow-[0_1px_0_var(--pop-ink)] display-caps !font-normal bg-pop-yellow text-pop-ink text-xl hover:bg-pop-yellow hover:text-pop-ink transition-[translate,box-shadow] hover:-translate-y-px hover:!shadow-[0_5px_0_var(--pop-ink)] active:translate-y-[3px] focus-visible:ring-3 focus-visible:ring-white/70 disabled:bg-card disabled:text-muted-foreground disabled:opacity-100 disabled:hover:translate-y-0 disabled:hover:!shadow-[0_4px_0_var(--pop-ink)]";
+  // The outline is set here as well as in `pop`: the Button's own base
+  // classes (a 1px transparent border) otherwise win over the utility.
+  "pop !border-[3px] !border-pop-ink !rounded-full !shadow-[0_4px_0_var(--pop-ink)] active:!shadow-[0_1px_0_var(--pop-ink)] display-caps !font-normal bg-pop-yellow text-pop-ink text-xl hover:bg-pop-yellow hover:text-pop-ink transition-[translate,box-shadow] hover:-translate-y-px hover:!shadow-[0_5px_0_var(--pop-ink)] active:translate-y-[3px] focus-visible:ring-3 focus-visible:ring-white/70 disabled:bg-card disabled:text-muted-foreground disabled:opacity-100 disabled:hover:translate-y-0 disabled:hover:!shadow-[0_4px_0_var(--pop-ink)]";
