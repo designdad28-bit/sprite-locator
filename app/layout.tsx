@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 // The browser's own chrome (mobile address bar, PWA title bar) in the
 // sidebar's indigo, so the app doesn't sit under a white strip.
 export const viewport: Viewport = {
-  themeColor: "#232a7a",
+  themeColor: "#182d7a",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -51,8 +51,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             and it is defined once at the root so every Sprite list can point
             at the same one.
             feColorMatrix flattens the art to luminance; feComponentTransfer
-            then maps 0 to #333D9C and 1 to #AAB2F0: the sidebar's own indigo
-            family, the dark end a step above the unselected tile (#232A7A) so
+            then maps 0 to #26409C and 1 to #A4B4F1: the sidebar's own indigo
+            family, the dark end a step above the unselected tile (#182D7A) so
             a dark Sprite still separates from it, the light end held below
             the muted text's lavender so uncollected art stays recessive
             beside a collected tile. sRGB
@@ -68,9 +68,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                       0 0 0 1 0"
             />
             <feComponentTransfer>
-              <feFuncR type="table" tableValues="0.2 0.667" />
-              <feFuncG type="table" tableValues="0.239 0.698" />
-              <feFuncB type="table" tableValues="0.612 0.941" />
+              <feFuncR type="table" tableValues="0.149 0.643" />
+              <feFuncG type="table" tableValues="0.251 0.706" />
+              <feFuncB type="table" tableValues="0.612 0.945" />
             </feComponentTransfer>
           </filter>
         </svg>

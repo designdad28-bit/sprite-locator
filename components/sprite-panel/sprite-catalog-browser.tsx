@@ -257,7 +257,7 @@ export function SpriteCatalogBrowser({
     // Back to the stylesheet's own values when this unmounts or the layout
     // leaves phone mode, so nothing lingers on desktop.
     return () => {
-      document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", "#232a7a"));
+      document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", "#182d7a"));
       document.documentElement.style.backgroundColor = "";
       document.body.style.backgroundColor = "";
     };
@@ -376,7 +376,7 @@ export function SpriteCatalogBrowser({
           <span className="sr-only" role="status">Loading Sprite catalog…</span>
           <div className="skeleton mb-4 h-9 rounded-full" />
           {[0, 1, 2].map((i) => (
-            <div key={i} className="mb-3 rounded-2xl bg-muted px-3 py-3 shadow-[0_3px_0_rgb(20_28_74/0.5)]">
+            <div key={i} className="mb-3 rounded-2xl bg-muted px-3 py-3 shadow-[0_3px_0_rgb(13_30_74/0.5)]">
               <div className="flex items-center gap-3">
                 <div className="skeleton-dark size-12 rounded-xl" />
                 <div className="flex flex-col gap-2">
@@ -428,7 +428,7 @@ export function SpriteCatalogBrowser({
                     at half strength, so the cards separate by surface and
                     depth rather than by outlines. overflow-hidden clips the
                     scrolling tile row to the panel's rounded corners. */}
-                <div className="relative mb-3 overflow-hidden rounded-2xl bg-muted px-3 py-2 shadow-[0_3px_0_rgb(20_28_74/0.5)]">
+                <div className="relative mb-3 overflow-hidden rounded-2xl bg-muted px-3 py-2 shadow-[0_3px_0_rgb(13_30_74/0.5)]">
                   {/* Header: informational. Only the Info and Radar icons act.
                       pr-11 keeps a long name clear of the Radar in the corner. */}
                   <div className="flex items-center justify-between py-1 pr-11">

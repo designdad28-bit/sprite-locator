@@ -73,7 +73,7 @@ export function variantGradient(variant: string | null): string | null {
 /**
  * A themed backdrop per variant, layered over its gradient, for a collected
  * tile. Each follows the effect Epic paints INSIDE that variant's Sprite art:
- *   base         light greyish-blue sheen, the gold treatment in #c3caff
+ *   base         light greyish-blue sheen, the gold treatment in #beccff
  *   gold         crinkled gold foil (see GOLD_FOIL)
  *   cheat master Matrix code: streams of falling green glyphs down every
  *                column, top to bottom, each with a bright head and a fading
@@ -237,7 +237,7 @@ const PINK_SWIRL = (() => {
 })();
 
 const VARIANT_PATTERN: Record<string, string> = {
-  // The mastery tracker's "/ 101" colour (--muted-foreground, #c3caff),
+  // The mastery tracker's "/ 101" colour (--muted-foreground, #beccff),
   // swept with the same soft sheen as gold. Opaque, so it replaces the base
   // blue on the tile only; pins and captions keep --sprite-base-collected.
   base:
@@ -269,7 +269,7 @@ const SHEEN =
   "linear-gradient(125deg, transparent 4%, rgb(255 255 255 / 0.1) 20%, transparent 34%, " +
   "rgb(255 255 255 / 0.14) 50%, transparent 64%, rgb(255 255 255 / 0.08) 80%, transparent 96%)";
 
-const INK_VEIL = "linear-gradient(rgb(20 28 74 / 0.1), rgb(20 28 74 / 0.1))";
+const INK_VEIL = "linear-gradient(rgb(13 30 74 / 0.1), rgb(13 30 74 / 0.1))";
 
 /**
  * Each variant's own mid-tone, laid over its pattern at 22% so the patterns

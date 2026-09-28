@@ -123,19 +123,19 @@
      Rarity, variant, gold and radar colours stay untouched: they carry
      meaning, and the reference's own pins are colour-coded the same way.
      -------------------------------------------------------------------- */
-  --background: #1b2266;
+  --background: #112566;
   --foreground: #ffffff;
-  --card: #232a7a;
+  --card: #182d7a;
   --card-foreground: #ffffff;
-  --popover: #2d3591;
+  --popover: #203891;
   --popover-foreground: #ffffff;
   --primary: #ffffff;
-  --primary-foreground: #141c4a;
-  --secondary: #2d3591;
+  --primary-foreground: #0d1e4a;
+  --secondary: #203891;
   --secondary-foreground: #ffffff;
-  --muted: #2d3591;
-  --muted-foreground: #c3caff;
-  --accent: #2d3591;
+  --muted: #203891;
+  --muted-foreground: #beccff;
+  --accent: #203891;
   --accent-foreground: #ffffff;
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 16%);
@@ -146,16 +146,16 @@
   --chart-3: oklch(0.45 0.09 256);
   --chart-4: oklch(0.378 0.095 256);
   --chart-5: oklch(0.3 0.085 256);
-  --sidebar: #232a7a;
+  --sidebar: #182d7a;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: #141c4a;
-  --sidebar-accent: #2d3591;
+  --sidebar-primary-foreground: #0d1e4a;
+  --sidebar-accent: #203891;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: oklch(1 0 0 / 16%);
   --sidebar-ring: #ffc93c;
   /* The ink every pop outline and hard shadow is drawn in. */
-  --pop-ink: #141c4a;
+  --pop-ink: #0d1e4a;
   /* The primary action's yellow. The field around the island, past the water
      bands (see scripts/trace-water-rings.py) out to the map's edge, is the
      sprite cards' own fill (--muted). */

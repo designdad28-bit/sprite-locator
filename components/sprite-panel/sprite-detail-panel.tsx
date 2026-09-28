@@ -48,7 +48,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 /** The lifted card panel every block sits on, the same as a catalog card. */
-const PANEL = "rounded-2xl bg-muted shadow-[0_3px_0_rgb(20_28_74/0.5)]";
+const PANEL = "rounded-2xl bg-muted shadow-[0_3px_0_rgb(13_30_74/0.5)]";
 
 /**
  * A section: a card panel holding a heading and its content. Every section
