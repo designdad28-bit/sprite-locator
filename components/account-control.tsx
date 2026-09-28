@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu } from "@base-ui/react/menu";
-import { DiscordIcon } from "@/components/icons";
+import { DiscordIcon, LogOut } from "@/components/icons";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { cn } from "@/lib/utils";
 
@@ -59,13 +59,18 @@ export function AccountControl({ size = "lg", className }: { size?: "sm" | "lg";
       <Menu.Portal>
         {/* Above the map's panes and the sidebar (z 500-700). */}
         <Menu.Positioner side="bottom" align="end" sideOffset={8} className="z-[1200]">
-          {/* The same sticker card as the dropdown lists: ink outline, hard
-              ink drop, 10px corners, yellow on the highlighted row. */}
-          <Menu.Popup className="min-w-44 origin-(--transform-origin) rounded-[10px] border-[3px] border-pop-ink bg-popover p-1.5 text-popover-foreground shadow-[0_4px_0_var(--pop-ink)] outline-none transition-[opacity,scale] duration-100 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0">
+          {/* The menu is a twin of the pill above it: the same width and
+              36px height, white with the ink outline and hard drop, and the
+              whole thing turns CTA yellow on hover, exactly like every other
+              white sticker button. Keyed to real hover and keyboard focus,
+              not the menu's own "highlighted" state, which it sets the
+              moment the menu opens and would paint it yellow at rest. */}
+          <Menu.Popup className="w-(--anchor-width) origin-(--transform-origin) overflow-hidden rounded-full border-[3px] border-pop-ink bg-white shadow-[0_4px_0_var(--pop-ink)] outline-none transition-[opacity,scale,translate] duration-150 data-ending-style:-translate-y-1 data-ending-style:opacity-0 data-starting-style:-translate-y-1 data-starting-style:opacity-0">
             <Menu.Item
               onClick={signOut}
-              className="display-caps flex w-full cursor-default items-center rounded-md px-3 py-2 text-base text-foreground outline-none select-none data-highlighted:bg-pop-yellow data-highlighted:text-pop-ink"
+              className="display-caps flex h-[30px] w-full cursor-pointer items-center justify-center gap-2 text-base text-pop-ink outline-none transition-colors duration-150 select-none hover:bg-pop-yellow focus-visible:bg-pop-yellow"
             >
+              <LogOut className="size-4" />
               Sign out
             </Menu.Item>
           </Menu.Popup>
