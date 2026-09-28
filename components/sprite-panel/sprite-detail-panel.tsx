@@ -103,10 +103,24 @@ function Section({ title, aside, children }: { title: string; aside?: string; ch
  * pill (the same count pill as the rarity bands), so a column of them lines
  * up. A zero count recedes rather than disappearing.
  */
-function CountRow({ label, count }: { label: string; count: number }) {
+function CountRow({ label, count, icon }: { label: string; count: number; icon?: string | null }) {
   return (
     <div className="flex items-center justify-between gap-4 py-1.5">
-      <span className={cn("text-sm font-medium", count > 0 ? "text-foreground" : "text-muted-foreground")}>
+      <span
+        className={cn(
+          "flex min-w-0 items-center gap-2.5 text-sm font-medium",
+          count > 0 ? "text-foreground" : "text-muted-foreground"
+        )}
+      >
+        {/* A row that takes an icon always keeps its slot, so labels in a
+            list line up whether or not that source has real art. */}
+        {icon !== undefined &&
+          (icon ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={icon} alt="" className="size-7 shrink-0 object-contain" />
+          ) : (
+            <span aria-hidden className="size-7 shrink-0" />
+          ))}
         {label}
       </span>
       <span
@@ -172,6 +186,7 @@ export function SpriteDetailPanel({ spriteId, findings, pois, onBack }: SpriteDe
   // Every loot source, with how many of this Sprite's sightings came from it.
   const lootCounts = LOOT_SOURCES.map((source) => ({
     label: source.label,
+    icon: source.icon,
     count: familyFindings.filter((f) => f.lootSource === source.id).length,
   }));
 
@@ -292,7 +307,7 @@ export function SpriteDetailPanel({ spriteId, findings, pois, onBack }: SpriteDe
       {/* Every loot source, each with how many sightings came from it. */}
       <Section title="Loot sources">
         {lootCounts.map((s) => (
-          <CountRow key={s.label} label={s.label} count={s.count} />
+          <CountRow key={s.label} label={s.label} icon={s.icon} count={s.count} />
         ))}
       </Section>
 
