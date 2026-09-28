@@ -22,8 +22,8 @@ export function AccountControl({ size = "lg", className }: { size?: "sm" | "lg";
       <a
         href="/api/auth/discord/login"
         className={cn(
-          "material ml-auto flex shrink-0 items-center rounded-full font-semibold text-pop-ink hover:text-pop-ink",
-          lg ? "h-11 gap-2 px-5 text-base" : "h-8 gap-1.5 px-3 text-sm",
+          "material display-caps ml-auto flex shrink-0 items-center rounded-full text-pop-ink hover:text-pop-ink",
+          lg ? "h-11 gap-2 px-5 text-lg" : "h-8 gap-1.5 px-3 text-base",
           className
         )}
       >
@@ -41,8 +41,8 @@ export function AccountControl({ size = "lg", className }: { size?: "sm" | "lg";
       aria-label={`Signed in as ${name}. Sign out`}
       title="Sign out"
       className={cn(
-        "material ml-auto flex shrink-0 items-center rounded-full font-semibold text-pop-ink hover:text-pop-ink",
-        lg ? "h-11 max-w-64 gap-2.5 py-0 pr-5 pl-1 text-base" : "h-8 max-w-40 gap-1.5 py-0 pr-3 pl-0.5 text-sm",
+        "material display-caps ml-auto flex shrink-0 items-center rounded-full text-pop-ink hover:text-pop-ink",
+        lg ? "h-11 max-w-64 gap-2.5 py-0 pr-5 pl-1 text-lg" : "h-8 max-w-40 gap-1.5 py-0 pr-3 pl-0.5 text-base",
         className
       )}
     >
