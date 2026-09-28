@@ -23,11 +23,11 @@ export function AccountControl({ size = "lg", className }: { size?: "sm" | "lg";
         href="/api/auth/discord/login"
         className={cn(
           "material display-caps ml-auto flex shrink-0 items-center rounded-full text-pop-ink hover:text-pop-ink",
-          lg ? "h-11 gap-2 px-5 text-lg" : "h-8 gap-1.5 px-3 text-base",
+          lg ? "h-9 gap-2 px-4 text-base" : "h-8 gap-1.5 px-3 text-base",
           className
         )}
       >
-        <DiscordIcon className={lg ? "size-5" : "size-4"} />
+        <DiscordIcon className="size-4" />
         Sign In
       </a>
     );
@@ -42,7 +42,7 @@ export function AccountControl({ size = "lg", className }: { size?: "sm" | "lg";
       title="Sign out"
       className={cn(
         "material display-caps ml-auto flex shrink-0 items-center rounded-full text-pop-ink hover:text-pop-ink",
-        lg ? "h-11 max-w-64 gap-2.5 py-0 pr-5 pl-1 text-lg" : "h-8 max-w-40 gap-1.5 py-0 pr-3 pl-0.5 text-base",
+        lg ? "h-9 max-w-64 gap-2 py-0 pr-4 pl-0.5 text-base" : "h-8 max-w-40 gap-1.5 py-0 pr-3 pl-0.5 text-base",
         className
       )}
     >
@@ -51,16 +51,15 @@ export function AccountControl({ size = "lg", className }: { size?: "sm" | "lg";
         <img
           src={user.discordAvatarUrl}
           alt=""
-          className={cn("shrink-0 rounded-full border-2 border-pop-ink", lg ? "size-8" : "size-7")}
+          className="size-7 shrink-0 rounded-full border-2 border-pop-ink"
         />
       ) : (
         <span
           className={cn(
-            "flex shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow",
-            lg ? "size-8" : "size-7"
+            "flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-pop-ink bg-pop-yellow"
           )}
         >
-          <DiscordIcon className={lg ? "size-4" : "size-3.5"} />
+          <DiscordIcon className="size-3.5" />
         </span>
       )}
       <span className="truncate">{name}</span>
