@@ -398,7 +398,11 @@ export function SpriteCatalogBrowser({
       {!loading && !error && (
         <motion.div variants={container} initial="hidden" animate="show">
           {(() => {
-            const renderCard = (group: SpriteFamilyGroup) => {
+            // The first cards are on screen at launch: their art loads at once.
+            // Everything below loads lazily, as it scrolls into view.
+            const EAGER_CARDS = 3;
+            const renderCard = (group: SpriteFamilyGroup, index: number) => {
+            const loading = index < EAGER_CARDS ? ("eager" as const) : ("lazy" as const);
             const baseVariant = group.variants.find((v) => v.variant === null) ?? group.variants[0];
             // One Radar per Sprite, covering every variant it has: findings are
             // stored against the variant that was actually found, so "show
@@ -448,7 +452,7 @@ export function SpriteCatalogBrowser({
                         <img
                           src={group.icon}
                           alt=""
-                          loading="lazy"
+                          loading={loading}
                           decoding="async"
                           width={48}
                           height={48}
@@ -646,9 +650,9 @@ export function SpriteCatalogBrowser({
                               <img
                                 src={v.icon}
                                 alt=""
-                                // 101 tiles: the ones below the fold load as
-                                // they scroll into view, not all up front.
-                                loading="lazy"
+                                // 101 tiles: past the first few cards they
+                                // load as they scroll into view.
+                                loading={loading}
                                 decoding="async"
                                 width={80}
                                 height={80}
@@ -686,6 +690,8 @@ export function SpriteCatalogBrowser({
               else sections.push({ rarity: group.rarity, groups: [group] });
             });
 
+            // Each card's place in the whole list, for EAGER_CARDS.
+            let cardIndex = 0;
             return sections.map((section) => {
               const accent = rarityAccent(section.rarity);
               const label = section.rarity
@@ -713,7 +719,7 @@ export function SpriteCatalogBrowser({
                       </span>
                     </div>
                   </div>
-                  {section.groups.map((group) => renderCard(group))}
+                  {section.groups.map((group) => renderCard(group, cardIndex++))}
                 </section>
               );
             });
