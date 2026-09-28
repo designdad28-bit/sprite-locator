@@ -521,8 +521,8 @@ export default function Home() {
 
               Styled exactly like the Sign In pill opposite it — 36px, white
               sticker, 3px ink outline and drop, Anton caps, yellow on hover —
-              with no thumbnail, so the two read as one row of map controls.
-              The options in the list keep their artwork. */}
+              so the two read as one row of map controls. A chosen variant
+              adds its Sprite's thumbnail; "All variants" is words only. */}
           {visibleSpriteIds.size > 0 && (
           <Select
             value={variantFilter ?? ALL_VARIANTS}
@@ -540,7 +540,19 @@ export default function Home() {
               className="material display-caps !bg-white hover:!bg-pop-yellow !border-[3px] !border-pop-ink pointer-events-auto !h-9 gap-1.5 rounded-full py-0 pr-3 pl-4 !text-base text-pop-ink"
             >
               <SelectValue>
-                {(value: string) => variantOptions.find((v) => v.slot === value)?.label ?? "All variants"}
+                {(value: string) => {
+                  // A chosen variant shows its Sprite beside the name, so the
+                  // pill says at a glance which one the map is narrowed to.
+                  // "All variants" stays words only.
+                  const chosen = variantOptions.find((v) => v.slot === value);
+                  if (!chosen) return "All variants";
+                  return (
+                    <span className="flex items-center gap-1.5">
+                      <SpriteThumb id={chosen.id} icon={chosen.icon} />
+                      {chosen.label}
+                    </span>
+                  );
+                }}
               </SelectValue>
             </SelectTrigger>
             <SelectContent align="start">
