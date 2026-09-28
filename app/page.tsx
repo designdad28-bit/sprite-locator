@@ -519,9 +519,10 @@ export default function Home() {
               control over nothing — and one that would otherwise sit there
               inviting a click that changes nothing visible.
 
-              Styled to match Add finding opposite it — same height, radius,
-              card fill and shadow — so the two read as one layer of map
-              controls rather than a control and a form field. */}
+              Styled exactly like the Sign In pill opposite it — 36px, white
+              sticker, 3px ink outline and drop, Anton caps, yellow on hover —
+              with no thumbnail, so the two read as one row of map controls.
+              The options in the list keep their artwork. */}
           {visibleSpriteIds.size > 0 && (
           <Select
             value={variantFilter ?? ALL_VARIANTS}
@@ -531,25 +532,15 @@ export default function Home() {
           >
             <SelectTrigger
               aria-label="Filter the map by variant"
-              // !bg-white: SelectTrigger's own bg-input/50 sits later in the generated
-              // stylesheet than the material utility's background-color, so it wins
-              // the cascade at equal specificity without this override.
-              className="material !bg-white pointer-events-auto h-11 gap-2 rounded-full px-4 py-2 text-sm font-semibold text-pop-ink"
+              // The ! overrides: SelectTrigger's own base classes (bg-input/50,
+              // a 1px transparent border, its data-size heights) sit later in
+              // the generated stylesheet than the material utility, so they
+              // win the cascade at equal specificity without them. Hover turns
+              // it yellow via material, like Sign In.
+              className="material display-caps !bg-white hover:!bg-pop-yellow !border-[3px] !border-pop-ink pointer-events-auto !h-9 gap-1.5 rounded-full py-0 pr-3 pl-4 !text-base text-pop-ink"
             >
               <SelectValue>
-                {(value: string) => {
-                  const chosen = variantOptions.find((v) => v.slot === value);
-                  return (
-                    <span className="flex items-center gap-2">
-                      {chosen ? (
-                        <SpriteThumb id={chosen.id} icon={chosen.icon} />
-                      ) : (
-                        <AllVariantsThumb />
-                      )}
-                      {chosen ? chosen.label : "All variants"}
-                    </span>
-                  );
-                }}
+                {(value: string) => variantOptions.find((v) => v.slot === value)?.label ?? "All variants"}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
