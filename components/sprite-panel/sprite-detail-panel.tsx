@@ -99,9 +99,10 @@ function Section({ title, aside, children }: { title: string; aside?: string; ch
 }
 
 /**
- * A name and its count: the name left, the count hard right as a small pill
- * in the Rare blue, so a column of them lines up. A zero count recedes
- * rather than disappearing.
+ * A name and its count: the name left, the count hard right as a small chip
+ * in the same style as the resummon-cost badges below (the card's fill, an
+ * ink outline, a hard drop), so a column of them lines up. A zero count
+ * keeps the chip but mutes the figure rather than disappearing.
  */
 function CountRow({ label, count, icon }: { label: string; count: number; icon?: string | null }) {
   return (
@@ -125,11 +126,8 @@ function CountRow({ label, count, icon }: { label: string; count: number; icon?:
       </span>
       <span
         className={cn(
-          "display-caps flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-2 text-sm leading-none tabular-nums",
-          // The Rare band's blue (RARITY_ACCENT.rare.solid) with white
-          // figures; a zero keeps the colour but fades back.
-          "bg-[#1868DB] text-white",
-          count === 0 && "opacity-45"
+          "display-caps flex h-8 min-w-8 shrink-0 items-center justify-center rounded-xl border-[3px] border-pop-ink bg-card px-2.5 text-sm leading-none tabular-nums shadow-[0_2px_0_var(--pop-ink)]",
+          count > 0 ? "text-pop-yellow" : "text-muted-foreground/70"
         )}
       >
         {count}

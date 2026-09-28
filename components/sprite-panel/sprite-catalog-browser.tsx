@@ -649,10 +649,7 @@ export function SpriteCatalogBrowser({
                       style={{ background: accent.solid }}
                     >
                       <span className="display-caps ink-label text-xl leading-none">{label}</span>
-                      {/* Styled like the resummon-cost chips: the card's own
-                          fill, an ink outline and a small hard drop, instead
-                          of a plain ink pill. */}
-                      <span className="display-caps ml-auto flex h-7 items-center rounded-lg border-[3px] border-pop-ink bg-card px-2.5 text-sm leading-none tabular-nums text-foreground shadow-[0_2px_0_var(--pop-ink)]">
+                      <span className="display-caps ml-auto rounded-full border-[3px] border-pop-ink bg-pop-ink px-2 text-sm leading-4 tabular-nums text-white">
                         {section.groups.length}
                       </span>
                     </div>
