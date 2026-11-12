@@ -1,9 +1,9 @@
 {
   "source": "fortnite.gg (primary) + fortnite.fandom.com (fallback/cross-reference)",
-  "generated": "2026-11-12T00:16:17.226Z",
+  "generated": "2026-11-12T14:52:05.626Z",
   "currentSeason": 43,
-  "familyCount": 84,
-  "variantCount": 343,
+  "familyCount": 88,
+  "variantCount": 367,
   "sprites": [
     {
       "id": "halfpeel-d",
@@ -26,7 +26,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-halfpeel-d",
@@ -49,7 +49,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-halfpeel-d",
@@ -72,7 +72,30 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-halfpeel-d",
+      "name": "Gold Halfpeel'd",
+      "family": "Halfpeel'd",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_PeelyBones_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nMarks eliminations on the map.\n\nEffect radius increases with each level up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nMarks eliminations on the map.\n\nEffect radius increases with each level up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "re-pete",
@@ -95,7 +118,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-re-pete",
@@ -118,7 +141,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-re-pete",
@@ -141,7 +164,30 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-re-pete",
+      "name": "Gold Re-Pete",
+      "family": "Re-Pete",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_Parrot_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nIncreases reload speed, with a chance that reloading refunds ammo.\n\nReload faster and higher chance of ammo refunds with each Level Up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nIncreases reload speed, with a chance that reloading refunds ammo.\n\nReload faster and higher chance of ammo refunds with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "barry-o-fish",
@@ -164,7 +210,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-barry-o-fish",
@@ -187,7 +233,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-barry-o-fish",
@@ -210,7 +256,30 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-barry-o-fish",
+      "name": "Gold Barry O'Fish",
+      "family": "Barry O'Fish",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_BarrelOfFish_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nReduces tactical sprint stamina drain when in water.\n\nGain Slap at max level!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nReduces tactical sprint stamina drain when in water.\n\nGain Slap at max level!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "wayfinder",
@@ -233,7 +302,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-wayfinder",
@@ -256,7 +325,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-wayfinder",
@@ -279,7 +348,30 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-wayfinder",
+      "name": "Gold Wayfinder",
+      "family": "Wayfinder",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_Compass_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nReveals Sprites nearby and grants more items when opening Buried Chests.\n\nSprite detection radius increases with each Level Up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nReveals Sprites nearby and grants more items when opening Buried Chests.\n\nSprite detection radius increases with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "chester",
@@ -302,7 +394,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-chester",
@@ -325,7 +417,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-chester",
@@ -348,7 +440,30 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-chester",
+      "name": "Gold Chester",
+      "family": "Chester",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_TreasureChest_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nGrants a chance to spawn extra loot from Treasure Chests and nullifies fall damage.\n\nIncreased chance of spawning an extra loot item with each Level Up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nGrants a chance to spawn extra loot from Treasure Chests and nullifies fall damage.\n\nIncreased chance of spawning an extra loot item with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "kelper",
@@ -371,7 +486,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-kelper",
@@ -394,7 +509,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-kelper",
@@ -417,7 +532,30 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-kelper",
+      "name": "Gold Kelper",
+      "family": "Kelper",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_UnbotheredFish_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nRestores health over time when in water.\n\nIncreased amount of health with each Level Up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nRestores health over time when in water.\n\nIncreased amount of health with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "exmarks",
@@ -440,7 +578,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-exmarks",
@@ -463,7 +601,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-exmarks",
@@ -486,7 +624,30 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-exmarks",
+      "name": "Gold Exmarks",
+      "family": "Exmarks",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_TreasureMap_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nReveals Treasure Maps and Wanted Posters.\n\nSpawns a Treasure Map at Max Level!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nReveals Treasure Maps and Wanted Posters.\n\nSpawns a Treasure Map at Max Level!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "lil-squibbly",
@@ -509,7 +670,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-lil-squibbly",
@@ -532,7 +693,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-lil-squibbly",
@@ -555,7 +716,122 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-lil-squibbly",
+      "name": "Gold Lil' Squibbly",
+      "family": "Lil' Squibbly",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_Squibbly_LiquidGold_ui_v1_1_Alpha_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nJumping into a fishing hole fishes it and gives some bonus loot.\n\nGet more loot as you level up.",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nJumping into a fishing hole fishes it and gives some bonus loot.\n\nGet more loot as you level up.",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "squiplash",
+      "name": "Squiplash",
+      "family": "Squiplash",
+      "variant": null,
+      "rarity": "epic",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_PirateCalamari_L.webp",
+      "description": "UNRELEASED\n\nDeploys a Healing Smoke Bomb at low health.\n\nDecreased cooldown and increased duration and healing with each Level Up!",
+      "ability": "UNRELEASED\n\nDeploys a Healing Smoke Bomb at low health.\n\nDecreased cooldown and increased duration and healing with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "fortune-squiplash",
+      "name": "Fortune Squiplash",
+      "family": "Squiplash",
+      "variant": "jeweled",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_PirateCalamari_Jeweled_L.webp",
+      "description": "UNRELEASED\n\nReveals nearby Chests\n\nDeploys a Healing Smoke Bomb at low health.\n\nDecreased cooldown and increased duration and healing with each Level Up!",
+      "ability": "UNRELEASED\n\nReveals nearby Chests\n\nDeploys a Healing Smoke Bomb at low health.\n\nDecreased cooldown and increased duration and healing with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "cursed-squiplash",
+      "name": "Cursed Squiplash",
+      "family": "Squiplash",
+      "variant": "cursed",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_PirateCalamari_Cursed_L.webp",
+      "description": "UNRELEASED\n\nIncreased chance of finding rare Sprites, take damage in water\n\nDeploys a Healing Smoke Bomb at low health.\n\nDecreased cooldown and increased duration and healing with each Level Up!",
+      "ability": "UNRELEASED\n\nIncreased chance of finding rare Sprites, take damage in water\n\nDeploys a Healing Smoke Bomb at low health.\n\nDecreased cooldown and increased duration and healing with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-squiplash",
+      "name": "Gold Squiplash",
+      "family": "Squiplash",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_PirateCalamari_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nDeploys a Healing Smoke Bomb at low health.\n\nDecreased cooldown and increased duration and healing with each Level Up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nDeploys a Healing Smoke Bomb at low health.\n\nDecreased cooldown and increased duration and healing with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "lil-flacko",
@@ -578,7 +854,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-lil-flacko",
@@ -601,7 +877,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-lil-flacko",
@@ -624,7 +900,30 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-lil-flacko",
+      "name": "Gold Lil' Flacko",
+      "family": "Lil' Flacko",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_PlaymakerBrewery_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nCreates a small shockwave on landing, knocking back enemies.\n\nIncreased knockback strength with each Level Up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nCreates a small shockwave on landing, knocking back enemies.\n\nIncreased knockback strength with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "lil-uzi-vert-jr",
@@ -647,7 +946,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-lil-uzi-vert-jr",
@@ -670,7 +969,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-lil-uzi-vert-jr",
@@ -693,7 +992,30 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-lil-uzi-vert-jr",
+      "name": "Gold Lil' Uzi Vert Jr.",
+      "family": "Lil' Uzi Vert Jr.",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_RookGecko_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nGenerates a Chug Splash effect when restoring shields.\n\nDecreased cooldown with each Level Up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nGenerates a Chug Splash effect when restoring shields.\n\nDecreased cooldown with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "plundarrgh",
@@ -702,8 +1024,8 @@
       "variant": null,
       "rarity": "mythic",
       "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_CoinPile_L.webp",
-      "description": "Opening Chest grants increased pickaxe speed and movement speed.",
-      "ability": "Opening Chest grants increased pickaxe speed and movement speed.",
+      "description": "Opening Chest grants increased pickaxe speed and movement speed.\n\nIncreased duration with each Level Up!",
+      "ability": "Opening Chest grants increased pickaxe speed and movement speed.\n\nIncreased duration with each Level Up!",
       "boons": [],
       "acquisitionHint": null,
       "summonCostSpriteDust": null,
@@ -716,7 +1038,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fortune-plundarrgh",
@@ -725,8 +1047,8 @@
       "variant": "jeweled",
       "rarity": "special",
       "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_CoinPile_Jeweled_L.webp",
-      "description": "Reveals nearby Chests\n\nOpening Chest grants increased pickaxe speed and movement speed.",
-      "ability": "Reveals nearby Chests\n\nOpening Chest grants increased pickaxe speed and movement speed.",
+      "description": "Reveals nearby Chests\n\nOpening Chest grants increased pickaxe speed and movement speed.\n\nIncreased duration with each Level Up!",
+      "ability": "Reveals nearby Chests\n\nOpening Chest grants increased pickaxe speed and movement speed.\n\nIncreased duration with each Level Up!",
       "boons": [],
       "acquisitionHint": null,
       "summonCostSpriteDust": null,
@@ -739,7 +1061,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cursed-plundarrgh",
@@ -748,8 +1070,8 @@
       "variant": "cursed",
       "rarity": "special",
       "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_CoinPile_Cursed_L.webp",
-      "description": "Increased chance of finding rare Sprites, take damage in water\n\nOpening Chest grants increased pickaxe speed and movement speed.",
-      "ability": "Increased chance of finding rare Sprites, take damage in water\n\nOpening Chest grants increased pickaxe speed and movement speed.",
+      "description": "Increased chance of finding rare Sprites, take damage in water\n\nOpening Chest grants increased pickaxe speed and movement speed.\n\nIncreased duration with each Level Up!",
+      "ability": "Increased chance of finding rare Sprites, take damage in water\n\nOpening Chest grants increased pickaxe speed and movement speed.\n\nIncreased duration with each Level Up!",
       "boons": [],
       "acquisitionHint": null,
       "summonCostSpriteDust": null,
@@ -762,7 +1084,30 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-plundarrgh",
+      "name": "Gold Plundarrgh",
+      "family": "Plundarrgh",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_CoinPile_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nOpening Chest grants increased pickaxe speed and movement speed.\n\nIncreased duration with each Level Up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nOpening Chest grants increased pickaxe speed and movement speed.\n\nIncreased duration with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "transponder-snail",
@@ -785,7 +1130,7 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "sweet-dreams",
@@ -808,7 +1153,214 @@
       "currentlyLive": true,
       "availability": "live",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "sir-oscar-the-second",
+      "name": "Sir Oscar the Second",
+      "family": "Sir Oscar the Second",
+      "variant": null,
+      "rarity": "legendary",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_WhiteTiger_L.webp",
+      "description": "UNRELEASED\n\nGrants increased Pickaxe damage, also gives a temporary speed boost when your Shield breaks.\n\nIncreased Pickaxe damage and speed boost with each Level Up!",
+      "ability": "UNRELEASED\n\nGrants increased Pickaxe damage, also gives a temporary speed boost when your Shield breaks.\n\nIncreased Pickaxe damage and speed boost with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "fortune-sir-oscar-the-second",
+      "name": "Fortune Sir Oscar the Second",
+      "family": "Sir Oscar the Second",
+      "variant": "jeweled",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_WhiteTiger_Jeweled_L.webp",
+      "description": "UNRELEASED\n\nReveals nearby Chests\n\nGrants increased Pickaxe damage, also gives a temporary speed boost when your Shield breaks.\n\nIncreased Pickaxe damage and speed boost with each Level Up!",
+      "ability": "UNRELEASED\n\nReveals nearby Chests\n\nGrants increased Pickaxe damage, also gives a temporary speed boost when your Shield breaks.\n\nIncreased Pickaxe damage and speed boost with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "cursed-sir-oscar-the-second",
+      "name": "Cursed Sir Oscar the Second",
+      "family": "Sir Oscar the Second",
+      "variant": "cursed",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_WhiteTiger_Cursed_L.webp",
+      "description": "UNRELEASED\n\nIncreased chance of finding rare Sprites, take damage in water\n\nGrants increased Pickaxe damage, also gives a temporary speed boost when your Shield breaks.\n\nIncreased Pickaxe damage and speed boost with each Level Up!",
+      "ability": "UNRELEASED\n\nIncreased chance of finding rare Sprites, take damage in water\n\nGrants increased Pickaxe damage, also gives a temporary speed boost when your Shield breaks.\n\nIncreased Pickaxe damage and speed boost with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-sir-oscar-the-second",
+      "name": "Gold Sir Oscar the Second",
+      "family": "Sir Oscar the Second",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_WhiteTiger_LiquidGold_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nGrants increased Pickaxe damage, also gives a temporary speed boost when your Shield breaks.\n\nIncreased Pickaxe damage and speed boost with each Level Up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nGrants increased Pickaxe damage, also gives a temporary speed boost when your Shield breaks.\n\nIncreased Pickaxe damage and speed boost with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "mini-miku",
+      "name": "Mini Miku",
+      "family": "Mini Miku",
+      "variant": null,
+      "rarity": "mythic",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_LushlyZest_ui_v2_1_Alpha_L.webp",
+      "description": "UNRELEASED\n\nGrants a Friendship Bubble when emoting with other players.\n\nDecreased cooldown with each Level Up!",
+      "ability": "UNRELEASED\n\nGrants a Friendship Bubble when emoting with other players.\n\nDecreased cooldown with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "fortune-mini-miku",
+      "name": "Fortune Mini Miku",
+      "family": "Mini Miku",
+      "variant": "jeweled",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_LushlyZest_Jeweled_ui_v1_1_Alpha_L.webp",
+      "description": "UNRELEASED\n\nReveals nearby Chests\n\nGrants a Friendship Bubble when emoting with other players.\n\nDecreased cooldown with each Level Up!",
+      "ability": "UNRELEASED\n\nReveals nearby Chests\n\nGrants a Friendship Bubble when emoting with other players.\n\nDecreased cooldown with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "cursed-mini-miku",
+      "name": "Cursed Mini Miku",
+      "family": "Mini Miku",
+      "variant": "cursed",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_LushlyZest_Cursed_ui_v1_1_Alpha_L.webp",
+      "description": "UNRELEASED\n\nIncreased chance of finding rare Sprites, take damage in water\n\nGrants a Friendship Bubble when emoting with other players.\n\nDecreased cooldown with each Level Up!",
+      "ability": "UNRELEASED\n\nIncreased chance of finding rare Sprites, take damage in water\n\nGrants a Friendship Bubble when emoting with other players.\n\nDecreased cooldown with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "gold-mini-miku",
+      "name": "Gold Mini Miku",
+      "family": "Mini Miku",
+      "variant": "gold",
+      "rarity": "special",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_LushlyZest_LiquidGold_ui_v1_1_Alpha_L.webp",
+      "description": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nGrants a Friendship Bubble when emoting with other players.\n\nDecreased cooldown with each Level Up!",
+      "ability": "UNRELEASED\n\nGain 3x bonus XP from eliminations\n\nGrants a Friendship Bubble when emoting with other players.\n\nDecreased cooldown with each Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
+    },
+    {
+      "id": "zee",
+      "name": "Zee",
+      "family": "Zee",
+      "variant": null,
+      "rarity": "mythic",
+      "icon": "https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_ZeroPointPiece_ui_v3_1_Alpha_L.webp",
+      "description": "UNRELEASED\n\nGrants regenerating Zero Point dash charges.\n\nMax charges increase and recharge time decrease with Level Up!",
+      "ability": "UNRELEASED\n\nGrants regenerating Zero Point dash charges.\n\nMax charges increase and recharge time decrease with Level Up!",
+      "boons": [],
+      "acquisitionHint": null,
+      "summonCostSpriteDust": null,
+      "dropRates": {
+        "SPRITE CHEST": null
+      },
+      "season": 43,
+      "seasonDate": null,
+      "existsInGameData": true,
+      "currentlyLive": true,
+      "availability": "live",
+      "source": "fortnite.gg",
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "jonesy-sprite",
@@ -829,7 +1381,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-jonesy-sprite",
@@ -855,7 +1407,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-jonesy-sprite",
@@ -881,7 +1433,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-jonesy-sprite",
@@ -902,7 +1454,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-jonesy-sprite",
@@ -923,7 +1475,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-jonesy-sprite",
@@ -944,7 +1496,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "quack-jonesy-sprite",
@@ -965,7 +1517,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "adventure-sprite",
@@ -986,7 +1538,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-adventure-sprite",
@@ -1007,7 +1559,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-adventure-sprite",
@@ -1028,7 +1580,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-adventure-sprite",
@@ -1049,7 +1601,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-adventure-sprite",
@@ -1070,7 +1622,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-adventure-sprite",
@@ -1091,7 +1643,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "quack-adventure-sprite",
@@ -1112,7 +1664,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bush-sprite",
@@ -1133,7 +1685,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-bush-sprite",
@@ -1154,7 +1706,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-bush-sprite",
@@ -1175,7 +1727,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-bush-sprite",
@@ -1196,7 +1748,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-bush-sprite",
@@ -1217,7 +1769,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-bush-sprite",
@@ -1238,7 +1790,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "quack-bush-sprite",
@@ -1259,7 +1811,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "sonic-sprite",
@@ -1280,7 +1832,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-sonic-sprite",
@@ -1301,7 +1853,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-sonic-sprite",
@@ -1322,7 +1874,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-sonic-sprite",
@@ -1343,7 +1895,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-sonic-sprite",
@@ -1364,7 +1916,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-sonic-sprite",
@@ -1385,7 +1937,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "tails-sprite",
@@ -1406,7 +1958,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-tails-sprite",
@@ -1427,7 +1979,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-tails-sprite",
@@ -1448,7 +2000,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-tails-sprite",
@@ -1469,7 +2021,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-tails-sprite",
@@ -1490,7 +2042,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-tails-sprite",
@@ -1511,7 +2063,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "shadow-sprite",
@@ -1532,7 +2084,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-shadow-sprite",
@@ -1553,7 +2105,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-shadow-sprite",
@@ -1574,7 +2126,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-shadow-sprite",
@@ -1595,7 +2147,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-shadow-sprite",
@@ -1616,7 +2168,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-shadow-sprite",
@@ -1637,7 +2189,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "8-bit-sprite",
@@ -1658,7 +2210,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-8-bit-sprite",
@@ -1679,7 +2231,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-8-bit-sprite",
@@ -1700,7 +2252,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-8-bit-sprite",
@@ -1721,7 +2273,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-8-bit-sprite",
@@ -1742,7 +2294,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-8-bit-sprite",
@@ -1763,7 +2315,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "jackrabbit-sprite",
@@ -1784,7 +2336,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-jackrabbit-sprite",
@@ -1805,7 +2357,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-jackrabbit-sprite",
@@ -1826,7 +2378,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-jackrabbit-sprite",
@@ -1847,7 +2399,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-jackrabbit-sprite",
@@ -1868,7 +2420,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-jackrabbit-sprite",
@@ -1889,7 +2441,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "crown-sprite",
@@ -1910,7 +2462,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-crown-sprite",
@@ -1931,7 +2483,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-crown-sprite",
@@ -1952,7 +2504,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-crown-sprite",
@@ -1973,7 +2525,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-crown-sprite",
@@ -1994,7 +2546,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-crown-sprite",
@@ -2015,7 +2567,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "killswitch-sprite",
@@ -2036,7 +2588,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-killswitch-sprite",
@@ -2057,7 +2609,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-killswitch-sprite",
@@ -2078,7 +2630,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-killswitch-sprite",
@@ -2099,7 +2651,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-killswitch-sprite",
@@ -2120,7 +2672,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-killswitch-sprite",
@@ -2141,7 +2693,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "klombo-sprite",
@@ -2162,7 +2714,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-klombo-sprite",
@@ -2183,7 +2735,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-klombo-sprite",
@@ -2204,7 +2756,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-klombo-sprite",
@@ -2225,7 +2777,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-klombo-sprite",
@@ -2246,7 +2798,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-klombo-sprite",
@@ -2267,7 +2819,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "quack-klombo-sprite",
@@ -2288,7 +2840,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "mega-man-sprite",
@@ -2309,7 +2861,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "overshield-sprite",
@@ -2330,7 +2882,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-overshield-sprite",
@@ -2351,7 +2903,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-overshield-sprite",
@@ -2372,7 +2924,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-overshield-sprite",
@@ -2393,7 +2945,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-overshield-sprite",
@@ -2414,7 +2966,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-overshield-sprite",
@@ -2435,7 +2987,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "pond-sprite",
@@ -2456,7 +3008,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-pond-sprite",
@@ -2477,7 +3029,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-pond-sprite",
@@ -2498,7 +3050,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-pond-sprite",
@@ -2519,7 +3071,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-pond-sprite",
@@ -2540,7 +3092,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-pond-sprite",
@@ -2561,7 +3113,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "x-ray-sprite",
@@ -2582,7 +3134,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-x-ray-sprite",
@@ -2603,7 +3155,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheatmaster-x-ray-sprite",
@@ -2624,7 +3176,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-x-ray-sprite",
@@ -2645,7 +3197,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-x-ray-sprite",
@@ -2666,7 +3218,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-x-ray-sprite",
@@ -2687,7 +3239,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "onigiri-sprite",
@@ -2708,7 +3260,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-onigiri-sprite",
@@ -2729,7 +3281,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheatmaster-onigiri-sprite",
@@ -2750,7 +3302,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-onigiri-sprite",
@@ -2771,7 +3323,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-onigiri-sprite",
@@ -2792,7 +3344,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-onigiri-sprite",
@@ -2813,7 +3365,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "storm-scout-sprite",
@@ -2834,7 +3386,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-storm-scout-sprite",
@@ -2855,7 +3407,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-storm-scout-sprite",
@@ -2876,7 +3428,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-storm-scout-sprite",
@@ -2897,7 +3449,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-storm-scout-sprite",
@@ -2918,7 +3470,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-storm-scout-sprite",
@@ -2939,7 +3491,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "blinky-sprite",
@@ -2960,7 +3512,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-blinky-sprite",
@@ -2981,7 +3533,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-blinky-sprite",
@@ -3002,7 +3554,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-blinky-sprite",
@@ -3023,7 +3575,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-blinky-sprite",
@@ -3044,7 +3596,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-blinky-sprite",
@@ -3065,7 +3617,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "dumpster-dive-sprite",
@@ -3086,7 +3638,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-dumpster-dive-sprite",
@@ -3107,7 +3659,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-dumpster-dive-sprite",
@@ -3128,7 +3680,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-dumpster-dive-sprite",
@@ -3149,7 +3701,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-dumpster-dive-sprite",
@@ -3170,7 +3722,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-dumpster-dive-sprite",
@@ -3191,7 +3743,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "birthday-sprite",
@@ -3212,7 +3764,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-birthday-sprite",
@@ -3233,7 +3785,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-birthday-sprite",
@@ -3254,7 +3806,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-birthday-sprite",
@@ -3275,7 +3827,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-birthday-sprite",
@@ -3296,7 +3848,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-birthday-sprite",
@@ -3317,7 +3869,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "crash-bandicoot-sprite",
@@ -3338,7 +3890,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-crash-bandicoot-sprite",
@@ -3359,7 +3911,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-crash-bandicoot-sprite",
@@ -3380,7 +3932,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-crash-bandicoot-sprite",
@@ -3401,7 +3953,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-crash-bandicoot-sprite",
@@ -3422,7 +3974,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-crash-bandicoot-sprite",
@@ -3443,7 +3995,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "morgana-sprite",
@@ -3464,7 +4016,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-morgana-sprite",
@@ -3485,7 +4037,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-morgana-sprite",
@@ -3506,7 +4058,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-morgana-sprite",
@@ -3527,7 +4079,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-morgana-sprite",
@@ -3548,7 +4100,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-morgana-sprite",
@@ -3569,7 +4121,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "spooky-dash-sprite",
@@ -3590,7 +4142,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-spooky-dash-sprite",
@@ -3611,7 +4163,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheat-master-spooky-dash-sprite",
@@ -3632,7 +4184,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-spooky-dash-sprite",
@@ -3653,7 +4205,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-spooky-dash-sprite",
@@ -3674,7 +4226,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-spooky-dash-sprite",
@@ -3695,7 +4247,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "quack-spooky-dash-sprite",
@@ -3716,7 +4268,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "the-deer-sprite",
@@ -3737,7 +4289,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-the-deer-sprite",
@@ -3758,7 +4310,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheatmaster-the-deer-sprite",
@@ -3779,7 +4331,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-the-deer-sprite",
@@ -3800,7 +4352,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-the-deer-sprite",
@@ -3821,7 +4373,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-the-deer-sprite",
@@ -3842,7 +4394,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "vampire-sprite",
@@ -3863,7 +4415,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-vampire-sprite",
@@ -3884,7 +4436,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheatmaster-vampire-sprite",
@@ -3905,7 +4457,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-vampire-sprite",
@@ -3926,7 +4478,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-vampire-sprite",
@@ -3947,7 +4499,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-vampire-sprite",
@@ -3968,7 +4520,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "honey-sprite",
@@ -3989,7 +4541,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-honey-sprite",
@@ -4010,7 +4562,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheatmaster-honey-sprite",
@@ -4031,7 +4583,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-honey-sprite",
@@ -4052,7 +4604,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-honey-sprite",
@@ -4073,7 +4625,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-honey-sprite",
@@ -4094,7 +4646,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "one-wish-willow-sprite",
@@ -4115,7 +4667,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-one-wish-willow-sprite",
@@ -4136,7 +4688,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cheatmaster-one-wish-willow-sprite",
@@ -4157,7 +4709,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "loot-hacker-one-wish-willow-sprite",
@@ -4178,7 +4730,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "bounty-hunter-one-wish-willow-sprite",
@@ -4199,7 +4751,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "trick-or-treat-one-wish-willow-sprite",
@@ -4220,7 +4772,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "john-wick-sprite",
@@ -4241,7 +4793,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "batman-sprite",
@@ -4262,7 +4814,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cube-batman-sprite",
@@ -4288,7 +4840,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-batman-sprite",
@@ -4314,7 +4866,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-batman-sprite",
@@ -4335,7 +4887,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-batman-sprite",
@@ -4361,7 +4913,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-batman-sprite",
@@ -4387,7 +4939,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "water-sprite",
@@ -4408,7 +4960,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-water-sprite",
@@ -4429,7 +4981,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "quack-water-sprite",
@@ -4450,7 +5002,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-water-sprite",
@@ -4471,7 +5023,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-water-sprite",
@@ -4492,7 +5044,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-water-sprite",
@@ -4513,7 +5065,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-water-sprite",
@@ -4534,7 +5086,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "earth-sprite",
@@ -4555,7 +5107,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cube-earth-sprite",
@@ -4576,7 +5128,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-earth-sprite",
@@ -4597,7 +5149,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "quack-earth-sprite",
@@ -4618,7 +5170,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-earth-sprite",
@@ -4639,7 +5191,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-earth-sprite",
@@ -4660,7 +5212,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-earth-sprite",
@@ -4681,7 +5233,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fire-sprite",
@@ -4702,7 +5254,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cube-fire-sprite",
@@ -4728,7 +5280,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-fire-sprite",
@@ -4754,7 +5306,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "quack-fire-sprite",
@@ -4780,7 +5332,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-fire-sprite",
@@ -4801,7 +5353,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-fire-sprite",
@@ -4827,7 +5379,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-fire-sprite",
@@ -4853,7 +5405,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "duck-sprite",
@@ -4874,7 +5426,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-duck-sprite",
@@ -4900,7 +5452,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-duck-sprite",
@@ -4921,7 +5473,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-duck-sprite",
@@ -4947,7 +5499,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-duck-sprite",
@@ -4973,7 +5525,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "ghost-sprite",
@@ -4994,7 +5546,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-ghost-sprite",
@@ -5020,7 +5572,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-ghost-sprite",
@@ -5041,7 +5593,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-ghost-sprite",
@@ -5067,7 +5619,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-ghost-sprite",
@@ -5093,7 +5645,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "dream-sprite",
@@ -5114,7 +5666,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cube-dream-sprite",
@@ -5140,7 +5692,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-dream-sprite",
@@ -5166,7 +5718,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-dream-sprite",
@@ -5187,7 +5739,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-dream-sprite",
@@ -5213,7 +5765,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "demon-sprite",
@@ -5234,7 +5786,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-demon-sprite",
@@ -5260,7 +5812,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-demon-sprite",
@@ -5281,7 +5833,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-demon-sprite",
@@ -5307,7 +5859,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-demon-sprite",
@@ -5333,7 +5885,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "punk-sprite",
@@ -5354,7 +5906,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cube-punk-sprite",
@@ -5380,7 +5932,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-punk-sprite",
@@ -5406,7 +5958,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-punk-sprite",
@@ -5427,7 +5979,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-punk-sprite",
@@ -5453,7 +6005,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "king-sprite",
@@ -5474,7 +6026,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-king-sprite",
@@ -5500,7 +6052,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-king-sprite",
@@ -5521,7 +6073,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-king-sprite",
@@ -5547,7 +6099,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-king-sprite",
@@ -5573,7 +6125,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "vini-jr-sprite",
@@ -5594,7 +6146,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "burnt-peanut",
@@ -5615,7 +6167,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "zero-point-sprite",
@@ -5636,7 +6188,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cube-zero-point-sprite",
@@ -5662,7 +6214,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-zero-point-sprite",
@@ -5688,7 +6240,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "quack-zero-point-sprite",
@@ -5714,7 +6266,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-zero-point-sprite",
@@ -5735,7 +6287,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-zero-point-sprite",
@@ -5761,7 +6313,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-zero-point-sprite",
@@ -5787,7 +6339,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-zero-point-sprite",
@@ -5813,7 +6365,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "fishy-sprite",
@@ -5834,7 +6386,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cube-fishy-sprite",
@@ -5860,7 +6412,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-fishy-sprite",
@@ -5886,7 +6438,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-fishy-sprite",
@@ -5907,7 +6459,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-fishy-sprite",
@@ -5933,7 +6485,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "striker-sprite",
@@ -5954,7 +6506,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-striker-sprite",
@@ -5980,7 +6532,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-striker-sprite",
@@ -6001,7 +6553,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-striker-sprite",
@@ -6027,7 +6579,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-striker-sprite",
@@ -6053,7 +6605,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "aura-sprite",
@@ -6074,7 +6626,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-aura-sprite",
@@ -6100,7 +6652,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-aura-sprite",
@@ -6121,7 +6673,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-aura-sprite",
@@ -6147,7 +6699,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-aura-sprite",
@@ -6173,7 +6725,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "boss-sprite",
@@ -6194,7 +6746,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cube-boss-sprite",
@@ -6220,7 +6772,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-boss-sprite",
@@ -6246,7 +6798,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-boss-sprite",
@@ -6267,7 +6819,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-boss-sprite",
@@ -6293,7 +6845,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "grim-sprite",
@@ -6314,7 +6866,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "cube-grim-sprite",
@@ -6340,7 +6892,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-grim-sprite",
@@ -6366,7 +6918,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-grim-sprite",
@@ -6387,7 +6939,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-grim-sprite",
@@ -6413,7 +6965,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-grim-sprite",
@@ -6439,7 +6991,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-grim-sprite",
@@ -6465,7 +7017,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "air-sprite",
@@ -6486,7 +7038,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-air-sprite",
@@ -6507,7 +7059,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-air-sprite",
@@ -6528,7 +7080,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-air-sprite",
@@ -6549,7 +7101,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-air-sprite",
@@ -6570,7 +7122,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "seven-sprite",
@@ -6591,7 +7143,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-seven-sprite",
@@ -6617,7 +7169,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-seven-sprite",
@@ -6638,7 +7190,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-seven-sprite",
@@ -6664,7 +7216,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-seven-sprite",
@@ -6690,7 +7242,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "ironmouse-sprite",
@@ -6711,7 +7263,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "pollo-sprite",
@@ -6732,7 +7284,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "llama-sprite",
@@ -6753,7 +7305,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-llama-sprite",
@@ -6774,7 +7326,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-llama-sprite",
@@ -6795,7 +7347,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-llama-sprite",
@@ -6816,7 +7368,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-llama-sprite",
@@ -6837,7 +7389,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "peeky-peely-sprite",
@@ -6858,7 +7410,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-peeky-peely-sprite",
@@ -6884,7 +7436,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-peeky-peely-sprite",
@@ -6905,7 +7457,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-peeky-peely-sprite",
@@ -6931,7 +7483,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-peeky-peely-sprite",
@@ -6957,7 +7509,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "fortnite.gg+wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-aura-sprite",
@@ -6983,7 +7535,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-batman-sprite",
@@ -7009,7 +7561,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-boss-sprite",
@@ -7035,7 +7587,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-boss-sprite",
@@ -7061,7 +7613,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "dash-sprite",
@@ -7082,7 +7634,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-demon-sprite",
@@ -7108,7 +7660,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-dream-sprite",
@@ -7134,7 +7686,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-dream-sprite",
@@ -7160,7 +7712,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-duck-sprite",
@@ -7186,7 +7738,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "holofoil-duck-sprite",
@@ -7212,7 +7764,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-fire-sprite",
@@ -7238,7 +7790,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-fire-sprite",
@@ -7264,7 +7816,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-fishy-sprite",
@@ -7290,7 +7842,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-ghost-sprite",
@@ -7316,7 +7868,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-ghost-sprite",
@@ -7342,7 +7894,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-grim-sprite",
@@ -7368,7 +7920,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-king-sprite",
@@ -7394,7 +7946,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "lootin-llama-sprite",
@@ -7415,7 +7967,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gold-lootin-llama-sprite",
@@ -7441,7 +7993,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-lootin-llama-sprite",
@@ -7467,7 +8019,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "galaxy-lootin-llama-sprite",
@@ -7493,7 +8045,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-lootin-llama-sprite",
@@ -7519,7 +8071,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-peeky-peely-sprite",
@@ -7545,7 +8097,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-punk-sprite",
@@ -7571,7 +8123,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gem-punk-sprite",
@@ -7597,7 +8149,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-seven-sprite",
@@ -7623,7 +8175,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-striker-sprite",
@@ -7649,7 +8201,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "superman-sprite",
@@ -7670,7 +8222,7 @@
       "currentlyLive": false,
       "availability": "vaulted",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     },
     {
       "id": "gummy-zero-point-sprite",
@@ -7696,7 +8248,7 @@
       "currentlyLive": false,
       "availability": "unknown",
       "source": "wiki",
-      "lastVerified": "2026-11-12T00:16:17.226Z"
+      "lastVerified": "2026-11-12T14:52:05.626Z"
     }
   ]
 }
